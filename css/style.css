@@ -196,6 +196,31 @@ body {
   color: var(--text-primary);
 }
 
+.topbar-center {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.topbar-tab {
+  padding: 0.45rem 1.2rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.topbar-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.06);
+}
+.topbar-tab.active {
+  color: var(--accent);
+  background: rgba(79,143,247,0.12);
+}
+
 .topbar-right {
   display: flex;
   align-items: center;
