@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intel Portal — Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- All CDN resources loaded async after page renders -->
+  <script>
+    // Load external libs without blocking page paint
+    function loadCSS(url) {
+      var l = document.createElement("link");
+      l.rel = "stylesheet"; l.href = url;
+      document.head.appendChild(l);
+    }
+    function loadJS(url) {
+      return new Promise(function(resolve) {
+        var s = document.createElement("script");
+        s.src = url;
+        s.onload = function() { resolve(true); };
+        s.onerror = function() { resolve(false); };
+        document.head.appendChild(s);
+      });
+    }
+    // Leaflet CSS
+    loadCSS("https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css");
+    // Leaflet JS, Marked, DOMPurify
+    loadJS("https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js");
+    loadJS("https://cdn.jsdelivr.net/npm/marked/marked.min.js");
+    loadJS("https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js");
+    // PDF.js
+    window.pdfjsReady = loadJS("https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js").then(function(ok) {
+      if (ok && window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+        return window.pdfjsLib;
+      }
+      return null;
+    });
+  </script>
+</head>
+<body class="dashboard-body">
+  <nav class="topbar">
+    <div class="topbar-left">
+      <span class="nav-shield">&#x1F6E1;</span>
+      <span class="nav-title">INTEL PORTAL</span>
+    </div>
+    <div class="topbar-right">
+      <span id="user-display" class="user-display"></span>
+      <button id="logout-btn" class="btn-logout">Logout</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar: report list -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Reports</h2>
+        <input type="text" id="search-input" placeholder="Search passport # or keyword..." class="search-input">
+      </div>
+      <ul id="report-list" class="report-list">
+        <!-- Populated by JS -->
+      </ul>
+      <div class="sidebar-footer">
+        <button id="upload-btn" class="btn-upload">+ New Report</button>
+      </div>
+    </aside>
+
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="modal-overlay" hidden onclick="if(event.target===this)this.hidden=true">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Create New Report</h2>
+          <button type="button" id="modal-close" class="modal-close" onclick="document.getElementById('upload-modal').hidden=true">&times;</button>
+        </div>
+        <form id="upload-form">
+          <div class="modal-grid">
+            <div class="form-group">
+              <label for="rpt-passport">Passport Number</label>
+              <input type="text" id="rpt-passport" required placeholder="e.g. X1234567">
+            </div>
+            <div class="form-group">
+              <label for="rpt-name">Subject Name</label>
+              <input type="text" id="rpt-name" required placeholder="Full name">
+            </div>
+            <div class="form-group">
+              <label for="rpt-nationality">Nationality</label>
+              <input type="text" id="rpt-nationality" required placeholder="e.g. United States">
+            </div>
+            <div class="form-group">
+              <label for="rpt-date">Report Date</label>
+              <input type="date" id="rpt-date" required>
+            </div>
+            <div class="form-group">
+              <label for="rpt-classification">Classification</label>
+              <select id="rpt-classification">
+                <option value="confidential">Confidential</option>
+                <option value="secret" selected>Secret</option>
+                <option value="top-secret">Top Secret</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="rpt-summary">Summary</label>
+              <input type="text" id="rpt-summary" required placeholder="Brief description">
+            </div>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;margin-bottom:0;">
+            <label style="margin-bottom:0.5rem;display:block;">Recovery Location</label>
+          </div>
+          <div class="modal-grid">
+            <div class="form-group">
+              <label for="rpt-location">Location Name</label>
+              <input type="text" id="rpt-location" placeholder="e.g. Campo, CA">
+            </div>
+            <div class="form-group">
+              <label for="rpt-lat">Latitude</label>
+              <input type="number" id="rpt-lat" step="any" placeholder="e.g. 32.6061">
+            </div>
+            <div class="form-group">
+              <label for="rpt-lng">Longitude</label>
+              <input type="number" id="rpt-lng" step="any" placeholder="e.g. -116.4689">
+            </div>
+            <div class="form-group" style="display:flex;align-items:flex-end;">
+              <button type="button" id="btn-use-coords" class="btn-action" style="width:100%;padding:0.75rem;">Use My Location</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="rpt-content">Report Content (Markdown)</label>
+            <textarea id="rpt-content" rows="6" placeholder="# Report details in Markdown..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Attach Documents</label>
+            <div id="drop-zone" class="drop-zone">
+              <div class="drop-zone-text">
+                <span class="drop-icon">&#128206;</span>
+                <span>Drag &amp; drop files here or <strong>click to browse</strong></span>
+                <span class="drop-hint">PDF, images, text files accepted</span>
+              </div>
+              <input type="file" id="file-input" multiple accept=".pdf,.png,.jpg,.jpeg,.gif,.txt,.md,.doc,.docx,.csv" hidden>
+            </div>
+            <ul id="file-list" class="file-list"></ul>
+          </div>
+          <div class="modal-actions">
+            <button type="button" id="modal-cancel" class="btn-cancel" onclick="document.getElementById('upload-modal').hidden=true">Cancel</button>
+            <button type="submit" class="btn-login">Create Report</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main content: report viewer -->
+    <main class="report-viewer">
+      <div id="report-placeholder" class="report-placeholder">
+        <div class="placeholder-icon">&#128196;</div>
+        <h2>Select a Report</h2>
+        <p>Choose an intelligence report from the sidebar to view its contents.</p>
+      </div>
+      <div id="report-content" class="report-content" hidden>
+        <div class="report-actions" id="report-actions"></div>
+        <div class="report-meta" id="report-meta"></div>
+        <div class="report-body" id="report-body"></div>
+      </div>
+    </main>
+  </div>
+
+  <!--
+    SECURITY NOTE: All report data is served as static files and rendered client-side.
+    In a production environment with actual classified material, reports should be served
+    from an authenticated API with proper access controls, audit logging, and encryption
+    in transit (TLS) and at rest.
+  -->
+  <script src="js/auth.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
