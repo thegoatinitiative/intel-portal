@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intel Portal — Login</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-body">
+  <div class="login-container">
+    <div class="login-header">
+      <div class="shield-icon">&#x1F6E1;</div>
+      <h1>CLASSIFIED INTEL PORTAL</h1>
+      <p class="subtitle">Authorized Personnel Only</p>
+    </div>
+    <form id="login-form" autocomplete="off">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autofocus>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <div id="error-msg" class="error-msg" hidden>Invalid credentials. Access denied.</div>
+      <button type="submit" class="btn-login">Authenticate</button>
+    </form>
+    <p class="security-notice">
+      <!-- SECURITY NOTE: This is client-side authentication for demo/static-site purposes only.
+           Credentials are checked via SHA-256 hashes in the browser. This can be bypassed by
+           anyone who inspects the source code. For real-world use with sensitive data, replace
+           this with a proper backend authentication system (e.g., Firebase Auth, Auth0, or a
+           custom Node.js/Express server with session management). -->
+      All access attempts are logged. Unauthorized access is prohibited.
+    </p>
+  </div>
+  <script src="js/auth.js"></script>
+</body>
+</html>
