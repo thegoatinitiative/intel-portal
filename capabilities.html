@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a0f">
+<title>THE GOAT INITIATIVE — Strategic Partnership Brief // 2026</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --bg-raised: #0f1117;
+    --bg-card: #111318;
+    --bg-card-hover: #161922;
+    --border: rgba(52,211,153,0.12);
+    --border-hover: rgba(52,211,153,0.3);
+    --emerald-400: #34d399;
+    --emerald-500: #10b981;
+    --emerald-600: #059669;
+    --emerald-700: #047857;
+    --emerald-glow: rgba(52,211,153,0.15);
+    --emerald-glow-strong: rgba(52,211,153,0.25);
+    --red-500: #ef4444;
+    --red-muted: rgba(239,68,68,0.15);
+    --amber-400: #fbbf24;
+    --text: #e5e7eb;
+    --text-muted: #9ca3af;
+    --text-dim: #6b7280;
+    --white: #f9fafb;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+
+  /* === CRT SCANLINES === */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(52,211,153,0.015) 2px,
+      rgba(52,211,153,0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* === TOPO GRID === */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(rgba(52,211,153,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(52,211,153,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === CLASSIFIED BANNER === */
+  .classified-banner {
+    background: rgba(239,68,68,0.08);
+    border-bottom: 1px solid rgba(239,68,68,0.2);
+    color: var(--red-500);
+    text-align: center;
+    padding: 8px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 10000;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* === HERO === */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 20px;
+  }
+
+  .hero-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(52,211,153,0.06);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 16px;
+    margin-bottom: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--emerald-400);
+  }
+
+  .hero-status .pulse {
+    width: 8px;
+    height: 8px;
+    background: var(--emerald-400);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 8px var(--emerald-400);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 80px;
+    font-weight: 700;
+    color: var(--emerald-400);
+    letter-spacing: 6px;
+    line-height: 1;
+    margin-bottom: 16px;
+    text-shadow: 0 0 40px var(--emerald-glow), 0 0 80px rgba(52,211,153,0.08);
+  }
+
+  .hero h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 6px;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    color: var(--white);
+  }
+
+  .hero h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(12px, 2vw, 16px);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 6px;
+    color: var(--text-dim);
+    margin-bottom: 30px;
+  }
+
+  .hero-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--emerald-500);
+    margin: 20px auto;
+    box-shadow: 0 0 12px var(--emerald-glow);
+  }
+
+  .hero-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(14px, 2.5vw, 20px);
+    font-weight: 500;
+    color: var(--emerald-400);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+  }
+
+  .hero-pitch {
+    max-width: 720px;
+    font-size: 17px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  .hero-pitch strong { color: var(--white); }
+
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .hero-meta span {
+    padding: 4px 12px;
+    border: 1px solid rgba(52,211,153,0.08);
+    border-radius: 3px;
+    background: rgba(52,211,153,0.03);
+  }
+
+  /* === CONTENT === */
+  .content-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 30px;
+    position: relative;
+    z-index: 1;
+  }
+
+  section {
+    padding: 80px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 80px;
+    font-weight: 700;
+    color: rgba(52,211,153,0.04);
+    position: absolute;
+    top: 40px;
+    right: 0;
+    line-height: 1;
+    user-select: none;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: var(--emerald-500);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::before {
+    content: '//';
+    color: var(--text-dim);
+  }
+
+  h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(26px, 3.5vw, 38px);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    margin-bottom: 28px;
+    color: var(--white);
+  }
+
+  h3 .accent { color: var(--emerald-400); }
+
+  h4 {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--emerald-400);
+    margin-top: 40px;
+    margin-bottom: 16px;
+    padding-left: 16px;
+    border-left: 2px solid var(--emerald-500);
+  }
+
+  .section-intro {
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 28px;
+    max-width: 880px;
+  }
+
+  .section-intro strong { color: var(--white); }
+  .section-intro em { color: var(--emerald-400); font-style: normal; }
+
+  /* === BULLETS === */
+  .bullet-list { list-style: none; padding: 0; }
+
+  .bullet-list li {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 16px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+
+  .bullet-list li::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--emerald-500);
+    font-size: 14px;
+  }
+
+  .bullet-list li strong { color: var(--white); }
+  .bullet-list li em { color: var(--emerald-400); font-style: normal; }
+
+  /* === STATS === */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 36px 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px 20px;
+    text-align: center;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .stat-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+
+  .stat-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--emerald-400);
+    line-height: 1;
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px var(--emerald-glow);
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+  }
+
+  /* === EQUIPMENT GRID === */
+  .equip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 28px 0;
+  }
+
+  .equip-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .equip-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+
+  .equip-card h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--emerald-400);
+    margin-bottom: 10px;
+  }
+
+  .equip-card p, .equip-card ul { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+  .equip-card ul { list-style: none; padding: 0; }
+
+  .equip-card ul li { padding-left: 16px; position: relative; margin-bottom: 5px; }
+
+  .equip-card ul li::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: var(--emerald-600);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  /* === VALUE CARDS === */
+  .value-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin: 36px 0;
+  }
+
+  .value-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .value-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+
+  .value-card h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--emerald-400);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .value-card p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+  .value-card strong { color: var(--white); }
+  .value-card .sub-list { list-style: none; padding: 0; margin-top: 12px; }
+  .value-card .sub-list li { padding-left: 16px; position: relative; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); }
+  .value-card .sub-list li::before { content: '>'; position: absolute; left: 0; color: var(--emerald-600); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 11px; }
+
+  /* === INTELLIGENCE CYCLE === */
+  .int-cycle {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin: 36px 0;
+  }
+
+  .int-cycle-step {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: border-color 0.3s;
+  }
+
+  .int-cycle-step.active {
+    border-color: var(--emerald-500);
+    background: rgba(52,211,153,0.05);
+    box-shadow: 0 0 20px rgba(52,211,153,0.05);
+  }
+
+  .step-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .step-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .int-cycle-step.active .step-name { color: var(--emerald-400); }
+
+  .step-tag {
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--emerald-500);
+    background: rgba(52,211,153,0.08);
+    border: 1px solid rgba(52,211,153,0.15);
+    padding: 2px 8px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  /* === VIP === */
+  .vip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 16px;
+    margin: 28px 0;
+  }
+
+  .vip-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 22px;
+    text-align: center;
+    transition: border-color 0.3s;
+  }
+
+  .vip-card:hover { border-color: var(--border-hover); }
+  .vip-name { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+  .vip-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--emerald-400); margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
+  .vip-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+  /* === TEAM TABLE === */
+  .team-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+
+  .team-table th {
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 10px;
+    color: var(--emerald-500);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-hover);
+    background: var(--bg-card);
+  }
+
+  .team-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+
+  .team-table tr:hover td { background: rgba(52,211,153,0.02); }
+  .team-table td:first-child { font-family: 'JetBrains Mono', monospace; color: var(--emerald-400); font-size: 11px; letter-spacing: 1px; font-weight: 500; }
+  .team-table td:nth-child(2) { color: var(--white); font-weight: 600; }
+
+  /* === CASE STUDY === */
+  .case-study {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .case-study::before {
+    content: 'INTEL';
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--red-500);
+    background: var(--red-muted);
+    padding: 2px 8px;
+    border-radius: 2px;
+    border: 1px solid rgba(239,68,68,0.2);
+  }
+
+  .case-study h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--emerald-400);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    padding-right: 60px;
+  }
+
+  .case-study p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+  /* === MEDIA TAGS === */
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .media-tag {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: border-color 0.3s, color 0.3s;
+  }
+
+  .media-tag:hover { border-color: var(--border-hover); color: var(--emerald-400); }
+
+  /* === CALLOUT === */
+  .callout {
+    background: rgba(52,211,153,0.04);
+    border: 1px solid rgba(52,211,153,0.15);
+    border-radius: 4px;
+    padding: 28px;
+    margin: 36px 0;
+  }
+
+  .callout-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--emerald-500);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .callout p { font-size: 15px; line-height: 1.7; color: var(--text-muted); }
+  .callout strong { color: var(--white); }
+  .callout em { color: var(--emerald-400); font-style: normal; }
+
+  /* === HIGHLIGHT BAR === */
+  .highlight-bar {
+    background: var(--bg-card);
+    border-left: 2px solid var(--emerald-500);
+    padding: 18px 24px;
+    margin: 28px 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .highlight-bar em { color: var(--emerald-400); font-style: normal; }
+
+  /* === BOTTOM LINE === */
+  .bottom-line {
+    background: rgba(52,211,153,0.04);
+    border: 1px solid rgba(52,211,153,0.2);
+    border-radius: 4px;
+    padding: 44px 36px;
+    margin: 44px 0 0;
+    text-align: center;
+  }
+
+  .bottom-line h4 { border: none; padding: 0; text-align: center; margin-top: 0; font-size: 22px; margin-bottom: 16px; }
+  .bottom-line p { font-size: 16px; line-height: 1.8; color: var(--text-muted); max-width: 780px; margin: 0 auto; }
+  .bottom-line strong { color: var(--white); }
+
+  /* === ALT BG === */
+  .alt-bg { background: var(--bg-raised); }
+
+  /* === SECTION DIVIDER === */
+  section + section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 1px;
+    background: var(--emerald-600);
+    box-shadow: 0 0 10px var(--emerald-glow);
+  }
+
+  section:first-of-type::before { display: none; }
+
+  /* === FOOTER === */
+  .footer {
+    text-align: center;
+    padding: 60px 30px 40px;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-org {
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: var(--emerald-400);
+    margin-bottom: 4px;
+  }
+
+  .footer-501 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .footer p { font-size: 14px; color: var(--text-dim); margin-bottom: 6px; }
+  .footer a { color: var(--emerald-400); text-decoration: none; border-bottom: 1px solid rgba(52,211,153,0.2); transition: border-color 0.3s; }
+  .footer a:hover { border-color: var(--emerald-400); }
+
+  .footer-warning {
+    margin-top: 36px;
+    padding: 12px 20px;
+    border: 1px solid rgba(239,68,68,0.15);
+    background: rgba(239,68,68,0.04);
+    border-radius: 3px;
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--red-500);
+  }
+
+  .footer-copy {
+    margin-top: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.15);
+    letter-spacing: 1px;
+  }
+
+  @media print {
+    .classified-banner { position: static; }
+    section { page-break-inside: avoid; }
+    .hero { min-height: auto; padding: 40px 20px; }
+    body { background: #fff; color: #000; }
+    body::before, body::after { display: none; }
+  }
+
+  /* === AGENCY NETWORK === */
+  .agency-category {
+    margin-bottom: 24px;
+  }
+
+  .agency-category-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--emerald-400);
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .agency-category-label::before {
+    content: '//';
+    color: var(--text-dim);
+  }
+
+  .agency-tag-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 0 0 4px 4px;
+  }
+
+  .agency-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 6px 12px;
+    transition: border-color 0.3s, color 0.3s, background 0.3s;
+    white-space: nowrap;
+  }
+
+  .agency-tag:hover {
+    border-color: var(--border-hover);
+    color: var(--emerald-400);
+    background: rgba(52,211,153,0.04);
+  }
+
+  .agency-tag.intl {
+    border-color: rgba(251,191,36,0.2);
+    color: var(--amber-400);
+  }
+
+  .agency-tag.intl:hover {
+    border-color: rgba(251,191,36,0.4);
+    background: rgba(251,191,36,0.04);
+  }
+
+  .agency-count-bar {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  .agency-count-item {
+    text-align: center;
+    flex: 1;
+    min-width: 100px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px 10px;
+  }
+
+  .agency-count-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--emerald-400);
+    line-height: 1;
+    text-shadow: 0 0 15px var(--emerald-glow);
+  }
+
+  .agency-count-lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  @media (max-width: 768px) {
+    .hero-badge { font-size: 50px; }
+    .content-wrapper { padding: 0 20px; }
+    section { padding: 50px 0; }
+    .equip-grid, .value-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .agency-count-bar { gap: 8px; }
+    .agency-count-item { min-width: 70px; padding: 10px 6px; }
+    .agency-count-num { font-size: 20px; }
+    .section-number { font-size: 50px; }
+    .int-cycle { grid-template-columns: repeat(2, 1fr); }
+    .map-container { height: 500px; }
+    .map-hud { position: relative; top: auto; left: auto; right: auto; bottom: auto; margin: 8px; }
+    .map-hud-info { min-width: auto; }
+    .map-hud-legend { position: relative; bottom: auto; right: auto; margin-top: 8px; }
+    .map-hud-analysis { left: 8px; right: 8px; max-width: calc(100% - 16px); max-height: 50vh; }
+    .map-hud-coords { display: none; }
+  }
+
+  /* === TACTICAL MAP === */
+  .map-wrapper {
+    position: relative;
+    border: 1px solid var(--border-hover);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 36px 0;
+  }
+
+  .map-container {
+    height: 700px;
+    width: 100%;
+    background: var(--bg);
+  }
+
+  .map-header {
+    background: linear-gradient(to bottom, rgba(10,10,15,0.98), rgba(15,17,23,0.95));
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--emerald-500);
+    box-shadow: 0 0 15px var(--emerald-glow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    position: relative;
+  }
+
+  .map-header h5 {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--emerald-400);
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px var(--emerald-glow);
+  }
+
+  .map-header-status {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .map-header-status span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--emerald-400);
+    letter-spacing: 1px;
+  }
+
+  .map-status-live {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .map-status-live .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--emerald-400);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 8px var(--emerald-400);
+  }
+
+  .map-classified-tag {
+    background: var(--red-muted);
+    color: var(--red-500);
+    padding: 3px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 2px;
+  }
+
+  /* Map HUD panels */
+  .map-hud {
+    position: absolute;
+    background: rgba(10,10,15,0.92);
+    border: 1px solid var(--border-hover);
+    box-shadow: 0 0 15px var(--emerald-glow), inset 0 0 10px rgba(52,211,153,0.03);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    z-index: 1000;
+    border-radius: 3px;
+  }
+
+  .map-hud h6 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--emerald-400);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 8px var(--emerald-glow);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .map-hud-info {
+    top: 12px;
+    right: 12px;
+    padding: 16px;
+    min-width: 220px;
+  }
+
+  .map-hud-info p { margin: 6px 0; font-size: 11px; }
+  .map-hud-info strong { color: var(--white); }
+  .map-hud-info .map-count { color: var(--emerald-400); font-size: 18px; font-weight: 700; text-shadow: 0 0 10px var(--emerald-glow); }
+
+  .map-hud-legend {
+    bottom: 12px;
+    right: 12px;
+    padding: 14px;
+  }
+
+  .map-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .map-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .map-hud-coords {
+    bottom: 12px;
+    left: 12px;
+    padding: 12px;
+    font-size: 10px;
+  }
+
+  .map-hud-coords strong { color: var(--emerald-400); }
+
+  /* Analysis panel */
+  .map-hud-analysis {
+    top: 12px;
+    left: 12px;
+    padding: 18px;
+    padding-top: 50px;
+    max-width: 480px;
+    max-height: 65%;
+    overflow-y: auto;
+    border-color: var(--red-500);
+    box-shadow: 0 0 15px rgba(239,68,68,0.15), inset 0 0 10px rgba(239,68,68,0.05);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .map-hud-analysis.collapsed {
+    transform: translateX(-110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .map-hud-analysis h6 {
+    color: var(--red-500);
+    border-bottom-color: rgba(239,68,68,0.3);
+    text-shadow: 0 0 8px rgba(239,68,68,0.6);
+  }
+
+  .map-hud-analysis h6.sub-heading {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    color: var(--amber-400);
+    font-size: 10px;
+  }
+
+  .map-hud-analysis ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 8px;
+  }
+
+  .map-hud-analysis ul li {
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 4px;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+
+  .map-hud-analysis ul li::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: var(--emerald-500);
+    font-weight: 700;
+  }
+
+  .map-threat-badge {
+    display: inline-block;
+    background: var(--red-muted);
+    color: var(--red-500);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 2px;
+    margin-bottom: 12px;
+    animation: pulse 2s infinite;
+  }
+
+  .map-collapse-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--red-muted);
+    color: var(--red-500);
+    border: 1px solid rgba(239,68,68,0.3);
+    padding: 6px 12px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-radius: 2px;
+    transition: all 0.2s;
+    z-index: 1;
+  }
+
+  .map-collapse-btn:hover { background: rgba(239,68,68,0.25); }
+
+  .map-show-btn {
+    position: absolute;
+    top: 12px;
+    left: 60px;
+    background: rgba(239,68,68,0.12);
+    color: var(--red-500);
+    border: 1px solid rgba(239,68,68,0.3);
+    padding: 10px 18px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-radius: 2px;
+    z-index: 1000;
+    display: none;
+    transition: all 0.2s;
+    box-shadow: 0 0 12px rgba(239,68,68,0.2);
+  }
+
+  .map-show-btn.visible { display: block; }
+  .map-show-btn:hover { background: rgba(239,68,68,0.25); }
+
+  .map-hud-analysis::-webkit-scrollbar { width: 6px; }
+  .map-hud-analysis::-webkit-scrollbar-track { background: rgba(10,10,15,0.5); }
+  .map-hud-analysis::-webkit-scrollbar-thumb { background: var(--emerald-600); border-radius: 3px; }
+
+  /* Leaflet overrides for TGI theme */
+  .map-container .leaflet-popup-content-wrapper {
+    background: rgba(10,10,15,0.95);
+    color: var(--text-muted);
+    border: 1px solid var(--emerald-500);
+    box-shadow: 0 0 15px var(--emerald-glow);
+    font-family: 'JetBrains Mono', monospace;
+    border-radius: 3px;
+  }
+
+  .map-container .leaflet-popup-tip { background: rgba(10,10,15,0.95); }
+  .map-container .leaflet-popup-content strong { color: var(--emerald-400); font-size: 12px; }
+  .map-container .leaflet-control-zoom a {
+    background: rgba(10,10,15,0.9);
+    color: var(--emerald-400);
+    border-color: var(--border);
+  }
+  .map-container .leaflet-control-zoom a:hover { background: var(--bg-card); color: var(--white); }
+
+  /* Map scan overlay */
+  .map-scan-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to bottom, rgba(52,211,153,0) 0%, rgba(52,211,153,0.03) 50%, rgba(52,211,153,0) 100%);
+    pointer-events: none;
+    animation: mapScan 4s linear infinite;
+    z-index: 999;
+  }
+
+  @keyframes mapScan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+
+  .map-grid-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(rgba(52,211,153,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(52,211,153,0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 998;
+  }
+</style>
+</head>
+<body>
+
+<nav style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 2rem;background:#0b1120;border-bottom:1px solid rgba(79,143,247,0.15);position:sticky;top:0;z-index:10001;">
+  <div style="display:flex;align-items:center;gap:0.75rem;">
+    <span style="font-size:1.3rem;">&#x1F6E1;</span>
+    <span style="font-weight:700;font-size:1rem;letter-spacing:0.08em;color:#eaf0f9;font-family:Inter,-apple-system,sans-serif;">INTEL PORTAL</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:0.25rem;">
+    <a href="dashboard.html" style="padding:0.45rem 1.2rem;color:#8a94a6;text-decoration:none;font-size:0.8rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;border-radius:6px;font-family:Inter,-apple-system,sans-serif;">Intel Reports</a>
+    <a href="capabilities.html" style="padding:0.45rem 1.2rem;color:#4f8ff7;text-decoration:none;font-size:0.8rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;border-radius:6px;background:rgba(79,143,247,0.12);font-family:Inter,-apple-system,sans-serif;">TGI Capabilities</a>
+  </div>
+  <div></div>
+</nav>
+
+<div class="classified-banner">
+  // Proprietary &amp; Confidential &mdash; Not for Public Distribution //
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-status">
+    <span class="pulse"></span>
+    Clearance Level 5 &mdash; Active
+  </div>
+  <div class="hero-badge">TGI</div>
+  <h1>The GOAT Initiative</h1>
+  <h2>Strategic Partnership Brief // 2026</h2>
+  <div class="hero-divider"></div>
+  <div class="hero-subtitle">Your Collection Platform on the U.S.-Mexico Border</div>
+  <div class="hero-pitch">
+    Your firm enables intelligence. TGI <strong>collects it at the point of origin</strong>. You have the analytical framework, the cleared personnel, and the client relationships. What you need in the San Diego sector is a <strong>persistent, embedded collection platform</strong> with 4+ years of operational history, established HUMINT networks, and proven SIA intelligence production &mdash; ready to integrate into your pipeline <strong>today</strong>.
+  </div>
+  <div class="hero-meta">
+    <span>San Diego Sector, CA</span>
+    <span>501(c)(3) Nonprofit</span>
+    <span>EIN: 99-3753614</span>
+  </div>
+</div>
+
+<main>
+
+<!-- 01 -->
+<section>
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">01</div>
+    <div class="section-label">The Intelligence Gap</div>
+    <h3>The Problem: <span class="accent">No Collection Without Presence</span></h3>
+
+    <p class="section-intro">
+      Government contractors deliver finished intelligence products to agencies and decision-makers. But the quality of any finished product is only as good as <strong>the collection that feeds it</strong>. In the San Diego sector &mdash; the most active and geographically punishing smuggling corridor on the U.S.-Mexico border &mdash; that collection requires something no amount of OSINT or remote analysis can replace: <em>persistent physical presence on the ground</em>.
+    </p>
+
+    <div class="value-grid">
+      <div class="value-card">
+        <h5>Sanctuary State Barrier</h5>
+        <p>California law prohibits state and local agencies from cooperating directly with federal authorities on immigration matters. This creates <strong>intelligence silos</strong> that traditional collection approaches cannot penetrate. TGI already serves as the <strong>trusted neutral conduit</strong> between all levels of law enforcement &mdash; a role that took years to build and cannot be replicated remotely.</p>
+      </div>
+      <div class="value-card">
+        <h5>The HUMINT Gap</h5>
+        <p><strong>Building a HUMINT network on both sides of the U.S.-Mexico border</strong> from scratch takes years and significant personal risk. No contractor can stand this up on a contract timeline. TGI's community network, modeled after <strong>Green Beret partnership strategies</strong>, is already operational and producing.</p>
+      </div>
+      <div class="value-card">
+        <h5>The SIA Blind Spot</h5>
+        <p>Special Interest Aliens from China, the Middle East, and Africa are using cartel infrastructure to enter undetected. Identifying them requires <strong>pattern-of-life intelligence from persistent local presence</strong> &mdash; not remote analysis. TGI has <strong>already documented multiple SIA networks</strong> and shared intelligence with federal partners.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="alt-bg">
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">02</div>
+    <div class="section-label">Integration Model</div>
+    <h3>How TGI Maps to the <span class="accent">Intelligence Cycle</span></h3>
+
+    <p class="section-intro">
+      TGI's value is concentrated in the intelligence cycle phases that require <strong>physical presence and established networks</strong> &mdash; the phases hardest to stand up from outside the operating environment. Your firm provides the analytical depth and client delivery. We provide the collection.
+    </p>
+
+    <div class="int-cycle">
+      <div class="int-cycle-step">
+        <div class="step-label">Phase 1</div>
+        <div class="step-name">Direction</div>
+      </div>
+      <div class="int-cycle-step active">
+        <div class="step-label">Phase 2</div>
+        <div class="step-name">Collection</div>
+        <div class="step-tag">TGI Core</div>
+      </div>
+      <div class="int-cycle-step active">
+        <div class="step-label">Phase 3</div>
+        <div class="step-name">Processing</div>
+        <div class="step-tag">TGI Core</div>
+      </div>
+      <div class="int-cycle-step">
+        <div class="step-label">Phase 4</div>
+        <div class="step-name">Analysis</div>
+      </div>
+      <div class="int-cycle-step">
+        <div class="step-label">Phase 5</div>
+        <div class="step-name">Dissemination</div>
+      </div>
+    </div>
+
+    <div class="value-grid" style="margin-top:24px;">
+      <div class="value-card">
+        <h5>HUMINT Collection</h5>
+        <p>Community engagement network on <strong>both sides of the border</strong>, modeled after Special Forces partnership doctrine. Provides early warning, pattern-of-life context, and source-level human intelligence. Cross-border activities are <strong>sensitive in nature</strong> &mdash; details in closed-session briefings.</p>
+      </div>
+      <div class="value-card">
+        <h5>SIGINT / Electronic</h5>
+        <p><strong>Off-grid backcountry mesh RF network</strong> passively detecting WiFi and Bluetooth signals crossing the border. <strong>FCC-approved encrypted comms</strong> with Starlink backhaul. An <strong>electronic early-warning layer</strong> not replicated by any law enforcement system in sector.</p>
+        <p style="margin-top:10px;"><strong>100+ Telegram channels actively monitored</strong> by TGI and GOATED-NEXUS &mdash; originating from <strong>dozens of countries</strong>, trafficking in illicit services including human smuggling, document fraud, weapons, narcotics, and exploitation. This persistent SOCMINT collection provides <strong>real-time indicators and early warning</strong> on transnational threat networks.</p>
+      </div>
+      <div class="value-card">
+        <h5>GEOINT / IMINT</h5>
+        <p><strong>2 thermal UAVs</strong> with drone mapping systems producing continuously updated <strong>smuggling corridor maps</strong>. ~<strong>40 deployed trail cameras</strong> providing persistent 24/7 IMINT. <strong>4 handheld thermal systems</strong> for dismounted collection.</p>
+      </div>
+      <div class="value-card">
+        <h5>Processing &amp; Exploitation</h5>
+        <p><strong>Proprietary intelligence management platform</strong> for correlating all collected data. <strong>Recovered device exploitation</strong> produces formatted, agency-accepted products ready to feed your analytical pipeline. The <strong>GOATED-NEXUS database</strong> provides name and facial recognition matching against all collected intelligence &mdash; queryable by authorized partners with <strong>24-hour response</strong>.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="callout-label">// Integration Summary</span>
+      <p>TGI collects at the point of origin using HUMINT, SIGINT, GEOINT, and device exploitation already deployed in the San Diego sector. Your firm applies analytical depth, client relationships, and intelligence enablement to deliver finished products. <strong>Together: a complete collection-to-dissemination pipeline on the U.S.-Mexico border.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section>
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">03</div>
+    <div class="section-label">Proven Collection</div>
+    <h3>Intelligence Production: <span class="accent">Not Theoretical</span></h3>
+
+    <p class="section-intro">
+      TGI is not pitching a capability we plan to build. These numbers represent <strong>active collection operations</strong> feeding intelligence products that federal agencies are already acting on.
+    </p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">4+</div>
+        <div class="stat-label">Years Embedded</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">18</div>
+        <div class="stat-label">Groups Apprehended (4 Mo)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">40+</div>
+        <div class="stat-label">Cameras Collecting Now</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">100+</div>
+        <div class="stat-label">Telegram Channels Monitored</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">1000s</div>
+        <div class="stat-label">BT/WiFi Networks Mapped</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">50+</div>
+        <div class="stat-label">LE / Military Partners</div>
+      </div>
+    </div>
+
+    <ul class="bullet-list">
+      <li><strong>Continuous on-the-ground and remote collection</strong> identifying active smuggling routes, stash houses, cartel lookout points, and discarded evidence &mdash; <em>collected daily, not periodically</em>.</li>
+      <li><strong>Mapped numerous primary and secondary smuggling routes</strong> using drone mapping systems. These are <em>living documents</em> that update as cartels adapt. This baseline would take a new platform months to develop.</li>
+      <li><strong>Recovered and exploited digital devices, signals intelligence, and surveillance data</strong> producing high-value strategic products &mdash; including CCP-linked infiltration evidence, encrypted Telegram comms, and document fraud networks.</li>
+      <li><strong>Collaborated with FBI/HSI on a high-profile sex trafficking case</strong> (ongoing) &mdash; demonstrating federal-level confidence in TGI's products.</li>
+    </ul>
+
+    <div class="highlight-bar">
+      Over the last 4 months, TGI's cameras and intelligence led to the apprehension of <em>18 different groups</em> who evaded traditional Border Patrol methods. That is <strong>collection-to-action</strong>.
+    </div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="alt-bg">
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">04</div>
+    <div class="section-label">SIA Intelligence</div>
+    <h3>SIA Threat Identification: <span class="accent">Where Your Expertise Meets Ours</span></h3>
+
+    <p class="section-intro">
+      SIAs transiting through the San Diego sector originate from China, the Middle East, and Africa &mdash; regions where your analytical expertise matters most. TGI provides the <strong>ground-level collection layer</strong> that identifies these individuals at the point of entry. Together: an <strong>SIA intelligence capability that doesn't exist anywhere else in the private sector</strong>.
+    </p>
+
+    <div class="case-study">
+      <h5>CCP-Linked Infiltration</h5>
+      <p>Recovered migrant devices revealed <strong>Chinese Communist Party (CCP) influence</strong> in migration patterns &mdash; <strong>Telegram communications and documents</strong> suggesting coordinated smuggling routes. Intelligence shared with federal partners revealed <strong>potential espionage or influence operations</strong>. Discussed in congressional briefings and national media.</p>
+    </div>
+
+    <div class="case-study">
+      <h5>Chinese National Device Exploitation</h5>
+      <p>Discarded phone from a <strong>Wuhan, China</strong> national containing apps and data indicating SIA involvement in cartel-facilitated crossings. Analysis revealed networks using <strong>encrypted comms and stash houses with surveillance countermeasures</strong> &mdash; tradecraft indicators your CI team would recognize immediately.</p>
+    </div>
+
+    <div class="case-study">
+      <h5>Multi-National Stash House Network</h5>
+      <p>Trail cameras and UAVs documented <strong>cartel lookout points and stash houses</strong> used by SIAs from <strong>Middle Eastern and African nations</strong>. Identified bilingual smugglers leveraging <strong>document fraud and safe houses</strong>. <em>A partner with regional analytical expertise would turn these collection threads into finished intelligence products.</em></p>
+    </div>
+
+    <div class="case-study">
+      <h5>Telegram SOCMINT — 100+ Channels Monitored</h5>
+      <p>TGI and GOATED-NEXUS actively monitor <strong>over 100 Telegram channels originating from dozens of countries</strong> &mdash; channels openly selling and facilitating <strong>human smuggling, document fraud, weapons trafficking, narcotics distribution, and exploitation services</strong>. This persistent SOCMINT collection provides real-time visibility into transnational criminal networks, emerging smuggling routes, pricing shifts, and cartel recruitment &mdash; <em>intelligence that feeds directly into SIA identification and threat forecasting</em>.</p>
+    </div>
+
+    <div class="callout">
+      <span class="callout-label">// Synergy</span>
+      <p>TGI collects the raw &mdash; recovered devices, SIGINT, IMINT, HUMINT, and persistent Telegram SOCMINT across 100+ illicit channels. The right partner applies counterintelligence tradecraft, regional expertise, and structured analysis to produce finished SIA threat products. <em>Neither organization can do this alone. Together, the capability is unmatched.</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- 05 — TACTICAL MAP -->
+<section>
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">05</div>
+    <div class="section-label">Threat Visualization</div>
+    <h3>Live Intelligence: <span class="accent">Infrastructure Monitoring</span></h3>
+
+    <p class="section-intro">
+      The map below represents a <strong>real intelligence product</strong> derived from TGI and GOATED-NEXUS monitoring of CCP-affiliated Telegram channels. These are <strong>actual locations identified in intercepted communications</strong> &mdash; demonstrating the kind of actionable, geo-referenced threat intelligence our collection operations produce daily.
+    </p>
+
+    <div class="map-wrapper">
+      <div class="map-header">
+        <h5>&#9698; INFRASTRUCTURE MONITORING SYSTEM &#9699;</h5>
+        <div class="map-header-status">
+          <div class="map-status-live">
+            <span class="pulse-dot"></span>
+            <span id="map-timestamp">SYSTEM ACTIVE</span>
+          </div>
+          <div class="map-classified-tag">CLASSIFIED</div>
+        </div>
+      </div>
+
+      <div style="position:relative;">
+        <div id="tgi-map" class="map-container"></div>
+        <div class="map-scan-overlay"></div>
+        <div class="map-grid-overlay"></div>
+
+        <button class="map-show-btn" id="mapShowBtn">&#9664; SHOW THREAT ANALYSIS</button>
+
+        <div class="map-hud map-hud-analysis" id="mapAnalysis">
+          <button class="map-collapse-btn" id="mapCollapseBtn">COLLAPSE &#9654;</button>
+          <h6>&#9698; THREAT ANALYSIS &#9699;</h6>
+          <div class="map-threat-badge">SOURCE: CCP-AFFILIATED TELEGRAM CHAT</div>
+
+          <h6 class="sub-heading">1. Soft Targets &mdash; High Casualty Potential</h6>
+          <ul>
+            <li>Sports venues: Citi Field, Lakers Arena, Tennis Center</li>
+            <li>Entertainment: 5 Las Vegas casinos, Sphere, Luxor</li>
+            <li>Racing venues: Aqueduct, Belmont Park</li>
+            <li>Public gathering spaces: Seaport districts, West Harbor</li>
+          </ul>
+
+          <h6 class="sub-heading">2. Strategic Infrastructure</h6>
+          <ul>
+            <li>Power Grid: Jacumba Valley Ranch Energy Park (solar/battery)</li>
+            <li>Transport chokepoints: Brooklyn Bridge, Golden Gate Bridge</li>
+            <li>Transit hub: Jamaica Station (LIRR/Subway interchange)</li>
+            <li>Military: 8 installations incl. active bases &amp; Nike missile sites</li>
+            <li>Communications: JPL Deep Space Network</li>
+          </ul>
+
+          <h6 class="sub-heading">3. High-Value / Symbolic Targets</h6>
+          <ul>
+            <li>US Military Academy (West Point)</li>
+            <li>Naval assets: USS Carl Vinson, Naval Base Coronado</li>
+            <li>Marine Corps: Camp Pendleton, MCAS Miramar</li>
+            <li>Historic defense sites: Nike missile installations</li>
+          </ul>
+
+          <h6 class="sub-heading">4. Geographic Clustering</h6>
+          <ul>
+            <li>NYC/Queens: 6 high-value locations in concentrated area</li>
+            <li>Southern California: 11+ sites (LA, San Diego, border region)</li>
+            <li>Las Vegas Strip: 5 entertainment venues</li>
+            <li>Border infrastructure: Energy facility near Mexican border</li>
+          </ul>
+
+          <h6 class="sub-heading">5. Pattern Assessment</h6>
+          <ul>
+            <li>Mix of soft targets + critical infrastructure = multi-vector threat</li>
+            <li>Waterfront/coastal positioning common across many sites</li>
+            <li>Border-region energy infrastructure adds strategic dimension</li>
+            <li>Combination indicates potential coordinated attack planning</li>
+          </ul>
+        </div>
+
+        <div class="map-hud map-hud-info">
+          <h6>&#9698; TACTICAL OVERVIEW &#9699;</h6>
+          <p>SECTOR: CONUS</p>
+          <p><strong>TRACKED ASSETS:</strong> <span class="map-count" id="map-total">0</span></p>
+          <p><strong>STATUS:</strong> <span style="color:var(--red-500);">THREAT MONITORING</span></p>
+          <p style="font-size:9px; margin-top:12px; opacity:0.5;">CLICK MARKERS FOR DETAILS</p>
+        </div>
+
+        <div class="map-hud map-hud-legend">
+          <h6>&#9698; ASSET CLASSIFICATION &#9699;</h6>
+          <div class="map-legend-item"><span class="map-legend-dot" style="background:#ef4444; box-shadow:0 0 6px #ef4444;"></span> Power Grid</div>
+          <div class="map-legend-item"><span class="map-legend-dot" style="background:#34d399; box-shadow:0 0 6px #34d399;"></span> Water Systems</div>
+          <div class="map-legend-item"><span class="map-legend-dot" style="background:#fbbf24; box-shadow:0 0 6px #fbbf24;"></span> Transport Hubs</div>
+          <div class="map-legend-item"><span class="map-legend-dot" style="background:#a78bfa; box-shadow:0 0 6px #a78bfa;"></span> Communications</div>
+          <div class="map-legend-item"><span class="map-legend-dot" style="background:#fb923c; box-shadow:0 0 6px #fb923c;"></span> Military Bases</div>
+          <div class="map-legend-item"><span class="map-legend-dot" style="background:#f472b6; box-shadow:0 0 6px #f472b6;"></span> Recreational</div>
+          <div class="map-legend-item"><span class="map-legend-dot" style="background:#4ade80; box-shadow:0 0 6px #4ade80;"></span> Other Critical</div>
+        </div>
+
+        <div class="map-hud map-hud-coords">
+          <strong>COORDINATES:</strong>
+          <div id="map-mouse-coords">LAT: -- / LON: --</div>
+          <div style="margin-top:8px; font-size:9px; opacity:0.4;">REAL-TIME TRACKING</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:24px;">
+      <span class="callout-label">// Intelligence Product Sample</span>
+      <p>This map is one example of the <strong>geo-referenced threat products</strong> TGI and GOATED-NEXUS produce from ongoing Telegram SOCMINT collection. Each point represents a location identified in <strong>intercepted CCP-affiliated communications</strong>. Imagine this level of detail applied to your client's threat picture &mdash; with <strong>24-hour turnaround on identity queries</strong> through the GOATED-NEXUS database.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section>
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">06</div>
+    <div class="section-label">Collection Infrastructure</div>
+    <h3>Infrastructure <span class="accent">Already Deployed</span></h3>
+
+    <p class="section-intro">
+      Everything below is <strong>currently operational</strong> and collecting. This is not a procurement plan. Partnership with TGI means you inherit a <strong>fully functioning collection platform with zero stand-up time or capital expenditure</strong>.
+    </p>
+
+    <div class="equip-grid">
+      <div class="equip-card">
+        <h5>Mobility &amp; Access</h5>
+        <ul>
+          <li><strong>4 off-road trucks</strong> configured for remote backcountry</li>
+          <li><strong>2 fully capable dirt bikes</strong> for rapid single-track access into areas vehicles cannot reach</li>
+          <li><strong>1 four-seat off-road side-by-side (UTV)</strong> for team insertion across rugged terrain</li>
+          <li><strong>1 grey man vehicle</strong> for low-profile urban intel collection, SIA monitoring, and source fostering</li>
+        </ul>
+      </div>
+      <div class="equip-card">
+        <h5>Tactical Operations Centers</h5>
+        <ul>
+          <li><strong>1 mobile TOC trailer</strong> &mdash; forward-deployed C2</li>
+          <li><strong>1 stationary TOC</strong> &mdash; persistent processing &amp; fusion</li>
+        </ul>
+      </div>
+      <div class="equip-card">
+        <h5>Aerial Collection (GEOINT)</h5>
+        <ul>
+          <li><strong>2 thermal UAVs</strong> &mdash; nighttime/remote monitoring</li>
+          <li><strong>Drone mapping</strong> &mdash; continuously updated corridor maps</li>
+        </ul>
+      </div>
+      <div class="equip-card">
+        <h5>Thermal Imaging (IMINT)</h5>
+        <p><strong>4 handheld thermal systems</strong> for dismounted night operations and remote patrols.</p>
+      </div>
+      <div class="equip-card">
+        <h5>Persistent IMINT Network</h5>
+        <p>~<strong>40 cellular trail cameras</strong> collecting 24/7. Directly responsible for <strong>18 apprehensions in 4 months</strong>.</p>
+      </div>
+      <div class="equip-card">
+        <h5>SIGINT / RF Detection</h5>
+        <p><strong>Off-grid mesh RF network</strong> passively detecting WiFi/Bluetooth signals crossing the border. <em>Unique to TGI in this sector.</em></p>
+      </div>
+      <div class="equip-card">
+        <h5>Encrypted Comms</h5>
+        <ul>
+          <li><strong>FCC-approved encrypted RF system</strong></li>
+          <li><strong>4 handheld + 4 vehicle-mounted 50W radios</strong></li>
+          <li><strong>Vehicle-mounted Starlink</strong> &mdash; secure backhaul</li>
+        </ul>
+      </div>
+      <div class="equip-card">
+        <h5>Blue Force Tracking (C2)</h5>
+        <p><strong>ATAK + EUDs</strong> for every operator. Real-time tracking, position sharing, centralized TOC monitoring.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="alt-bg">
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">07</div>
+    <div class="section-label">Interagency Access</div>
+    <h3>Relationships You <span class="accent">Cannot Build Remotely</span></h3>
+
+    <p class="section-intro">
+      In the San Diego sector, the difference between shelf-ware and actionable intelligence is <strong>who you can hand it to</strong>. California's sanctuary laws restrict normal interagency pathways. TGI's leadership has <strong>decades of established roots throughout the San Diego sector</strong> &mdash; deep community ties, local knowledge, and relationships that long predate the organization itself. Combined with four years of sustained intelligence operations, this creates a trust network that makes collection <em>actionable</em> &mdash; and that no outside entity can replicate on a contract timeline.
+    </p>
+
+    <ul class="bullet-list">
+      <li><strong>Neutral conduit between all levels of law enforcement</strong> &mdash; local, state, federal &mdash; bypassing sanctuary law restrictions. <em>Irreplaceable in California.</em></li>
+      <li><strong>Established relationships across nearly every agency in Southern California</strong> &mdash; intelligence delivered to the right person, zero bureaucratic lag.</li>
+      <li><strong>Active FBI/HSI collaboration</strong> on sex trafficking case &mdash; federal agencies trust TGI's products enough to act on them.</li>
+      <li><strong>HUMINT network on both sides of the border</strong> &mdash; Green Beret-modeled community relationships providing early warning and pattern-of-life intelligence.</li>
+    </ul>
+
+    <div class="highlight-bar">
+      You bring the clients and analytical framework. TGI brings <strong>the access, the trust, and the collection infrastructure</strong>. Together: a complete intelligence operation from collection through dissemination.
+    </div>
+  </div>
+</section>
+
+<!-- 08 — AGENCY NETWORK -->
+<section>
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">08</div>
+    <div class="section-label">Agency Network</div>
+    <h3>The Rolodex: <span class="accent">Who We Reach</span></h3>
+
+    <p class="section-intro">
+      When TGI says we have <strong>established relationships across nearly every agency in Southern California</strong>, this is what we mean. These are the organizations TGI coordinates with, delivers intelligence to, or has operational relationships with across the San Diego sector and beyond.
+    </p>
+
+    <div class="agency-count-bar">
+      <div class="agency-count-item">
+        <div class="agency-count-num">50+</div>
+        <div class="agency-count-lbl">Total Agencies</div>
+      </div>
+      <div class="agency-count-item">
+        <div class="agency-count-num">8</div>
+        <div class="agency-count-lbl">Categories</div>
+      </div>
+      <div class="agency-count-item">
+        <div class="agency-count-num">3</div>
+        <div class="agency-count-lbl">International Partners</div>
+      </div>
+      <div class="agency-count-item">
+        <div class="agency-count-num">8</div>
+        <div class="agency-count-lbl">DOD Branches</div>
+      </div>
+    </div>
+
+    <div class="agency-category">
+      <div class="agency-category-label">Local Police Departments</div>
+      <div class="agency-tag-grid">
+        <span class="agency-tag">SDPD</span>
+        <span class="agency-tag">El Cajon PD</span>
+        <span class="agency-tag">Chula Vista PD</span>
+        <span class="agency-tag">National City PD</span>
+        <span class="agency-tag">Imperial Beach PD</span>
+        <span class="agency-tag">Coronado PD</span>
+        <span class="agency-tag">La Mesa PD</span>
+        <span class="agency-tag">Escondido PD</span>
+        <span class="agency-tag">Carlsbad PD</span>
+        <span class="agency-tag">Oceanside PD</span>
+        <span class="agency-tag">UC San Diego PD</span>
+      </div>
+    </div>
+
+    <div class="agency-category">
+      <div class="agency-category-label">County Sheriff's Departments</div>
+      <div class="agency-tag-grid">
+        <span class="agency-tag">San Diego County Sheriff</span>
+        <span class="agency-tag">ASTREA (Sheriff's Aerial Support)</span>
+        <span class="agency-tag">Imperial County Sheriff</span>
+      </div>
+    </div>
+
+    <div class="agency-category">
+      <div class="agency-category-label">State Agencies</div>
+      <div class="agency-tag-grid">
+        <span class="agency-tag">California Highway Patrol (CHP)</span>
+        <span class="agency-tag">CA DOJ / Bureau of Investigation</span>
+        <span class="agency-tag">CAL FIRE Arson Investigators</span>
+      </div>
+    </div>
+
+    <div class="agency-category">
+      <div class="agency-category-label">Federal Border &amp; Immigration</div>
+      <div class="agency-tag-grid">
+        <span class="agency-tag">U.S. Border Patrol (USBP)</span>
+        <span class="agency-tag">CBP (Customs)</span>
+        <span class="agency-tag">HSI</span>
+        <span class="agency-tag">ICE</span>
+        <span class="agency-tag">U.S. Coast Guard (USCG)</span>
+        <span class="agency-tag">CBP Air and Marine Operations (AMO)</span>
+        <span class="agency-tag">USCIS FDNS</span>
+      </div>
+    </div>
+
+    <div class="agency-category">
+      <div class="agency-category-label">Other Federal Law Enforcement</div>
+      <div class="agency-tag-grid">
+        <span class="agency-tag">FBI</span>
+        <span class="agency-tag">NCIS</span>
+        <span class="agency-tag">DEA</span>
+        <span class="agency-tag">ATF</span>
+        <span class="agency-tag">U.S. Marshals (USMS)</span>
+        <span class="agency-tag">JTTF</span>
+      </div>
+    </div>
+
+    <div class="agency-category">
+      <div class="agency-category-label">DOD &amp; Military Support</div>
+      <div class="agency-tag-grid">
+        <span class="agency-tag">U.S. Marines (USMC)</span>
+        <span class="agency-tag">USCG MSRT</span>
+        <span class="agency-tag">U.S. Army</span>
+        <span class="agency-tag">U.S. Army Reserve</span>
+        <span class="agency-tag">Army National Guard</span>
+        <span class="agency-tag">U.S. Navy (USN)</span>
+        <span class="agency-tag">U.S. Air Force (USAF)</span>
+        <span class="agency-tag">U.S. Space Force (USSF)</span>
+      </div>
+    </div>
+
+    <div class="agency-category">
+      <div class="agency-category-label">Specialized Task Forces</div>
+      <div class="agency-tag-grid">
+        <span class="agency-tag">Fugitive Task Force (USMS)</span>
+        <span class="agency-tag">Anti-Human Trafficking Task Force</span>
+        <span class="agency-tag">Joint Task Force &mdash; North (JTF-N)</span>
+        <span class="agency-tag">San Diego Harbor Police</span>
+      </div>
+    </div>
+
+    <div class="agency-category">
+      <div class="agency-category-label">International Partners</div>
+      <div class="agency-tag-grid">
+        <span class="agency-tag intl">Mexican National Guard (Guardia Nacional)</span>
+        <span class="agency-tag intl">Colombian National Police (Polic&iacute;a Nacional)</span>
+        <span class="agency-tag intl">INTERPOL</span>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:28px;">
+      <span class="callout-label">// What This Means for You</span>
+      <p>When you partner with TGI, you don't just get a collection platform &mdash; you get <strong>a pre-built dissemination network spanning 50+ agencies across local, state, federal, DOD, and international channels</strong>. Intelligence doesn't sit in a database. It gets to <strong>the right person at the right agency</strong> &mdash; even in a sanctuary state where normal channels are blocked.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section class="alt-bg">
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">09</div>
+    <div class="section-label">Validated at Highest Levels</div>
+    <h3>Who Has Seen <span class="accent">Our Work Firsthand</span></h3>
+
+    <p class="section-intro">
+      Partner credibility matters. These individuals have <strong>personally walked TGI's surveillance sites, received real-time briefings, and observed recovered evidence</strong>:
+    </p>
+
+    <div class="vip-grid">
+      <div class="vip-card">
+        <div class="vip-name">Tulsi Gabbard</div>
+        <div class="vip-title">Director of National Intelligence</div>
+        <div class="vip-desc">Witnessed cartel operations and foreign influences firsthand during TGI field tour.</div>
+      </div>
+      <div class="vip-card">
+        <div class="vip-name">Joe Kent</div>
+        <div class="vip-title">Dir., National Counterterrorism Center</div>
+        <div class="vip-desc">Toured remote areas to observe trafficking evidence and SIA indicators.</div>
+      </div>
+      <div class="vip-card">
+        <div class="vip-name">Matt Gaetz</div>
+        <div class="vip-title">U.S. Congressman (Florida)</div>
+        <div class="vip-desc">On-the-ground assessments of smuggling infrastructure.</div>
+      </div>
+      <div class="vip-card">
+        <div class="vip-name">Sheriff Mark Lamb</div>
+        <div class="vip-title">Pinal County Sheriff (Arizona)</div>
+        <div class="vip-desc">Cross-sector intelligence insights during operational visits.</div>
+      </div>
+      <div class="vip-card">
+        <div class="vip-name">Larry Turner</div>
+        <div class="vip-title">Border Security Stakeholder</div>
+        <div class="vip-desc">Guided field tour of active smuggling corridors and TGI operations.</div>
+      </div>
+      <div class="vip-card">
+        <div class="vip-name">Mayor Bill Wells</div>
+        <div class="vip-title">Mayor, El Cajon, CA</div>
+        <div class="vip-desc">On-the-ground border tour; local government engagement on border impacts.</div>
+      </div>
+    </div>
+
+    <h4>Congressional Testimony</h4>
+    <div class="media-grid">
+      <div class="media-tag">U.S. House Judiciary Committee (Sept. 2024)</div>
+      <div class="media-tag">Federation for Immigration Reform (w/ Sheriff Lamb)</div>
+    </div>
+
+    <h4>National Television</h4>
+    <div class="media-grid">
+      <div class="media-tag">Fox &amp; Friends</div>
+      <div class="media-tag">Fox Business &mdash; Maria Bartiromo</div>
+      <div class="media-tag">Fox News &mdash; Bill Melugin</div>
+      <div class="media-tag">Fox News &mdash; Grif Jenkins</div>
+      <div class="media-tag">FOX 5 San Diego</div>
+      <div class="media-tag">OANN &mdash; Stella Escobedo</div>
+      <div class="media-tag">CNN</div>
+      <div class="media-tag">NewsNation &mdash; Jorge Ventura</div>
+      <div class="media-tag">EpochTV &mdash; California Insider</div>
+    </div>
+
+    <h4>Podcasts &amp; Shows</h4>
+    <div class="media-grid">
+      <div class="media-tag">Steve Bannon's War Room</div>
+      <div class="media-tag">Danica Patrick &mdash; Pretty Intense</div>
+      <div class="media-tag">Matt Gaetz Show</div>
+      <div class="media-tag">TPUSA Interview</div>
+      <div class="media-tag">James O'Keefe &mdash; Line in the Sand</div>
+      <div class="media-tag">Dom Raso &mdash; Dangerous Questions</div>
+      <div class="media-tag">Vincent Vargas &mdash; Borderland</div>
+      <div class="media-tag">Apollo the Original Podcast</div>
+      <div class="media-tag">IRONCLAD: Change Agents (Andy Stumpf)</div>
+      <div class="media-tag">IRONCLAD: Borderland &mdash; Dispatches</div>
+      <div class="media-tag">Heartland Journal Podcast</div>
+      <div class="media-tag">The Britt Mayer Show</div>
+      <div class="media-tag">Behind The Wire</div>
+      <div class="media-tag">Reclaim San Diego Radio</div>
+    </div>
+
+    <h4>Print &amp; Digital Media</h4>
+    <div class="media-grid">
+      <div class="media-tag">New York Post</div>
+      <div class="media-tag">Daily Mail</div>
+      <div class="media-tag">Washington Times</div>
+      <div class="media-tag">Blaze Media</div>
+      <div class="media-tag">The Epoch Times</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="alt-bg">
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">10</div>
+    <div class="section-label">Partnership Structure</div>
+    <h3>A Partner That <span class="accent">Strengthens Your Position</span></h3>
+
+    <p class="section-intro">
+      Evaluate TGI the way intelligence professionals evaluate sources: <strong>reliability, access, and absence of conflicting interests</strong>. We score high on all three.
+    </p>
+
+    <div class="value-grid">
+      <div class="value-card">
+        <h5>Nonprofit, Not Competing</h5>
+        <p><strong>Tax-exempt 501(c)(3)</strong>. Not a competing contractor. Not angling for your clients. A teaming arrangement adds collection capability <strong>without competitive risk</strong>.</p>
+      </div>
+      <div class="value-card">
+        <h5>No Investor Conflicts</h5>
+        <p><strong>Self-funded: $200,000+ over four years</strong>. No investors. No PE. No board demanding returns. When you present TGI to clients, <strong>no hidden interests to disclose</strong>.</p>
+      </div>
+      <div class="value-card">
+        <h5>Veteran-Led, IC-Adjacent</h5>
+        <p>Every leader a <strong>U.S. military veteran</strong>. Senior Advisor: <strong>retired USAF Colonel</strong>, Harvard NSF, China Aerospace Studies Institute founder. If your team comes from the IC or SOF community &mdash; <em>we speak the same language.</em></p>
+      </div>
+      <div class="value-card">
+        <h5>Scalable with Funding</h5>
+        <p>12-person core team + <strong>30+ person vetted pool</strong> of LE, Military, Special Operations, Intelligence, and Communications professionals to pull from &mdash; <strong>already operating</strong>. Funded partnership enables <strong>immediate scaling</strong>: expanded cameras, additional UAVs, 24/7 TOC, deeper HUMINT &mdash; <em>no months of buildout</em>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section>
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">11</div>
+    <div class="section-label">Your Counterparts</div>
+    <h3>Leadership &amp; <span class="accent">Senior Advisory</span></h3>
+
+    <h4>Core Leadership</h4>
+    <table class="team-table">
+      <thead><tr><th>Role</th><th>Name</th><th>Background</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Founder / President</td>
+          <td>Cory Gautereaux</td>
+          <td>U.S. Army veteran; 4+ years leading border intel collection; decades of roots in San Diego sector; personally briefed DNI, NCTC Director, and multiple members of Congress</td>
+        </tr>
+        <tr>
+          <td>Vice President</td>
+          <td>GOAT-02</td>
+          <td>U.S. Army veteran; Senior Construction PM; co-funded ops ($200K+); key field mission leader across San Diego sector</td>
+        </tr>
+        <tr>
+          <td>Treasurer</td>
+          <td>GOAT-03</td>
+          <td>U.S. Navy veteran; nurse, professor, business owner; field medical specialist</td>
+        </tr>
+        <tr>
+          <td style="white-space:normal;">Software Engineer / Marine Engineer</td>
+          <td>GOAT-04</td>
+          <td>Software engineer (AWS, Azure, React, Python, Docker, K8s); Certified Kubernetes Application Developer; Licensed Marine Engineer; California Maritime Academy; cloud infrastructure &amp; industrial systems</td>
+        </tr>
+        <tr>
+          <td style="white-space:normal;">Sr. Advisor, Nat'l Security</td>
+          <td>GOAT-05</td>
+          <td>Retired USAF Colonel; 26+ yrs service; command pilot, 6,200+ hrs; Harvard NSF; China Aerospace Studies Institute founder; CSBA Senior Fellow</td>
+        </tr>
+        <tr>
+          <td>Press / Media Counsel</td>
+          <td>GOAT-06</td>
+          <td>Press and Media Council; Investigative Writer; Florida State Guard</td>
+        </tr>
+        <tr>
+          <td style="white-space:normal;">Cybersecurity Analyst</td>
+          <td>GOAT-07</td>
+          <td>M.S. Cybersecurity Mgmt; Licensed PI (FL); 15+ yrs digital investigations &amp; threat intel; OSINT researcher for U.S. defense contractor; Crystal Vault methodology creator; fluent French/Spanish</td>
+        </tr>
+        <tr>
+          <td>Field Operator</td>
+          <td>FOX-01</td>
+          <td>Classified &mdash; available upon request in closed-session briefing</td>
+        </tr>
+        <tr>
+          <td>Field Operator</td>
+          <td>FOX-02</td>
+          <td>Classified &mdash; available upon request in closed-session briefing</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>Senior Advisory &mdash; Intelligence Analysts</h4>
+    <table class="team-table">
+      <thead><tr><th>Role</th><th>Name</th><th>Background</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Intelligence Analyst</td>
+          <td>GOAT INTEL-01</td>
+          <td>Classified &mdash; available upon request in closed-session briefing</td>
+        </tr>
+        <tr>
+          <td>Intelligence Analyst</td>
+          <td>GOAT INTEL-02</td>
+          <td>Classified &mdash; available upon request in closed-session briefing</td>
+        </tr>
+        <tr>
+          <td>Intelligence Analyst</td>
+          <td>GOAT INTEL-03</td>
+          <td>Classified &mdash; available upon request in closed-session briefing</td>
+        </tr>
+        <tr>
+          <td>Intelligence Analyst</td>
+          <td>GOAT INTEL-04</td>
+          <td>Classified &mdash; available upon request in closed-session briefing</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="alt-bg">
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">12</div>
+    <div class="section-label">Partnership Avenues</div>
+    <h3>Two Paths to <span class="accent">Partnership</span></h3>
+
+    <p class="section-intro">
+      TGI's 501(c)(3) structure creates a unique advantage: we engage through <strong>both nonprofit and for-profit channels simultaneously</strong>. This gives partners flexibility in how they integrate TGI into proposals, contracts, and client engagements.
+    </p>
+
+    <div class="value-grid">
+      <div class="value-card">
+        <h5>Avenue 1: Nonprofit</h5>
+        <p><strong>TGI as 501(c)(3) subrecipient or teaming partner.</strong> Ideal for:</p>
+        <ul class="sub-list">
+          <li><strong>Government grants and cooperative agreements</strong> where nonprofit status is preferred or required</li>
+          <li><strong>Tax-advantaged funding</strong> &mdash; contributions are tax-deductible for U.S. donors</li>
+          <li><strong>Mission-driven engagements</strong> demonstrating public benefit and removing profit-motive concerns</li>
+          <li><strong>Philanthropic/NGO-backed projects</strong> focused on human trafficking and child exploitation</li>
+        </ul>
+      </div>
+      <div class="value-card">
+        <h5>Avenue 2: For-Profit — GOATED-NEXUS</h5>
+        <p><strong>TGI capabilities delivered through GOATED-NEXUS, our for-profit contract vehicle &mdash; currently operational</strong> with a proprietary <strong>name and facial recognition database</strong> built from TGI's collected intelligence.</p>
+        <div class="callout" style="margin:16px 0 16px;">
+          <span class="callout-label">// GOATED-NEXUS &mdash; Active Capability</span>
+          <p>Customers upload a <strong>photo or name</strong> into the GOATED-NEXUS database. If a positive match is found against TGI's intelligence holdings, the customer receives a <strong>phone call within 24 hours</strong> of the inquiry. This turns years of accumulated field intelligence into an <strong>on-demand, queryable asset</strong> for authorized partners.</p>
+        </div>
+        <p>Ideal for:</p>
+        <ul class="sub-list">
+          <li><strong>Government subcontracts</strong> requiring for-profit entity (FAR/DFAR compliance)</li>
+          <li><strong>Commercial intelligence services</strong> &mdash; border threat assessments, SIA analysis for private-sector clients</li>
+          <li><strong>On-demand identity resolution</strong> &mdash; name and facial recognition queries against TGI's collected intelligence</li>
+          <li><strong>Consulting &amp; advisory</strong> with TGI SMEs supporting your teams or end clients directly</li>
+          <li><strong>Scalable field operations</strong> requiring funded personnel and sustained collection campaigns</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="callout-label">// Dual Structure Advantage</span>
+      <p>Pursuing a government grant? TGI's nonprofit entity is your teaming partner. Bidding a commercial contract? <strong>GOATED-NEXUS</strong> provides the for-profit subcontract vehicle. Need both on different engagements? <strong>Both avenues operate in parallel.</strong> Position the partnership however best serves the opportunity &mdash; without restructuring each time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section>
+  <div class="content-wrapper" style="position:relative;">
+    <div class="section-number">13</div>
+    <div class="section-label">Next Steps</div>
+    <h3>The <span class="accent">Bottom Line</span></h3>
+
+    <p class="section-intro">
+      TGI is a proven collection platform. Here is what a partnership puts on the table:
+    </p>
+
+    <ul class="bullet-list">
+      <li><strong>Persistent, multi-INT collection</strong> (HUMINT, SIGINT, GEOINT, device exploitation) already operating &mdash; ready to feed your analytical pipeline.</li>
+      <li><strong>4+ years embedded operational presence</strong> &mdash; backed by <strong>decades of established roots</strong> in the San Diego sector &mdash; producing intelligence federal agencies are already acting on.</li>
+      <li><strong>Documented SIA intelligence</strong> involving CCP-linked networks, Middle Eastern and African SIAs &mdash; ready for analytical exploitation by the right partner.</li>
+      <li><strong>Established interagency relationships across Southern California</strong> &mdash; the trusted dissemination channels that make collection actionable in a sanctuary state.</li>
+      <li><strong>Deployed infrastructure worth hundreds of thousands</strong> (TOCs, cameras, UAVs, encrypted comms, mesh RF, ATAK) &mdash; operational today.</li>
+      <li><strong>Validation from DNI, NCTC Director, Congress, and national media</strong> &mdash; immediate credibility for any joint proposal.</li>
+      <li><strong>Dual nonprofit/for-profit structure</strong> (TGI + GOATED-NEXUS) &mdash; flexible engagement model that strengthens proposals without adding risk.</li>
+    </ul>
+
+    <div class="bottom-line">
+      <h4>Your Analyst. Our <span class="accent">Collection</span>.</h4>
+      <p>
+        TGI provides the raw collection that makes intelligence capabilities real on the U.S.-Mexico border. <strong>The infrastructure is deployed. The networks are built. The intelligence is flowing.</strong> What we need is a partner with the analytical framework and client relationships to put this collection to its full potential. <strong>Let's talk.</strong>
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-org">The GOAT Initiative</div>
+  <div class="footer-501">501(c)(3) Nonprofit // EIN: 99-3753614</div>
+
+  <p style="font-size:16px; color:var(--text-muted); margin-bottom:16px; font-weight:600;">
+    To discuss a strategic partnership or schedule a classified operational briefing:
+  </p>
+
+  <p><strong style="color:var(--white); font-size:20px;">Cory Gautereaux</strong></p>
+  <p style="color:var(--emerald-400); font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase;">Founder / President</p>
+  <p style="margin-top:10px;">
+    <a href="mailto:cory@thegoatinitiative.org">cory@thegoatinitiative.org</a>
+  </p>
+  <p style="margin-top:6px;">
+    <a href="https://thegoatinitiative.org">thegoatinitiative.org</a>
+  </p>
+
+  <div class="footer-warning">
+    // Proprietary &amp; Confidential // Not for Public Distribution //
+  </div>
+
+  <div class="footer-copy">
+    &copy; 2026 The GOAT Initiative // All Rights Reserved // Powered by TGI Systems
+  </div>
+</footer>
+
+<script>
+(function() {
+  // Initialize map
+  const map = L.map('tgi-map', {
+    zoomControl: true,
+    attributionControl: false,
+    scrollWheelZoom: false
+  }).setView([36.5, -105.0], 5);
+
+  // Satellite tiles
+  L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    maxZoom: 20
+  }).addTo(map);
+
+  // Enable scroll zoom only when map is focused
+  map.on('click', function() { map.scrollWheelZoom.enable(); });
+  map.on('mouseout', function() { map.scrollWheelZoom.disable(); });
+
+  // TGI-themed colors
+  const typeColors = {
+    power: '#ef4444',
+    water: '#34d399',
+    transportation: '#fbbf24',
+    communications: '#a78bfa',
+    military: '#fb923c',
+    recreational: '#f472b6',
+    other: '#4ade80'
+  };
+
+  // Timestamp
+  function updateTs() {
+    const now = new Date();
+    const el = document.getElementById('map-timestamp');
+    if (el) el.textContent = now.toISOString().replace('T',' ').substring(0,19) + ' UTC';
+  }
+  updateTs();
+  setInterval(updateTs, 1000);
+
+  // Mouse coords
+  map.on('mousemove', function(e) {
+    const el = document.getElementById('map-mouse-coords');
+    if (el) el.textContent = 'LAT: ' + e.latlng.lat.toFixed(4) + ' / LON: ' + e.latlng.lng.toFixed(4);
+  });
+
+  // Locations
+  const locations = [
+    {lat:40.7061,lon:-73.9969,name:"Brooklyn Bridge",type:"transportation",desc:"Major suspension bridge connecting Manhattan and Brooklyn",status:"operational"},
+    {lat:34.2011,lon:-118.1719,name:"JPL MLabs",type:"communications",desc:"Jet Propulsion Laboratory - Deep Space Network facility",status:"operational"},
+    {lat:40.6725,lon:-73.8347,name:"Aqueduct Racetrack",type:"recreational",desc:"Thoroughbred racing facility in Ozone Park, Queens",status:"operational"},
+    {lat:40.7156,lon:-73.7183,name:"Belmont Park",type:"recreational",desc:"Major thoroughbred racing facility in Elmont, NY",status:"operational"},
+    {lat:41.3915,lon:-73.9559,name:"West Point Academy",type:"military",desc:"United States Military Academy, West Point, NY",status:"operational"},
+    {lat:40.7002,lon:-73.8078,name:"Jamaica Station",type:"transportation",desc:"Major transit hub - LIRR and subway interchange in Queens",status:"operational"},
+    {lat:37.8199,lon:-122.4783,name:"Golden Gate Bridge",type:"transportation",desc:"Iconic suspension bridge spanning Golden Gate strait",status:"operational"},
+    {lat:32.6892,lon:-117.1723,name:"Naval Base Coronado",type:"military",desc:"Major US Navy installation in San Diego Bay",status:"operational"},
+    {lat:33.2243,lon:-117.3890,name:"Camp Pendleton",type:"military",desc:"Marine Corps Base - major West Coast expeditionary training",status:"operational"},
+    {lat:32.8683,lon:-117.1414,name:"MCAS Miramar",type:"military",desc:"Marine Corps Air Station Miramar, San Diego",status:"operational"},
+    {lat:33.7520,lon:-118.1937,name:"USS Carl Vinson - Long Beach",type:"military",desc:"Nimitz-class aircraft carrier docked at Port of Long Beach",status:"operational"},
+    {lat:36.0955,lon:-115.1761,name:"Luxor Las Vegas",type:"recreational",desc:"Major landmark casino resort on Las Vegas Strip",status:"operational"},
+    {lat:36.1207,lon:-115.1545,name:"Sphere Las Vegas",type:"recreational",desc:"State-of-the-art entertainment venue with LED exterior",status:"operational"},
+    {lat:36.1222,lon:-115.1696,name:"The Palazzo",type:"recreational",desc:"Luxury casino resort on Las Vegas Strip",status:"operational"},
+    {lat:36.1177,lon:-115.1704,name:"The Linq",type:"recreational",desc:"Hotel, casino and entertainment district on the Strip",status:"operational"},
+    {lat:36.1263,lon:-115.1663,name:"Encore Las Vegas",type:"recreational",desc:"Luxury resort and casino, sister property to Wynn",status:"operational"},
+    {lat:40.7571,lon:-73.8458,name:"Citi Field (Mets Stadium)",type:"recreational",desc:"Home of the New York Mets baseball team, Queens",status:"operational"},
+    {lat:34.0430,lon:-118.2673,name:"Crypto.com Arena (Lakers)",type:"recreational",desc:"Home of the LA Lakers and Clippers, downtown Los Angeles",status:"operational"},
+    {lat:40.7497,lon:-73.8450,name:"USTA Billie Jean King Tennis Center",type:"recreational",desc:"Home of the US Open tennis championship, Queens",status:"operational"},
+    {lat:42.3519,lon:-71.0453,name:"Boston Seaport District",type:"recreational",desc:"Waterfront district with dining, entertainment, and innovation hub",status:"operational"},
+    {lat:34.0947,lon:-118.5600,name:"Nike Missile Site LA-96",type:"military",desc:"Cold War-era air defense installation, Santa Monica Mountains",status:"non-operational"},
+    {lat:33.7264,lon:-118.3014,name:"Nike Missile Site LA-88",type:"military",desc:"Former surface-to-air missile site near San Pedro",status:"non-operational"},
+    {lat:34.2089,lon:-118.5731,name:"Nike Missile Site LA-29",type:"military",desc:"Historic air defense site in San Fernando Valley",status:"non-operational"},
+    {lat:33.7425,lon:-118.2751,name:"West Harbor Promenade",type:"recreational",desc:"Waterfront entertainment and dining district at Port of Los Angeles",status:"operational"},
+    {lat:32.6261,lon:-116.1194,name:"Jacumba Valley Ranch Energy Park",type:"power",desc:"Solar and battery energy storage facility near Mexican border",status:"operational"}
+  ];
+
+  // Add markers
+  locations.forEach(function(loc, i) {
+    var c = typeColors[loc.type] || typeColors.other;
+    var icon = L.divIcon({
+      className: 'custom-marker',
+      html: '<div style="position:relative;width:36px;height:36px;">' +
+        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:'+c+';width:12px;height:12px;border-radius:50%;box-shadow:0 0 16px '+c+',0 0 32px '+c+';"></div>' +
+        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:2px solid '+c+';width:24px;height:24px;border-radius:50%;opacity:0.5;"></div>' +
+        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid '+c+';width:36px;height:36px;border-radius:50%;opacity:0.2;"></div>' +
+        '</div>',
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
+    });
+
+    var marker = L.marker([loc.lat, loc.lon], {icon: icon}).addTo(map);
+    var sColor = loc.status === 'non-operational' ? '#ef4444' : '#34d399';
+    var sText = loc.status === 'non-operational' ? 'NON-OPERATIONAL' : 'OPERATIONAL';
+
+    marker.bindPopup(
+      '<div style="font-size:11px;">' +
+      '<strong style="color:#34d399;font-size:13px;">\u25E2 ' + loc.name.toUpperCase() + ' \u25E3</strong><br><br>' +
+      '<strong>CLASSIFICATION:</strong> ' + loc.type.toUpperCase() + '<br>' +
+      '<strong>DETAILS:</strong> ' + loc.desc + '<br>' +
+      '<strong>COORDINATES:</strong> ' + loc.lat.toFixed(4) + ', ' + loc.lon.toFixed(4) + '<br>' +
+      '<strong>ASSET ID:</strong> #' + String(i+1).padStart(4,'0') + '<br>' +
+      '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(52,211,153,0.3);font-size:10px;">' +
+      '<strong>STATUS:</strong> <span style="color:'+sColor+';font-weight:bold;">'+sText+'</span></div></div>'
+    );
+  });
+
+  document.getElementById('map-total').textContent = locations.length;
+
+  // State boundaries
+  fetch('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      L.geoJSON(data, {style:{color:'rgba(52,211,153,0.2)',weight:1,fillOpacity:0}}).addTo(map);
+    });
+
+  // City labels
+  var cities = [
+    {name:"New York",lat:40.7128,lon:-74.006},{name:"Los Angeles",lat:34.0522,lon:-118.2437},
+    {name:"Chicago",lat:41.8781,lon:-87.6298},{name:"Houston",lat:29.7604,lon:-95.3698},
+    {name:"Phoenix",lat:33.4484,lon:-112.074},{name:"San Diego",lat:32.7157,lon:-117.1611},
+    {name:"Dallas",lat:32.7767,lon:-96.797},{name:"San Francisco",lat:37.7749,lon:-122.4194},
+    {name:"Seattle",lat:47.6062,lon:-122.3321},{name:"Denver",lat:39.7392,lon:-104.9903},
+    {name:"Washington DC",lat:38.9072,lon:-77.0369},{name:"Boston",lat:42.3601,lon:-71.0589},
+    {name:"Las Vegas",lat:36.1699,lon:-115.1398},{name:"Atlanta",lat:33.749,lon:-84.388},
+    {name:"Miami",lat:25.7617,lon:-80.1918}
+  ];
+
+  cities.forEach(function(city){
+    var icon = L.divIcon({
+      className:'city-label',
+      html:'<div style="color:#34d399;font-size:9px;font-family:JetBrains Mono,monospace;text-shadow:0 0 6px rgba(52,211,153,0.6),1px 1px 2px #000;white-space:nowrap;pointer-events:none;font-weight:600;opacity:0.7;">'+city.name+'</div>',
+      iconSize:[80,16],iconAnchor:[40,8]
+    });
+    L.marker([city.lat,city.lon],{icon:icon,interactive:false}).addTo(map);
+  });
+
+  // Panel toggle
+  var panel = document.getElementById('mapAnalysis');
+  var collapseBtn = document.getElementById('mapCollapseBtn');
+  var showBtn = document.getElementById('mapShowBtn');
+
+  collapseBtn.addEventListener('click', function(){
+    panel.classList.add('collapsed');
+    showBtn.classList.add('visible');
+  });
+  showBtn.addEventListener('click', function(){
+    panel.classList.remove('collapsed');
+    showBtn.classList.remove('visible');
+  });
+})();
+</script>
+
+</body>
+</html>
