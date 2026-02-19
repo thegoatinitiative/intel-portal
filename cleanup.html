@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html><head><title>Attachment Cleanup</title></head>
+<body style="background:#060a12;color:#eaf0f9;font-family:monospace;padding:2rem;line-height:1.8;">
+<h2>Attachment Cleanup</h2>
+<div id="status">Initializing Firebase...</div>
+<div id="log" style="margin-top:1rem;white-space:pre-wrap;font-size:0.85rem;color:#8892b0;"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script>
+  var statusEl = document.getElementById("status");
+  var logEl = document.getElementById("log");
+
+  function log(msg) {
+    logEl.textContent += msg + "\n";
+  }
+
+  fbAuth.onAuthStateChanged(function (user) {
+    if (!user) {
+      statusEl.textContent = "Not logged in. Please log in first, then come back.";
+      return;
+    }
+
+    statusEl.textContent = "Logged in as " + user.email + ". Scanning reports...";
+
+    fbDb.collection("reports").get().then(function (snap) {
+      log("Found " + snap.size + " reports.");
+
+      var fixes = [];
+
+      snap.forEach(function (doc) {
+        var data = doc.data();
+        if (!data.attachments || data.attachments.length === 0) return;
+
+        var clean = [];
+        var removed = [];
+
+        data.attachments.forEach(function (att) {
+          if (!att.dataUrl || att.dataUrl.length < 10) {
+            removed.push(att.name + " (no data)");
+            return;
+          }
+          // Test if base64 is valid
+          try {
+            var b64 = att.dataUrl.split(",")[1];
+            if (!b64) throw new Error("no base64");
+            atob(b64.substring(0, 100)); // test a small chunk
+            clean.push(att);
+          } catch (e) {
+            removed.push(att.name + " (" + e.message + ")");
+          }
+        });
+
+        if (removed.length > 0) {
+          log("\n" + data.id + ": removing " + removed.length + " bad attachment(s):");
+          removed.forEach(function (r) { log("  - " + r); });
+          log("  Keeping " + clean.length + " valid attachment(s).");
+          fixes.push(
+            fbDb.collection("reports").doc(doc.id).update({ attachments: clean })
+          );
+        }
+      });
+
+      if (fixes.length === 0) {
+        statusEl.textContent = "No corrupted attachments found.";
+        log("\nAll attachments are valid.");
+        return;
+      }
+
+      statusEl.textContent = "Fixing " + fixes.length + " report(s)...";
+
+      return Promise.all(fixes).then(function () {
+        statusEl.textContent = "Done! Cleaned " + fixes.length + " report(s). You can go back to the dashboard.";
+        statusEl.innerHTML += '<br><br><a href="dashboard.html" style="color:#64ffda;">Go to Dashboard</a>';
+      });
+    }).catch(function (err) {
+      statusEl.textContent = "Error: " + err.message;
+      log(err.stack || "");
+    });
+  });
+</script>
+</body></html>
