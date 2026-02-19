@@ -1171,7 +1171,10 @@
     <a href="capabilities.html" style="padding:0.45rem 1.2rem;color:#34d399;text-decoration:none;font-size:0.8rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;border-radius:6px;background:rgba(52,211,153,0.12);font-family:Inter,-apple-system,sans-serif;">TGI Capabilities</a>
     <a href="nds.html" style="padding:0.45rem 1.2rem;color:#8a94a6;text-decoration:none;font-size:0.8rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;border-radius:6px;font-family:Inter,-apple-system,sans-serif;">2026 NDS Alignment</a>
   </div>
-  <div></div>
+  <div style="display:flex;align-items:center;gap:1.25rem;">
+    <span id="user-display" style="font-size:0.8rem;color:#8a94a6;letter-spacing:0.05em;"></span>
+    <button id="logout-btn" style="padding:0.4rem 1rem;background:transparent;color:#8a94a6;border:1px solid rgba(52,211,153,0.12);border-radius:6px;font-size:0.75rem;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Logout</button>
+  </div>
 </nav>
 
 <div class="classified-banner">
@@ -2175,5 +2178,18 @@
 })();
 </script>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/activity.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  requireAuth().then(function () {
+    var session = getSession();
+    var userDisplay = document.getElementById("user-display");
+    if (session && userDisplay) userDisplay.textContent = session.username.toUpperCase();
+  });
+</script>
 </body>
 </html>

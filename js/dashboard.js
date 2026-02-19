@@ -7,7 +7,15 @@
 (async function () {
   "use strict";
 
-  requireAuth();
+  await requireAuth();
+
+  // Show Admin tab if user is admin
+  isAdmin().then(function (admin) {
+    if (admin) {
+      var adminTab = document.getElementById("admin-tab");
+      if (adminTab) adminTab.hidden = false;
+    }
+  });
 
   const session = getSession();
   const userDisplay = document.getElementById("user-display");
@@ -201,6 +209,7 @@
     if (!report) return;
 
     activeReportId = id;
+    ActivityLog.log("report_view", { reportId: report.id, subject: report.subjectName });
     renderReportList(searchInput.value);
 
     reportPlaceholder.hidden = true;
@@ -261,14 +270,14 @@
     printBtn.type = "button";
     printBtn.className = "btn-action";
     printBtn.textContent = "Print";
-    printBtn.addEventListener("click", () => printReport());
+    printBtn.addEventListener("click", () => { ActivityLog.log("report_export", { reportId: report.id, method: "print" }); printReport(); });
     actionsDiv.appendChild(printBtn);
 
     const saveBtn = document.createElement("button");
     saveBtn.type = "button";
     saveBtn.className = "btn-action";
     saveBtn.textContent = "Save PDF";
-    saveBtn.addEventListener("click", () => saveReportPDF(report));
+    saveBtn.addEventListener("click", () => { ActivityLog.log("report_export", { reportId: report.id, method: "pdf" }); saveReportPDF(report); });
     actionsDiv.appendChild(saveBtn);
 
     const deleteBtn = document.createElement("button");
@@ -322,62 +331,6 @@
 
     banner.appendChild(grid);
     reportMetaEl.appendChild(banner);
-
-    // ---- Recovery Location Map ----
-    if (report.lat != null && report.lng != null) {
-      const mapSection = document.createElement("div");
-      mapSection.className = "map-section";
-
-      const mapHeader = document.createElement("div");
-      mapHeader.className = "documents-section-header";
-      mapHeader.textContent = "Recovery Location" + (report.locationName ? " \u2014 " + report.locationName : "");
-      mapSection.appendChild(mapHeader);
-
-      const coordsInfo = document.createElement("div");
-      coordsInfo.className = "map-coords";
-      coordsInfo.textContent = report.lat.toFixed(6) + ", " + report.lng.toFixed(6);
-      mapSection.appendChild(coordsInfo);
-
-      const mapContainer = document.createElement("div");
-      mapContainer.className = "map-container";
-      mapContainer.id = "report-map-" + report.id;
-      mapSection.appendChild(mapContainer);
-
-      reportBodyEl.appendChild(mapSection);
-
-      // Initialize Leaflet map after DOM insertion
-      setTimeout(function () {
-        if (typeof L === "undefined") return;
-        try {
-        activeMap = L.map(mapContainer).setView([report.lat, report.lng], 13);
-        const map = activeMap;
-        L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
-          attribution: "&copy; Esri, Maxar, Earthstar Geographics",
-          maxZoom: 19,
-        }).addTo(map);
-        L.marker([report.lat, report.lng])
-          .addTo(map)
-          .bindPopup(
-            "<strong>" + (report.locationName || "Recovery Site") + "</strong><br>" +
-            report.lat.toFixed(6) + ", " + report.lng.toFixed(6) +
-            (report.subjectName ? "<br>Subject: " + report.subjectName : "")
-          )
-          .openPopup();
-        } catch (e) { console.error("Map init error:", e); }
-      }, 100);
-    }
-
-    // ---- Report body (Markdown) ----
-    if (report.content) {
-      const section = document.createElement("div");
-      section.className = "report-body-section";
-      if (typeof marked !== "undefined") {
-        setSafeHTML(section, marked.parse(report.content));
-      } else {
-        section.textContent = report.content;
-      }
-      reportBodyEl.appendChild(section);
-    }
 
     // ---- Auto-expanded documents ----
     if (report.attachments && report.attachments.length > 0) {
@@ -450,6 +403,62 @@
       });
 
       reportBodyEl.appendChild(docsSection);
+    }
+
+    // ---- Recovery Location Map ----
+    if (report.lat != null && report.lng != null) {
+      const mapSection = document.createElement("div");
+      mapSection.className = "map-section";
+
+      const mapHeader = document.createElement("div");
+      mapHeader.className = "documents-section-header";
+      mapHeader.textContent = "Recovery Location" + (report.locationName ? " \u2014 " + report.locationName : "");
+      mapSection.appendChild(mapHeader);
+
+      const coordsInfo = document.createElement("div");
+      coordsInfo.className = "map-coords";
+      coordsInfo.textContent = report.lat.toFixed(6) + ", " + report.lng.toFixed(6);
+      mapSection.appendChild(coordsInfo);
+
+      const mapContainer = document.createElement("div");
+      mapContainer.className = "map-container";
+      mapContainer.id = "report-map-" + report.id;
+      mapSection.appendChild(mapContainer);
+
+      reportBodyEl.appendChild(mapSection);
+
+      // Initialize Leaflet map after DOM insertion
+      setTimeout(function () {
+        if (typeof L === "undefined") return;
+        try {
+        activeMap = L.map(mapContainer).setView([report.lat, report.lng], 13);
+        const map = activeMap;
+        L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+          attribution: "&copy; Esri, Maxar, Earthstar Geographics",
+          maxZoom: 19,
+        }).addTo(map);
+        L.marker([report.lat, report.lng])
+          .addTo(map)
+          .bindPopup(
+            "<strong>" + (report.locationName || "Recovery Site") + "</strong><br>" +
+            report.lat.toFixed(6) + ", " + report.lng.toFixed(6) +
+            (report.subjectName ? "<br>Subject: " + report.subjectName : "")
+          )
+          .openPopup();
+        } catch (e) { console.error("Map init error:", e); }
+      }, 100);
+    }
+
+    // ---- Report body (Markdown) ----
+    if (report.content) {
+      const section = document.createElement("div");
+      section.className = "report-body-section";
+      if (typeof marked !== "undefined") {
+        setSafeHTML(section, marked.parse(report.content));
+      } else {
+        section.textContent = report.content;
+      }
+      reportBodyEl.appendChild(section);
     }
   }
 
@@ -600,6 +609,7 @@
     confirmBtn.className = "btn-confirm-delete";
     confirmBtn.textContent = "Delete";
     confirmBtn.addEventListener("click", async () => {
+      ActivityLog.log("report_delete", { reportId: report.id, subject: report.subjectName });
       const idx = REPORTS.findIndex((r) => r.id === report.id);
       if (idx !== -1) REPORTS.splice(idx, 1);
       try { await StorageDB.deleteReport(report.id); } catch (e) {}
@@ -761,6 +771,7 @@
           existing.attachments.push(...newAttachments);
         }
 
+        ActivityLog.log("report_edit", { reportId: existing.id, subject: existing.subjectName });
         try {
           await StorageDB.saveReport(existing);
           console.log("Report " + existing.id + " updated successfully.");
@@ -791,6 +802,7 @@
       };
 
       REPORTS.unshift(report);
+      ActivityLog.log("report_create", { reportId: id, subject: name });
 
       try {
         await StorageDB.saveReport(report);
@@ -830,7 +842,10 @@
   }
 
   // ---- Search ----
-  searchInput.addEventListener("input", () => renderReportList(searchInput.value));
+  searchInput.addEventListener("input", () => {
+    renderReportList(searchInput.value);
+    ActivityLog.logSearch(searchInput.value);
+  });
 
   // ---- Init ----
   renderReportList("");

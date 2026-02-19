@@ -69,7 +69,10 @@
       <a href="capabilities.html" class="topbar-tab">TGI Capabilities</a>
       <a href="nds.html" class="topbar-tab active">2026 NDS Alignment</a>
     </div>
-    <div class="topbar-right"></div>
+    <div class="topbar-right">
+      <span id="user-display" class="user-display"></span>
+      <button id="logout-btn" class="btn-logout">Logout</button>
+    </div>
   </nav>
 
   <div class="nds-viewer" id="nds-viewer">
@@ -80,6 +83,19 @@
     Powered by <a href="https://www.thegoatinitiative.org/" target="_blank" rel="noopener">The GOAT Initiative</a>
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/activity.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    requireAuth().then(function () {
+      var session = getSession();
+      var userDisplay = document.getElementById("user-display");
+      if (session && userDisplay) userDisplay.textContent = session.username.toUpperCase();
+    });
+  </script>
   <script>
     var viewer = document.getElementById("nds-viewer");
     var loading = document.getElementById("nds-loading");
