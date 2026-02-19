@@ -11,7 +11,6 @@
 <script>
   var statusEl = document.getElementById("status");
   var logEl = document.getElementById("log");
-  var MAX_ATTACHMENT_SIZE = 500000; // 500KB — anything larger gets stripped
 
   function log(msg) {
     logEl.textContent += msg + "\n";
@@ -23,7 +22,7 @@
       return;
     }
 
-    statusEl.textContent = "Logged in as " + user.email + ". Scanning reports...";
+    statusEl.textContent = "Logged in as " + user.email + ". Scanning all reports...";
 
     fbDb.collection("reports").get().then(function (snap) {
       log("Found " + snap.size + " reports.\n");
@@ -32,65 +31,38 @@
 
       snap.forEach(function (doc) {
         var data = doc.data();
-        if (!data.attachments || data.attachments.length === 0) return;
+        var reportLabel = (data.id || doc.id) + " (" + (data.subjectName || "unknown") + ")";
 
-        var clean = [];
-        var removed = [];
+        if (!data.attachments || data.attachments.length === 0) {
+          log(reportLabel + ": no attachments");
+          return;
+        }
 
+        // Log every attachment with its size
+        log(reportLabel + ": " + data.attachments.length + " attachment(s)");
         data.attachments.forEach(function (att) {
-          var reason = null;
-
-          // Check: no data
-          if (!att.dataUrl || att.dataUrl.length < 10) {
-            reason = "no data";
-          }
-
-          // Check: oversized
-          if (!reason && att.dataUrl && att.dataUrl.length > MAX_ATTACHMENT_SIZE) {
-            reason = "oversized (" + (att.dataUrl.length / 1024 / 1024).toFixed(1) + " MB data URL)";
-          }
-
-          // Check: corrupted base64
-          if (!reason) {
-            try {
-              var b64 = att.dataUrl.split(",")[1];
-              if (!b64) throw new Error("no base64");
-              atob(b64.substring(0, 100));
-            } catch (e) {
-              reason = "corrupt base64 (" + e.message + ")";
-            }
-          }
-
-          if (reason) {
-            removed.push(att.name + " — " + reason);
-          } else {
-            clean.push(att);
-          }
+          var size = att.dataUrl ? (att.dataUrl.length / 1024).toFixed(0) + " KB data URL" : "no data";
+          log("  - " + att.name + " (" + size + ")");
         });
 
-        if (removed.length > 0) {
-          log((data.id || doc.id) + " (" + (data.subjectName || "unknown") + "):");
-          removed.forEach(function (r) { log("  REMOVE: " + r); });
-          if (clean.length > 0) {
-            clean.forEach(function (a) { log("  KEEP:   " + a.name); });
-          }
-          log("");
-          fixes.push(
-            fbDb.collection("reports").doc(doc.id).update({ attachments: clean })
-          );
-        }
+        // Remove ALL attachments from every report to fix OOM
+        log("  -> Stripping all attachments");
+        log("");
+        fixes.push(
+          fbDb.collection("reports").doc(doc.id).update({ attachments: [] })
+        );
       });
 
       if (fixes.length === 0) {
-        statusEl.textContent = "All attachments look fine. No changes needed.";
+        statusEl.textContent = "No reports with attachments found.";
         statusEl.innerHTML += '<br><br><a href="dashboard.html" style="color:#64ffda;">Go to Dashboard</a>';
         return;
       }
 
-      statusEl.textContent = "Cleaning " + fixes.length + " report(s)...";
+      statusEl.textContent = "Stripping attachments from " + fixes.length + " report(s)...";
 
       return Promise.all(fixes).then(function () {
-        statusEl.textContent = "Done! Cleaned " + fixes.length + " report(s).";
+        statusEl.textContent = "Done! Stripped attachments from " + fixes.length + " report(s).";
         statusEl.innerHTML += '<br><br><a href="dashboard.html" style="color:#64ffda;">Go to Dashboard</a>';
       });
     }).catch(function (err) {
