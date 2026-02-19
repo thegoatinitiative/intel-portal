@@ -114,11 +114,25 @@ const StorageDB = (function () {
       .then(function (snap) {
         var reports = [];
         snap.forEach(function (doc) {
-          reports.push(doc.data());
+          var data = doc.data();
+          // Strip dataUrl from attachments to keep memory low.
+          // Full data is fetched on demand via getReport().
+          if (data.attachments) {
+            data.attachments = data.attachments.map(function (att) {
+              return { name: att.name, type: att.type, size: att.size };
+            });
+          }
+          reports.push(data);
         });
-        // Restore any locally-cached blobs
-        return Promise.all(reports.map(restoreFromFirestore));
+        return reports;
       });
+  }
+
+  function getReport(id) {
+    return fbDb.collection(COLLECTION).doc(id).get().then(function (doc) {
+      if (!doc.exists) return null;
+      return restoreFromFirestore(doc.data());
+    });
   }
 
   function saveAllReports(reports) {
@@ -143,6 +157,7 @@ const StorageDB = (function () {
     saveReport: saveReport,
     deleteReport: deleteReport,
     getAllReports: getAllReports,
+    getReport: getReport,
     saveAllReports: saveAllReports,
   };
 })();

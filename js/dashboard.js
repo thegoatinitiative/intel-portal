@@ -107,9 +107,10 @@
       container.removeChild(loading);
 
       const totalPages = pdf.numPages;
-      for (let num = 1; num <= totalPages; num++) {
+      const maxPages = Math.min(totalPages, 5);
+      for (let num = 1; num <= maxPages; num++) {
         const page = await pdf.getPage(num);
-        const scale = 1.5;
+        const scale = 1.2;
         const viewport = page.getViewport({ scale });
 
         const canvas = document.createElement("canvas");
@@ -123,11 +124,18 @@
         container.appendChild(canvas);
 
         // Page separator
-        if (num < totalPages) {
+        if (num < maxPages) {
           const sep = document.createElement("div");
           sep.style.cssText = "height:2px;background:var(--border);";
           container.appendChild(sep);
         }
+      }
+
+      if (totalPages > maxPages) {
+        const note = document.createElement("div");
+        note.style.cssText = "padding:1rem;text-align:center;color:var(--text-muted);font-size:0.8rem;";
+        note.textContent = "Showing " + maxPages + " of " + totalPages + " pages.";
+        container.appendChild(note);
       }
     } catch (e) {
       loading.textContent = "Unable to render PDF: " + e.message;
@@ -206,16 +214,26 @@
 
   // ---- Report Viewer (executive layout, auto-expanded docs) ----
 
-  function openReport(id) {
-    const report = REPORTS.find((r) => r.id === id);
-    if (!report) return;
+  async function openReport(id) {
+    const reportMeta = REPORTS.find((r) => r.id === id);
+    if (!reportMeta) return;
 
     activeReportId = id;
-    ActivityLog.log("report_view", { reportId: report.id, subject: report.subjectName });
+    ActivityLog.log("report_view", { reportId: id, subject: reportMeta.subjectName });
     renderReportList(searchInput.value);
 
     reportPlaceholder.hidden = true;
     reportContentEl.hidden = false;
+
+    // Fetch full report data (with attachment blobs) on demand
+    var report;
+    try {
+      report = await StorageDB.getReport(id);
+      if (!report) report = reportMeta;
+    } catch (e) {
+      console.error("Failed to fetch full report:", e);
+      report = reportMeta;
+    }
 
     const viewer = document.querySelector(".report-viewer");
     viewer.scrollTop = 0;
@@ -388,15 +406,20 @@
         const body = document.createElement("div");
         body.className = "document-embed-body";
 
-        if (att.type === "application/pdf") {
+        if (!att.dataUrl) {
+          const msg = document.createElement("div");
+          msg.style.cssText = "padding:1.5rem;text-align:center;color:var(--text-muted);font-size:0.85rem;";
+          msg.textContent = "Attachment data not available.";
+          body.appendChild(msg);
+        } else if (att.type === "application/pdf") {
           renderPDFPages(att.dataUrl, body);
-        } else if (att.type.startsWith("image/")) {
+        } else if (att.type && att.type.startsWith("image/")) {
           const img = document.createElement("img");
           img.src = att.dataUrl;
           img.alt = att.name;
           body.appendChild(img);
         } else if (
-          att.type.startsWith("text/") ||
+          (att.type && att.type.startsWith("text/")) ||
           att.name.endsWith(".md") ||
           att.name.endsWith(".csv")
         ) {
