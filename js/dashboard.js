@@ -115,7 +115,7 @@
       container.removeChild(loading);
 
       const totalPages = pdf.numPages;
-      const maxPages = Math.min(totalPages, 5);
+      const maxPages = Math.min(totalPages, 20);
       for (let num = 1; num <= maxPages; num++) {
         const page = await pdf.getPage(num);
         const scale = 1.2;
