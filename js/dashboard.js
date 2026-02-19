@@ -277,7 +277,7 @@
     saveBtn.type = "button";
     saveBtn.className = "btn-action";
     saveBtn.textContent = "Save PDF";
-    saveBtn.addEventListener("click", () => { ActivityLog.log("report_export", { reportId: report.id, method: "pdf" }); saveReportPDF(report); });
+    saveBtn.addEventListener("click", () => { ActivityLog.log("report_export", { reportId: report.id, method: "pdf" }); window.print(); });
     actionsDiv.appendChild(saveBtn);
 
     const deleteBtn = document.createElement("button");
@@ -483,77 +483,6 @@
     window.print();
   }
 
-  // ---- Save as PDF (opens clean page with print/save dialog) ----
-
-  function saveReportPDF(report) {
-    var content = reportContentEl.cloneNode(true);
-    // Remove action buttons and attachment remove buttons from the clone
-    var removeEls = content.querySelectorAll(".report-header-actions, .btn-delete");
-    for (var i = 0; i < removeEls.length; i++) removeEls[i].remove();
-
-    // Convert canvases to images so they survive cross-document transfer
-    var origCanvases = reportContentEl.querySelectorAll("canvas");
-    var cloneCanvases = content.querySelectorAll("canvas");
-    for (var j = 0; j < origCanvases.length; j++) {
-      try {
-        var img = document.createElement("img");
-        img.src = origCanvases[j].toDataURL("image/png");
-        img.style.cssText = "width:100%;height:auto;display:block;";
-        cloneCanvases[j].parentNode.replaceChild(img, cloneCanvases[j]);
-      } catch (e) { /* ignore tainted canvases */ }
-    }
-
-    var printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      alert("Please allow popups to save the report.");
-      return;
-    }
-
-    var doc = printWindow.document;
-
-    var titleEl = doc.createElement("title");
-    titleEl.textContent = report.id + " - " + (report.subjectName || "");
-    doc.head.appendChild(titleEl);
-
-    var style = doc.createElement("style");
-    style.textContent = [
-      "*{box-sizing:border-box;margin:0;padding:0}",
-      "body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a2e;line-height:1.6;padding:2rem;max-width:900px;margin:0 auto}",
-      "h1{font-size:1.5rem;margin-bottom:0.25rem}",
-      ".report-title-id{font-family:monospace;font-size:0.85rem;color:#666;margin-bottom:1.5rem}",
-      ".report-header-banner{border:2px solid #ddd;border-radius:8px;padding:1.5rem;margin-bottom:1.5rem}",
-      ".report-header-banner::before{display:none}",
-      ".report-meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;padding-top:1rem;border-top:1px solid #ddd}",
-      ".meta-item{display:flex;flex-direction:column;gap:0.15rem}",
-      ".meta-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;font-weight:600}",
-      ".meta-value{font-size:0.9rem;font-weight:600;color:#1a1a2e}",
-      ".meta-value.mono{font-family:monospace;color:#2563eb}",
-      ".report-item-classification{display:inline-block;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:0.2rem 0.6rem;border-radius:4px;border:1px solid #999}",
-      ".report-body-section{border:1px solid #ddd;border-radius:8px;padding:1.5rem;margin-bottom:1.5rem;line-height:1.8}",
-      ".report-body-section h1,.report-body-section h2,.report-body-section h3{border-bottom:1px solid #ddd;padding-bottom:0.4rem;margin-top:1.25rem;margin-bottom:0.5rem}",
-      ".report-body-section h1:first-child{margin-top:0}",
-      ".report-body-section p{margin-bottom:0.75rem;color:#444}",
-      ".report-body-section table{width:100%;border-collapse:collapse;margin:1rem 0}",
-      ".report-body-section th,.report-body-section td{padding:0.5rem 0.75rem;border:1px solid #ddd;text-align:left;font-size:0.85rem}",
-      ".report-body-section th{background:#f5f5f5;font-weight:600;text-transform:uppercase;font-size:0.72rem}",
-      ".report-body-section blockquote{border-left:3px solid #2563eb;padding:0.5rem 1rem;margin:1rem 0;background:#f0f4ff}",
-      ".documents-section-header{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.12em;color:#888;font-weight:600;margin:1.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid #ddd}",
-      ".document-embed{border:1px solid #ddd;border-radius:8px;overflow:hidden;margin-bottom:1.5rem;page-break-inside:avoid}",
-      ".document-embed-header{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;background:#f5f5f5;border-bottom:1px solid #ddd;font-size:0.85rem;font-weight:600}",
-      ".document-embed-size{color:#888;font-size:0.72rem;font-weight:400}",
-      ".document-embed-body img{max-width:100%;display:block}",
-      "@media print{body{padding:0.5rem}img{max-width:100%;height:auto!important;page-break-inside:avoid}}",
-    ].join("\n");
-    doc.head.appendChild(style);
-
-    // Use importNode instead of adoptNode for cross-document reliability
-    doc.body.appendChild(doc.importNode(content, true));
-
-    // Wait for images to load then trigger print
-    setTimeout(function() {
-      printWindow.print();
-    }, 2000);
-  }
 
   // ---- Edit Report ----
 
