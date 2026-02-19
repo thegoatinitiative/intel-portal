@@ -1,8 +1,6 @@
 /**
- * storage.js — Firestore persistence for Intel Portal
- * Stores reports in Firestore so all authenticated users see the same data.
- * Attachments with dataUrls are stored inline (Firestore doc limit: 1MB).
- * Falls back to IndexedDB for large attachments.
+ * storage.js — Firestore + Firebase Storage persistence for Intel Portal
+ * Reports metadata stored in Firestore; attachment files in Firebase Storage.
  */
 
 const StorageDB = (function () {
@@ -10,103 +8,109 @@ const StorageDB = (function () {
 
   var COLLECTION = "reports";
 
-  // Strip large dataUrls from attachments before saving to Firestore
-  // to stay under the 1MB doc limit. Store them in IndexedDB instead.
-  var DB_NAME = "intel_portal_blobs";
-  var DB_VERSION = 1;
-  var BLOB_STORE = "blobs";
-
-  function openLocalDB() {
-    return new Promise(function (resolve, reject) {
-      var request = indexedDB.open(DB_NAME, DB_VERSION);
-      request.onupgradeneeded = function (e) {
-        var db = e.target.result;
-        if (!db.objectStoreNames.contains(BLOB_STORE)) {
-          db.createObjectStore(BLOB_STORE, { keyPath: "key" });
-        }
-      };
-      request.onsuccess = function () { resolve(request.result); };
-      request.onerror = function () { reject(request.error); };
-    });
-  }
-
-  function saveBlobLocal(key, dataUrl) {
-    return openLocalDB().then(function (db) {
-      return new Promise(function (resolve, reject) {
-        var tx = db.transaction(BLOB_STORE, "readwrite");
-        tx.objectStore(BLOB_STORE).put({ key: key, dataUrl: dataUrl });
-        tx.oncomplete = function () { resolve(); };
-        tx.onerror = function () { reject(tx.error); };
+  /**
+   * Upload a File or Blob to Firebase Storage.
+   * Returns { storageUrl, storagePath }.
+   */
+  function uploadAttachment(reportId, fileName, fileData) {
+    var path = "attachments/" + reportId + "/" + fileName;
+    var ref = fbStorage.ref(path);
+    return ref.put(fileData).then(function () {
+      return ref.getDownloadURL().then(function (url) {
+        return { storageUrl: url, storagePath: path };
       });
     });
   }
 
-  function getBlobLocal(key) {
-    return openLocalDB().then(function (db) {
-      return new Promise(function (resolve, reject) {
-        var tx = db.transaction(BLOB_STORE, "readonly");
-        var request = tx.objectStore(BLOB_STORE).get(key);
-        request.onsuccess = function () {
-          resolve(request.result ? request.result.dataUrl : null);
-        };
-        request.onerror = function () { resolve(null); };
-      });
+  /**
+   * Delete a file from Firebase Storage by its path.
+   */
+  function deleteAttachment(storagePath) {
+    if (!storagePath) return Promise.resolve();
+    return fbStorage.ref(storagePath).delete().catch(function (err) {
+      // Ignore "not found" errors (file may already be deleted)
+      if (err.code === "storage/object-not-found") return;
+      throw err;
     });
   }
 
-  // Max size for inline dataUrl in Firestore (leave room for other fields)
-  var MAX_INLINE_SIZE = 800000; // ~800KB
-
+  /**
+   * Before saving to Firestore, upload any attachment that has a raw `file`
+   * (File object) to Firebase Storage. Replace the `file` with `storageUrl`
+   * and `storagePath`. Also handles legacy `dataUrl` by uploading it.
+   */
   function prepareForFirestore(report) {
     var clone = Object.assign({}, report);
-    var blobPromises = [];
+    if (!clone.attachments || clone.attachments.length === 0) {
+      return Promise.resolve(clone);
+    }
 
-    if (clone.attachments && clone.attachments.length > 0) {
-      clone.attachments = clone.attachments.map(function (att, i) {
-        var attClone = Object.assign({}, att);
-        if (attClone.dataUrl && attClone.dataUrl.length > MAX_INLINE_SIZE) {
-          // Store large blob locally, save a reference
-          var blobKey = report.id + "_att_" + i;
-          blobPromises.push(saveBlobLocal(blobKey, attClone.dataUrl));
-          attClone.dataUrl = "local:" + blobKey;
+    var uploadPromises = clone.attachments.map(function (att, i) {
+      var attClone = Object.assign({}, att);
+      clone.attachments[i] = attClone;
+
+      if (attClone.file) {
+        // New attachment with a File object — upload to Storage
+        return uploadAttachment(report.id, attClone.name, attClone.file)
+          .then(function (result) {
+            attClone.storageUrl = result.storageUrl;
+            attClone.storagePath = result.storagePath;
+            delete attClone.file;
+            delete attClone.dataUrl;
+          });
+      } else if (attClone.dataUrl && !attClone.storageUrl) {
+        // Legacy inline base64 — convert to Storage
+        var byteString = atob(attClone.dataUrl.split(",")[1]);
+        var mimeType = attClone.type || "application/octet-stream";
+        var ab = new ArrayBuffer(byteString.length);
+        var ia = new Uint8Array(ab);
+        for (var j = 0; j < byteString.length; j++) {
+          ia[j] = byteString.charCodeAt(j);
         }
-        return attClone;
-      });
-    }
-
-    return Promise.all(blobPromises).then(function () {
-      return clone;
-    });
-  }
-
-  function restoreFromFirestore(report) {
-    if (!report.attachments || report.attachments.length === 0) {
-      return Promise.resolve(report);
-    }
-
-    var promises = report.attachments.map(function (att) {
-      if (att.dataUrl && att.dataUrl.indexOf("local:") === 0) {
-        var blobKey = att.dataUrl.replace("local:", "");
-        return getBlobLocal(blobKey).then(function (dataUrl) {
-          att.dataUrl = dataUrl;
-        });
+        var blob = new Blob([ab], { type: mimeType });
+        return uploadAttachment(report.id, attClone.name, blob)
+          .then(function (result) {
+            attClone.storageUrl = result.storageUrl;
+            attClone.storagePath = result.storagePath;
+            delete attClone.dataUrl;
+          });
       }
+      // Already has storageUrl or no data — leave as-is
+      delete attClone.file;
+      delete attClone.dataUrl;
       return Promise.resolve();
     });
 
-    return Promise.all(promises).then(function () {
-      return report;
+    return Promise.all(uploadPromises).then(function () {
+      return clone;
     });
   }
 
   function saveReport(report) {
     return prepareForFirestore(report).then(function (cleaned) {
-      return fbDb.collection(COLLECTION).doc(report.id).set(cleaned);
+      return fbDb.collection(COLLECTION).doc(report.id).set(cleaned).then(function () {
+        return cleaned;
+      });
     });
   }
 
   function deleteReport(id) {
-    return fbDb.collection(COLLECTION).doc(id).delete();
+    // Delete all Storage files under attachments/{id}/ then the Firestore doc
+    return fbDb.collection(COLLECTION).doc(id).get().then(function (doc) {
+      var promises = [];
+      if (doc.exists) {
+        var data = doc.data();
+        if (data.attachments) {
+          data.attachments.forEach(function (att) {
+            if (att.storagePath) {
+              promises.push(deleteAttachment(att.storagePath));
+            }
+          });
+        }
+      }
+      promises.push(fbDb.collection(COLLECTION).doc(id).delete());
+      return Promise.all(promises);
+    });
   }
 
   function getAllReports() {
@@ -115,11 +119,16 @@ const StorageDB = (function () {
         var reports = [];
         snap.forEach(function (doc) {
           var data = doc.data();
-          // Strip dataUrl from attachments to keep memory low.
-          // Full data is fetched on demand via getReport().
+          // Strip heavy fields; keep metadata + storage references
           if (data.attachments) {
             data.attachments = data.attachments.map(function (att) {
-              return { name: att.name, type: att.type, size: att.size };
+              return {
+                name: att.name,
+                type: att.type,
+                size: att.size,
+                storageUrl: att.storageUrl || null,
+                storagePath: att.storagePath || null,
+              };
             });
           }
           reports.push(data);
@@ -131,16 +140,16 @@ const StorageDB = (function () {
   function getReport(id) {
     return fbDb.collection(COLLECTION).doc(id).get().then(function (doc) {
       if (!doc.exists) return null;
-      return restoreFromFirestore(doc.data());
+      return doc.data();
     });
   }
 
   function saveAllReports(reports) {
     var batch = fbDb.batch();
-    var blobPromises = [];
+    var prepPromises = [];
 
     reports.forEach(function (report) {
-      blobPromises.push(
+      prepPromises.push(
         prepareForFirestore(report).then(function (cleaned) {
           var ref = fbDb.collection(COLLECTION).doc(report.id);
           batch.set(ref, cleaned);
@@ -148,7 +157,7 @@ const StorageDB = (function () {
       );
     });
 
-    return Promise.all(blobPromises).then(function () {
+    return Promise.all(prepPromises).then(function () {
       return batch.commit();
     });
   }
@@ -156,6 +165,7 @@ const StorageDB = (function () {
   return {
     saveReport: saveReport,
     deleteReport: deleteReport,
+    deleteAttachment: deleteAttachment,
     getAllReports: getAllReports,
     getReport: getReport,
     saveAllReports: saveAllReports,
