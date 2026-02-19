@@ -45,10 +45,12 @@ const StorageDB = (function () {
       return Promise.resolve(clone);
     }
 
-    var uploadPromises = clone.attachments.map(function (att, i) {
-      var attClone = Object.assign({}, att);
-      clone.attachments[i] = attClone;
+    // Deep-clone attachments array so we don't mutate the original
+    clone.attachments = clone.attachments.map(function (att) {
+      return Object.assign({}, att);
+    });
 
+    var uploadPromises = clone.attachments.map(function (attClone) {
       if (attClone.file) {
         // New attachment with a File object — upload to Storage
         return uploadAttachment(report.id, attClone.name, attClone.file)
@@ -82,6 +84,17 @@ const StorageDB = (function () {
     });
 
     return Promise.all(uploadPromises).then(function () {
+      // Final safety pass: strip any non-serializable fields
+      clone.attachments = clone.attachments.map(function (att) {
+        return {
+          name: att.name,
+          type: att.type,
+          size: att.size,
+          storageUrl: att.storageUrl || null,
+          storagePath: att.storagePath || null,
+          textContent: att.textContent || null,
+        };
+      });
       return clone;
     });
   }
