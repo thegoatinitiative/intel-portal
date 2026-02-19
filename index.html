@@ -27,17 +27,17 @@
       <button type="submit" class="btn-login">Authenticate</button>
     </form>
     <p class="security-notice">
-      <!-- SECURITY NOTE: This is client-side authentication for demo/static-site purposes only.
-           Credentials are checked via SHA-256 hashes in the browser. This can be bypassed by
-           anyone who inspects the source code. For real-world use with sensitive data, replace
-           this with a proper backend authentication system (e.g., Firebase Auth, Auth0, or a
-           custom Node.js/Express server with session management). -->
       All access attempts are logged. Unauthorized access is prohibited.
     </p>
   </div>
   <footer class="site-footer">
     Powered by <a href="https://www.thegoatinitiative.org/" target="_blank" rel="noopener">The GOAT Initiative</a>
   </footer>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/activity.js"></script>
   <script src="js/auth.js"></script>
 </body>
 </html>

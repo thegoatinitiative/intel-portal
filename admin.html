@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intel Portal — Admin</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dashboard-body">
+  <nav class="topbar">
+    <div class="topbar-left">
+      <span class="nav-shield">&#x1F6E1;</span>
+      <span class="nav-title">INTEL PORTAL</span>
+    </div>
+    <div class="topbar-center">
+      <a href="dashboard.html" class="topbar-tab">Intel Reports</a>
+      <a href="capabilities.html" class="topbar-tab">TGI Capabilities</a>
+      <a href="nds.html" class="topbar-tab">2026 NDS Alignment</a>
+      <a href="admin.html" class="topbar-tab active">Admin</a>
+    </div>
+    <div class="topbar-right">
+      <span id="user-display" class="user-display"></span>
+      <button id="logout-btn" class="btn-logout">Logout</button>
+    </div>
+  </nav>
+
+  <div class="admin-layout">
+    <!-- Left panel: User Management -->
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <h2>User Management</h2>
+        <button id="add-user-btn" class="btn-upload" style="width:auto;padding:0.5rem 1.2rem;">+ Add User</button>
+      </div>
+
+      <!-- Add User Form (hidden by default) -->
+      <div id="add-user-form" class="admin-add-user" hidden>
+        <form id="create-user-form">
+          <div class="admin-form-row">
+            <div class="form-group">
+              <label for="new-username">Username</label>
+              <input type="text" id="new-username" required placeholder="e.g. analyst1">
+            </div>
+            <div class="form-group">
+              <label for="new-password">Password</label>
+              <input type="password" id="new-password" required placeholder="Min 6 characters">
+            </div>
+            <div class="form-group">
+              <label for="new-role">Role</label>
+              <select id="new-role">
+                <option value="analyst">Analyst</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="form-group" style="display:flex;align-items:flex-end;gap:0.5rem;">
+              <button type="submit" class="btn-login" style="width:auto;padding:0.6rem 1.5rem;">Create</button>
+              <button type="button" id="cancel-add-user" class="btn-cancel" style="padding:0.6rem 1rem;">Cancel</button>
+            </div>
+          </div>
+          <div id="create-user-msg" class="admin-msg" hidden></div>
+        </form>
+      </div>
+
+      <table class="admin-table" id="users-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody">
+          <tr><td colspan="3" style="text-align:center;color:var(--text-muted);">Loading users...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Right panel: Activity Feed -->
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <h2>Activity Feed</h2>
+      </div>
+
+      <!-- Filters -->
+      <div class="admin-filters">
+        <div class="form-group">
+          <label for="filter-user">User</label>
+          <select id="filter-user">
+            <option value="">All Users</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="filter-action">Action</label>
+          <select id="filter-action">
+            <option value="">All Actions</option>
+            <option value="login">Login</option>
+            <option value="logout">Logout</option>
+            <option value="report_view">Report View</option>
+            <option value="report_create">Report Create</option>
+            <option value="report_edit">Report Edit</option>
+            <option value="report_delete">Report Delete</option>
+            <option value="report_export">Report Export</option>
+            <option value="search">Search</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="filter-date">Since</label>
+          <input type="date" id="filter-date">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+          <button id="apply-filters" class="btn-action" style="padding:0.6rem 1.2rem;">Apply</button>
+        </div>
+      </div>
+
+      <div class="admin-activity-feed" id="activity-feed">
+        <div style="text-align:center;color:var(--text-muted);padding:2rem;">Loading activity...</div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    Powered by <a href="https://www.thegoatinitiative.org/" target="_blank" rel="noopener">The GOAT Initiative</a>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/activity.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

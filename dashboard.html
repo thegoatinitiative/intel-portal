@@ -50,6 +50,7 @@
       <a href="dashboard.html" class="topbar-tab active">Intel Reports</a>
       <a href="capabilities.html" class="topbar-tab">TGI Capabilities</a>
       <a href="nds.html" class="topbar-tab">2026 NDS Alignment</a>
+      <a href="admin.html" class="topbar-tab" id="admin-tab" hidden>Admin</a>
     </div>
     <div class="topbar-right">
       <span id="user-display" class="user-display"></span>
@@ -179,6 +180,11 @@
     from an authenticated API with proper access controls, audit logging, and encryption
     in transit (TLS) and at rest.
   -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/activity.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/reports.js"></script>
