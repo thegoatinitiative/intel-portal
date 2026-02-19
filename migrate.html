@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Report Migration Tool</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; max-width: 700px; margin: 4rem auto; padding: 1rem; background: #0a0a0f; color: #e5e7eb; }
+    h1 { color: #34d399; font-size: 1.3rem; }
+    p { line-height: 1.6; color: #9ca3af; }
+    button { padding: 0.8rem 2rem; background: #34d399; color: #000; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin: 1rem 0; }
+    button:hover { background: #10b981; }
+    textarea { width: 100%; height: 200px; background: #111318; color: #e5e7eb; border: 1px solid rgba(52,211,153,0.2); border-radius: 8px; padding: 1rem; font-family: monospace; font-size: 0.8rem; margin: 1rem 0; }
+    .step { background: #111318; border: 1px solid rgba(52,211,153,0.12); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+    .step h2 { color: #34d399; font-size: 1rem; margin-bottom: 0.5rem; }
+    #status { padding: 0.8rem; border-radius: 8px; margin: 1rem 0; font-weight: 600; }
+    .success { background: rgba(52,211,153,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+    .error { background: rgba(240,68,68,0.1); color: #ef4444; border: 1px solid rgba(240,68,68,0.25); }
+  </style>
+</head>
+<body>
+  <h1>Intel Portal — Report Migration Tool</h1>
+
+  <div class="step">
+    <h2>Step 1: Export from local IndexedDB</h2>
+    <p>Click below to read your old reports from this browser's local storage and copy them.</p>
+    <button id="export-btn">Export Reports</button>
+    <div id="export-status"></div>
+    <textarea id="export-data" placeholder="Exported data will appear here..." readonly></textarea>
+    <button id="copy-btn" style="background:#6b7280;">Copy to Clipboard</button>
+  </div>
+
+  <div class="step">
+    <h2>Step 2: Import to Firestore</h2>
+    <p>Paste the exported data below (if on the live site), then click Import. This page must be loaded from the live GitHub Pages URL for import to work.</p>
+    <textarea id="import-data" placeholder="Paste exported report data here..."></textarea>
+    <button id="import-btn">Import Reports to Firestore</button>
+    <div id="import-status"></div>
+  </div>
+
+  <!-- Firebase SDKs (only needed for import on live site) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script>
+    // ---- EXPORT: Read from old IndexedDB ----
+    document.getElementById("export-btn").addEventListener("click", async function () {
+      var statusEl = document.getElementById("export-status");
+      var dataEl = document.getElementById("export-data");
+      try {
+        var db = await new Promise(function (resolve, reject) {
+          var req = indexedDB.open("intel_portal_db", 1);
+          req.onupgradeneeded = function (e) {
+            // DB didn't exist — no data to export
+            e.target.result.close();
+            reject(new Error("No existing database found. Reports may have been created on a different URL or browser."));
+          };
+          req.onsuccess = function () { resolve(req.result); };
+          req.onerror = function () { reject(req.error); };
+        });
+        var reports = await new Promise(function (resolve, reject) {
+          var tx = db.transaction("reports", "readonly");
+          var req = tx.objectStore("reports").getAll();
+          req.onsuccess = function () { resolve(req.result); };
+          req.onerror = function () { reject(req.error); };
+        });
+        if (reports.length === 0) {
+          statusEl.className = "error";
+          statusEl.id = "export-status";
+          statusEl.textContent = "No reports found in local storage.";
+          return;
+        }
+        var json = JSON.stringify(reports);
+        dataEl.value = json;
+        statusEl.className = "success";
+        statusEl.id = "export-status";
+        statusEl.textContent = "Found " + reports.length + " reports! Copy the data below.";
+      } catch (e) {
+        statusEl.className = "error";
+        statusEl.id = "export-status";
+        statusEl.textContent = "Error: " + e.message;
+      }
+    });
+
+    // ---- COPY ----
+    document.getElementById("copy-btn").addEventListener("click", function () {
+      var dataEl = document.getElementById("export-data");
+      dataEl.select();
+      document.execCommand("copy");
+      this.textContent = "Copied!";
+      setTimeout(function () { document.getElementById("copy-btn").textContent = "Copy to Clipboard"; }, 2000);
+    });
+
+    // ---- IMPORT: Write to Firestore ----
+    document.getElementById("import-btn").addEventListener("click", async function () {
+      var statusEl = document.getElementById("import-status");
+      var dataEl = document.getElementById("import-data");
+      try {
+        if (!window.fbDb) {
+          statusEl.className = "error";
+          statusEl.id = "import-status";
+          statusEl.textContent = "Firebase not loaded. Make sure you're on the live GitHub Pages URL.";
+          return;
+        }
+        // Check auth
+        var user = fbAuth.currentUser;
+        if (!user) {
+          statusEl.className = "error";
+          statusEl.id = "import-status";
+          statusEl.textContent = "Not logged in. Please log in first on the main site, then come back here.";
+          return;
+        }
+        var reports = JSON.parse(dataEl.value);
+        if (!Array.isArray(reports) || reports.length === 0) {
+          statusEl.className = "error";
+          statusEl.id = "import-status";
+          statusEl.textContent = "No valid report data found. Paste the exported JSON first.";
+          return;
+        }
+        statusEl.className = "success";
+        statusEl.id = "import-status";
+        statusEl.textContent = "Importing " + reports.length + " reports...";
+        for (var i = 0; i < reports.length; i++) {
+          var report = reports[i];
+          await fbDb.collection("reports").doc(report.id).set(report);
+          statusEl.textContent = "Imported " + (i + 1) + " of " + reports.length + "...";
+        }
+        statusEl.textContent = "Done! All " + reports.length + " reports imported to Firestore. Go back to the dashboard and refresh.";
+      } catch (e) {
+        statusEl.className = "error";
+        statusEl.id = "import-status";
+        statusEl.textContent = "Error: " + e.message;
+      }
+    });
+  </script>
+</body>
+</html>
