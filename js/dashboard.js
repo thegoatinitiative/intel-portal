@@ -486,27 +486,36 @@
   // ---- Save as PDF (opens clean page with print/save dialog) ----
 
   function saveReportPDF(report) {
-    const content = reportContentEl.cloneNode(true);
-    // Remove action buttons from the clone
-    const actions = content.querySelector(".report-header-actions");
-    if (actions) actions.remove();
+    var content = reportContentEl.cloneNode(true);
+    // Remove action buttons and attachment remove buttons from the clone
+    var removeEls = content.querySelectorAll(".report-header-actions, .btn-delete");
+    for (var i = 0; i < removeEls.length; i++) removeEls[i].remove();
 
-    const printWindow = window.open("", "_blank");
+    // Convert canvases to images so they survive cross-document transfer
+    var origCanvases = reportContentEl.querySelectorAll("canvas");
+    var cloneCanvases = content.querySelectorAll("canvas");
+    for (var j = 0; j < origCanvases.length; j++) {
+      try {
+        var img = document.createElement("img");
+        img.src = origCanvases[j].toDataURL("image/png");
+        img.style.cssText = "width:100%;height:auto;display:block;";
+        cloneCanvases[j].parentNode.replaceChild(img, cloneCanvases[j]);
+      } catch (e) { /* ignore tainted canvases */ }
+    }
+
+    var printWindow = window.open("", "_blank");
     if (!printWindow) {
       alert("Please allow popups to save the report.");
       return;
     }
 
-    const doc = printWindow.document;
-    doc.open();
+    var doc = printWindow.document;
 
-    // Build head
-    const head = doc.head;
-    const titleEl = doc.createElement("title");
-    titleEl.textContent = report.id + " - " + report.subjectName;
-    head.appendChild(titleEl);
+    var titleEl = doc.createElement("title");
+    titleEl.textContent = report.id + " - " + (report.subjectName || "");
+    doc.head.appendChild(titleEl);
 
-    const style = doc.createElement("style");
+    var style = doc.createElement("style");
     style.textContent = [
       "*{box-sizing:border-box;margin:0;padding:0}",
       "body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a2e;line-height:1.6;padding:2rem;max-width:900px;margin:0 auto}",
@@ -532,21 +541,18 @@
       ".document-embed{border:1px solid #ddd;border-radius:8px;overflow:hidden;margin-bottom:1.5rem;page-break-inside:avoid}",
       ".document-embed-header{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;background:#f5f5f5;border-bottom:1px solid #ddd;font-size:0.85rem;font-weight:600}",
       ".document-embed-size{color:#888;font-size:0.72rem;font-weight:400}",
-      ".document-embed-body canvas{width:100%;height:auto;display:block}",
       ".document-embed-body img{max-width:100%;display:block}",
-      "canvas{max-width:100%;height:auto!important}",
-      "@media print{body{padding:0.5rem}canvas{max-width:100%;height:auto!important;page-break-inside:avoid}}",
+      "@media print{body{padding:0.5rem}img{max-width:100%;height:auto!important;page-break-inside:avoid}}",
     ].join("\n");
-    head.appendChild(style);
+    doc.head.appendChild(style);
 
-    // Append cloned content to body
-    doc.body.appendChild(doc.adoptNode(content));
-    doc.close();
+    // Use importNode instead of adoptNode for cross-document reliability
+    doc.body.appendChild(doc.importNode(content, true));
 
-    // Wait for rendering then trigger print
+    // Wait for images to load then trigger print
     setTimeout(function() {
       printWindow.print();
-    }, 1500);
+    }, 2000);
   }
 
   // ---- Edit Report ----
