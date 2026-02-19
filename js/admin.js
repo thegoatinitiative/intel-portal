@@ -97,9 +97,24 @@
           tdCreated.textContent = "\u2014";
         }
 
+        var tdActions = document.createElement("td");
+        // Don't allow deleting yourself
+        var currentUser = fbAuth.currentUser;
+        if (currentUser && doc.id !== currentUser.uid) {
+          var delBtn = document.createElement("button");
+          delBtn.className = "btn-delete";
+          delBtn.textContent = "Remove";
+          delBtn.style.cssText = "padding:0.3rem 0.8rem;font-size:0.65rem;";
+          delBtn.addEventListener("click", function () {
+            confirmDeleteUser(doc.id, d.username);
+          });
+          tdActions.appendChild(delBtn);
+        }
+
         tr.appendChild(tdUser);
         tr.appendChild(tdRole);
         tr.appendChild(tdCreated);
+        tr.appendChild(tdActions);
         usersTbody.appendChild(tr);
 
         // Add to filter dropdown
@@ -109,6 +124,46 @@
         filterUserSelect.appendChild(opt);
       });
     });
+  }
+
+  function confirmDeleteUser(uid, username) {
+    var overlay = document.createElement("div");
+    overlay.className = "confirm-overlay";
+    var box = document.createElement("div");
+    box.className = "confirm-box";
+    var h3 = document.createElement("h3");
+    h3.textContent = "Remove User";
+    var p = document.createElement("p");
+    p.textContent = "Remove user '" + username + "'? They will no longer be able to log in.";
+    var actions = document.createElement("div");
+    actions.className = "confirm-actions";
+    var cancelBtn = document.createElement("button");
+    cancelBtn.className = "btn-cancel";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.addEventListener("click", function () { overlay.remove(); });
+    var confirmBtn = document.createElement("button");
+    confirmBtn.className = "btn-confirm-delete";
+    confirmBtn.textContent = "Remove";
+    confirmBtn.addEventListener("click", function () {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = "Removing...";
+      // Delete Firestore user doc
+      fbDb.collection("users").doc(uid).delete().then(function () {
+        overlay.remove();
+        loadUsers();
+      }).catch(function (err) {
+        alert("Error removing user: " + err.message);
+        overlay.remove();
+      });
+    });
+    actions.appendChild(cancelBtn);
+    actions.appendChild(confirmBtn);
+    box.appendChild(h3);
+    box.appendChild(p);
+    box.appendChild(actions);
+    overlay.appendChild(box);
+    overlay.addEventListener("click", function (e) { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
   }
 
   loadUsers();
