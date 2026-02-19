@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Export Reports</title>
+<style>body{font-family:sans-serif;max-width:500px;margin:4rem auto;padding:1rem;background:#0a0a0f;color:#e5e7eb;text-align:center;} button{padding:1rem 3rem;background:#34d399;color:#000;border:none;border-radius:8px;font-size:1.2rem;font-weight:700;cursor:pointer;margin:2rem;} #status{margin:1rem;font-size:1.1rem;}</style>
+</head>
+<body>
+<h1>Export Reports</h1>
+<p>Click the button to download your reports as a file.</p>
+<button id="go">Download Reports</button>
+<div id="status"></div>
+<script>
+document.getElementById("go").addEventListener("click", function(){
+  var s = document.getElementById("status");
+  s.textContent = "Reading database...";
+  var req = indexedDB.open("intel_portal_db", 1);
+  req.onerror = function(){ s.textContent = "Error opening database."; };
+  req.onsuccess = function(){
+    var db = req.result;
+    var tx = db.transaction("reports", "readonly");
+    var store = tx.objectStore("reports");
+    var getAll = store.getAll();
+    getAll.onsuccess = function(){
+      var reports = getAll.result;
+      s.textContent = "Found " + reports.length + " reports. Preparing download...";
+      // Strip large dataUrls to prevent freeze, keep metadata
+      var cleaned = reports.map(function(r){
+        var clone = Object.assign({}, r);
+        if (clone.attachments) {
+          clone.attachments = clone.attachments.map(function(a){
+            var ac = Object.assign({}, a);
+            // Keep dataUrls under 500KB, skip larger ones
+            if (ac.dataUrl && ac.dataUrl.length > 500000) {
+              ac.dataUrl = "TOO_LARGE_" + ac.dataUrl.length + "_CHARS";
+            }
+            return ac;
+          });
+        }
+        return clone;
+      });
+      var json = JSON.stringify(cleaned, null, 2);
+      var blob = new Blob([json], {type: "application/json"});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "intel-reports-export.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      s.textContent = "Downloaded " + reports.length + " reports!";
+    };
+    getAll.onerror = function(){ s.textContent = "Error reading reports."; };
+  };
+});
+</script>
+</body>
+</html>
