@@ -11,6 +11,7 @@
 <script>
   var statusEl = document.getElementById("status");
   var logEl = document.getElementById("log");
+  var MAX_ATTACHMENT_SIZE = 500000; // 500KB — anything larger gets stripped
 
   function log(msg) {
     logEl.textContent += msg + "\n";
@@ -25,7 +26,7 @@
     statusEl.textContent = "Logged in as " + user.email + ". Scanning reports...";
 
     fbDb.collection("reports").get().then(function (snap) {
-      log("Found " + snap.size + " reports.");
+      log("Found " + snap.size + " reports.\n");
 
       var fixes = [];
 
@@ -37,25 +38,43 @@
         var removed = [];
 
         data.attachments.forEach(function (att) {
+          var reason = null;
+
+          // Check: no data
           if (!att.dataUrl || att.dataUrl.length < 10) {
-            removed.push(att.name + " (no data)");
-            return;
+            reason = "no data";
           }
-          // Test if base64 is valid
-          try {
-            var b64 = att.dataUrl.split(",")[1];
-            if (!b64) throw new Error("no base64");
-            atob(b64.substring(0, 100)); // test a small chunk
+
+          // Check: oversized
+          if (!reason && att.dataUrl && att.dataUrl.length > MAX_ATTACHMENT_SIZE) {
+            reason = "oversized (" + (att.dataUrl.length / 1024 / 1024).toFixed(1) + " MB data URL)";
+          }
+
+          // Check: corrupted base64
+          if (!reason) {
+            try {
+              var b64 = att.dataUrl.split(",")[1];
+              if (!b64) throw new Error("no base64");
+              atob(b64.substring(0, 100));
+            } catch (e) {
+              reason = "corrupt base64 (" + e.message + ")";
+            }
+          }
+
+          if (reason) {
+            removed.push(att.name + " — " + reason);
+          } else {
             clean.push(att);
-          } catch (e) {
-            removed.push(att.name + " (" + e.message + ")");
           }
         });
 
         if (removed.length > 0) {
-          log("\n" + data.id + ": removing " + removed.length + " bad attachment(s):");
-          removed.forEach(function (r) { log("  - " + r); });
-          log("  Keeping " + clean.length + " valid attachment(s).");
+          log((data.id || doc.id) + " (" + (data.subjectName || "unknown") + "):");
+          removed.forEach(function (r) { log("  REMOVE: " + r); });
+          if (clean.length > 0) {
+            clean.forEach(function (a) { log("  KEEP:   " + a.name); });
+          }
+          log("");
           fixes.push(
             fbDb.collection("reports").doc(doc.id).update({ attachments: clean })
           );
@@ -63,15 +82,15 @@
       });
 
       if (fixes.length === 0) {
-        statusEl.textContent = "No corrupted attachments found.";
-        log("\nAll attachments are valid.");
+        statusEl.textContent = "All attachments look fine. No changes needed.";
+        statusEl.innerHTML += '<br><br><a href="dashboard.html" style="color:#64ffda;">Go to Dashboard</a>';
         return;
       }
 
-      statusEl.textContent = "Fixing " + fixes.length + " report(s)...";
+      statusEl.textContent = "Cleaning " + fixes.length + " report(s)...";
 
       return Promise.all(fixes).then(function () {
-        statusEl.textContent = "Done! Cleaned " + fixes.length + " report(s). You can go back to the dashboard.";
+        statusEl.textContent = "Done! Cleaned " + fixes.length + " report(s).";
         statusEl.innerHTML += '<br><br><a href="dashboard.html" style="color:#64ffda;">Go to Dashboard</a>';
       });
     }).catch(function (err) {
