@@ -362,9 +362,24 @@
         sizeEl.className = "document-embed-size";
         sizeEl.textContent = formatFileSize(att.size);
 
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "btn-delete";
+        removeBtn.textContent = "Remove";
+        removeBtn.style.cssText = "margin-left:auto;padding:0.25rem 0.7rem;font-size:0.65rem;flex-shrink:0;";
+        removeBtn.addEventListener("click", function () {
+          const idx = report.attachments.indexOf(att);
+          if (idx > -1) {
+            report.attachments.splice(idx, 1);
+            StorageDB.saveReport(report).then(function () {
+              openReport(report.id);
+            });
+          }
+        });
+
         embedHeader.appendChild(icon);
         embedHeader.appendChild(nameEl);
         embedHeader.appendChild(sizeEl);
+        embedHeader.appendChild(removeBtn);
         embed.appendChild(embedHeader);
 
         // Body — auto-expanded

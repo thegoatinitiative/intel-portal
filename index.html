@@ -30,6 +30,27 @@
       All access attempts are logged. Unauthorized access is prohibited.
     </p>
   </div>
+  <!-- Change Password Modal (shown on first login) -->
+  <div id="change-password-modal" class="login-container" hidden style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;">
+    <div class="login-header">
+      <div class="shield-icon">&#x1F510;</div>
+      <h1>SET YOUR PASSWORD</h1>
+      <p class="subtitle">You must set a new password before continuing.</p>
+    </div>
+    <form id="change-password-form" autocomplete="off">
+      <div class="form-group">
+        <label for="new-pass">New Password</label>
+        <input type="password" id="new-pass" name="new-pass" required minlength="6">
+      </div>
+      <div class="form-group">
+        <label for="confirm-pass">Confirm Password</label>
+        <input type="password" id="confirm-pass" name="confirm-pass" required minlength="6">
+      </div>
+      <div id="change-password-error" class="error-msg" hidden></div>
+      <button type="submit" class="btn-login">Set Password</button>
+    </form>
+  </div>
+
   <footer class="site-footer">
     Powered by <a href="https://www.thegoatinitiative.org/" target="_blank" rel="noopener">The GOAT Initiative</a>
   </footer>

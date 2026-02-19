@@ -205,6 +205,7 @@
         return fbDb.collection("users").doc(cred.user.uid).set({
           username: username,
           role: role,
+          mustChangePassword: true,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         }).then(function () {
           // Sign out the secondary app user
