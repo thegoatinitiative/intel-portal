@@ -1,73 +1,20 @@
 <!DOCTYPE html>
-<html><head><title>Attachment Cleanup</title></head>
+<html><head><title>Cleanup</title></head>
 <body style="background:#060a12;color:#eaf0f9;font-family:monospace;padding:2rem;line-height:1.8;">
-<h2>Attachment Cleanup</h2>
-<div id="status">Initializing Firebase...</div>
-<div id="log" style="margin-top:1rem;white-space:pre-wrap;font-size:0.85rem;color:#8892b0;"></div>
+<div id="status">Deleting RPT-2026-0007...</div>
+<a id="link" href="dashboard.html" style="color:#64ffda;display:none;">Go to Dashboard</a>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script>
-  var statusEl = document.getElementById("status");
-  var logEl = document.getElementById("log");
-
-  function log(msg) {
-    logEl.textContent += msg + "\n";
-  }
-
   fbAuth.onAuthStateChanged(function (user) {
-    if (!user) {
-      statusEl.textContent = "Not logged in. Please log in first, then come back.";
-      return;
-    }
-
-    statusEl.textContent = "Logged in as " + user.email + ". Scanning all reports...";
-
-    fbDb.collection("reports").get().then(function (snap) {
-      log("Found " + snap.size + " reports.\n");
-
-      var fixes = [];
-
-      snap.forEach(function (doc) {
-        var data = doc.data();
-        var reportLabel = (data.id || doc.id) + " (" + (data.subjectName || "unknown") + ")";
-
-        if (!data.attachments || data.attachments.length === 0) {
-          log(reportLabel + ": no attachments");
-          return;
-        }
-
-        // Log every attachment with its size
-        log(reportLabel + ": " + data.attachments.length + " attachment(s)");
-        data.attachments.forEach(function (att) {
-          var size = att.dataUrl ? (att.dataUrl.length / 1024).toFixed(0) + " KB data URL" : "no data";
-          log("  - " + att.name + " (" + size + ")");
-        });
-
-        // Remove ALL attachments from every report to fix OOM
-        log("  -> Stripping all attachments");
-        log("");
-        fixes.push(
-          fbDb.collection("reports").doc(doc.id).update({ attachments: [] })
-        );
-      });
-
-      if (fixes.length === 0) {
-        statusEl.textContent = "No reports with attachments found.";
-        statusEl.innerHTML += '<br><br><a href="dashboard.html" style="color:#64ffda;">Go to Dashboard</a>';
-        return;
-      }
-
-      statusEl.textContent = "Stripping attachments from " + fixes.length + " report(s)...";
-
-      return Promise.all(fixes).then(function () {
-        statusEl.textContent = "Done! Stripped attachments from " + fixes.length + " report(s).";
-        statusEl.innerHTML += '<br><br><a href="dashboard.html" style="color:#64ffda;">Go to Dashboard</a>';
-      });
+    if (!user) { document.getElementById("status").textContent = "Not logged in."; return; }
+    fbDb.collection("reports").doc("RPT-2026-0007").delete().then(function () {
+      document.getElementById("status").textContent = "Done. RPT-2026-0007 deleted.";
+      document.getElementById("link").style.display = "inline";
     }).catch(function (err) {
-      statusEl.textContent = "Error: " + err.message;
-      log(err.stack || "");
+      document.getElementById("status").textContent = "Error: " + err.message;
     });
   });
 </script>
