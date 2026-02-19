@@ -97,7 +97,9 @@
       if (!window.pdfjsLib) throw new Error("PDF.js not available");
 
       // Convert data URL to binary
-      const raw = atob(dataUrl.split(",")[1]);
+      var base64 = dataUrl.split(",")[1];
+      if (!base64) throw new Error("Invalid data URL");
+      const raw = atob(base64);
       const bytes = new Uint8Array(raw.length);
       for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
 
