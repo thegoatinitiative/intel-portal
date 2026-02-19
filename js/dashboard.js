@@ -1,7 +1,7 @@
 /**
  * dashboard.js — Executive Briefing Dashboard
  * Auto-expands all documents for immediate review.
- * Uses DOMPurify for XSS protection. Persists via IndexedDB.
+ * Uses DOMPurify for XSS protection. Persists via Firestore + Firebase Storage.
  */
 
 (async function () {
@@ -46,7 +46,7 @@
   let pendingFiles = [];
   let editingReportId = null; // null = creating new, string = editing existing
 
-  // ---- Load from IndexedDB (with timeout to prevent hang) ----
+  // ---- Load reports from Firestore (with timeout to prevent hang) ----
   try {
     const dbTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("DB timeout")), 3000));
     const saved = await Promise.race([StorageDB.getAllReports(), dbTimeout]);
@@ -56,7 +56,7 @@
       console.log("Loaded " + saved.length + " report(s) from storage.");
     }
   } catch (e) {
-    console.error("Failed to load from IndexedDB:", e);
+    console.error("Failed to load from Firestore:", e);
   }
 
   // ---- Helpers ----
@@ -84,8 +84,8 @@
 
   // ---- PDF Renderer (uses PDF.js to render each page as a canvas) ----
 
-  async function renderPDFPages(dataUrl, container) {
-    // Show loading state
+  async function renderPDFPages(source, container) {
+    // source can be a storageUrl (https://...) or a legacy data URL
     const loading = document.createElement("div");
     loading.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);font-size:0.9rem;";
     loading.textContent = "Rendering PDF pages...";
@@ -96,14 +96,22 @@
       if (window.pdfjsReady) await window.pdfjsReady;
       if (!window.pdfjsLib) throw new Error("PDF.js not available");
 
-      // Convert data URL to binary
-      var base64 = dataUrl.split(",")[1];
-      if (!base64) throw new Error("Invalid data URL");
-      const raw = atob(base64);
-      const bytes = new Uint8Array(raw.length);
-      for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+      var pdfData;
+      if (source.startsWith("data:")) {
+        // Legacy data URL — decode base64
+        var base64 = source.split(",")[1];
+        if (!base64) throw new Error("Invalid data URL");
+        var raw = atob(base64);
+        pdfData = new Uint8Array(raw.length);
+        for (var i = 0; i < raw.length; i++) pdfData[i] = raw.charCodeAt(i);
+      } else {
+        // Storage URL — fetch as ArrayBuffer
+        var resp = await fetch(source);
+        if (!resp.ok) throw new Error("Failed to fetch PDF (" + resp.status + ")");
+        pdfData = new Uint8Array(await resp.arrayBuffer());
+      }
 
-      const pdf = await window.pdfjsLib.getDocument({ data: bytes }).promise;
+      const pdf = await window.pdfjsLib.getDocument({ data: pdfData }).promise;
       container.removeChild(loading);
 
       const totalPages = pdf.numPages;
@@ -389,8 +397,14 @@
         removeBtn.addEventListener("click", function () {
           const idx = report.attachments.indexOf(att);
           if (idx > -1) {
+            // Delete file from Firebase Storage
+            var deletePromise = att.storagePath
+              ? StorageDB.deleteAttachment(att.storagePath)
+              : Promise.resolve();
             report.attachments.splice(idx, 1);
-            StorageDB.saveReport(report).then(function () {
+            deletePromise.then(function () {
+              return StorageDB.saveReport(report);
+            }).then(function () {
               openReport(report.id);
             });
           }
@@ -406,16 +420,17 @@
         const body = document.createElement("div");
         body.className = "document-embed-body";
 
-        if (!att.dataUrl) {
+        var src = att.storageUrl || att.dataUrl;
+        if (!src) {
           const msg = document.createElement("div");
           msg.style.cssText = "padding:1.5rem;text-align:center;color:var(--text-muted);font-size:0.85rem;";
           msg.textContent = "Attachment data not available.";
           body.appendChild(msg);
         } else if (att.type === "application/pdf") {
-          renderPDFPages(att.dataUrl, body);
+          renderPDFPages(src, body);
         } else if (att.type && att.type.startsWith("image/")) {
           const img = document.createElement("img");
-          img.src = att.dataUrl;
+          img.src = src;
           img.alt = att.name;
           body.appendChild(img);
         } else if (
@@ -423,14 +438,27 @@
           att.name.endsWith(".md") ||
           att.name.endsWith(".csv")
         ) {
-          const pre = document.createElement("pre");
-          pre.textContent = att.textContent || "(Unable to read file)";
-          body.appendChild(pre);
+          if (att.textContent) {
+            const pre = document.createElement("pre");
+            pre.textContent = att.textContent;
+            body.appendChild(pre);
+          } else {
+            // Fetch text content from Storage URL
+            fetch(src).then(function (r) { return r.text(); }).then(function (text) {
+              const pre = document.createElement("pre");
+              pre.textContent = text;
+              body.appendChild(pre);
+            }).catch(function () {
+              const pre = document.createElement("pre");
+              pre.textContent = "(Unable to read file)";
+              body.appendChild(pre);
+            });
+          }
         } else {
           const dl = document.createElement("div");
           dl.style.cssText = "padding:1.5rem;text-align:center;";
           const link = document.createElement("a");
-          link.href = att.dataUrl;
+          link.href = src;
           link.download = att.name;
           link.textContent = "Download " + att.name;
           link.style.cssText = "color:var(--accent);font-weight:600;text-decoration:none;";
@@ -781,7 +809,7 @@
 
       try {
         await StorageDB.saveReport(report);
-        console.log("Report " + id + " saved to IndexedDB successfully.");
+        console.log("Report " + id + " saved successfully.");
       } catch (err) {
         console.error("Failed to save report:", err);
         alert("Warning: Report created but could not be saved to persistent storage.\n\nError: " + err.message);
@@ -799,20 +827,18 @@
         name: file.name,
         size: file.size,
         type: file.type || "application/octet-stream",
-        dataUrl: null,
+        file: file, // Raw File object — uploaded to Firebase Storage on save
         textContent: null,
       };
 
       if (file.type.startsWith("text/") || file.name.endsWith(".md") || file.name.endsWith(".csv")) {
         const tr = new FileReader();
-        tr.onload = () => { att.textContent = tr.result; };
+        tr.onload = () => { att.textContent = tr.result; resolve(att); };
+        tr.onerror = () => resolve(att);
         tr.readAsText(file);
+      } else {
+        resolve(att);
       }
-
-      const reader = new FileReader();
-      reader.onload = () => { att.dataUrl = reader.result; resolve(att); };
-      reader.onerror = () => resolve(att);
-      reader.readAsDataURL(file);
     });
   }
 
