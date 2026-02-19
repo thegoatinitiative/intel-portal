@@ -94,13 +94,64 @@ function isAdmin() {
   });
 }
 
+/**
+ * showChangePasswordModal — Forces a new user to set their own password.
+ */
+function showChangePasswordModal(user) {
+  var modal = document.getElementById("change-password-modal");
+  if (!modal) return;
+  modal.hidden = false;
+
+  var form = document.getElementById("change-password-form");
+  var errorEl = document.getElementById("change-password-error");
+  var submitBtn = form.querySelector('button[type="submit"]');
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var newPass = document.getElementById("new-pass").value;
+    var confirmPass = document.getElementById("confirm-pass").value;
+    errorEl.hidden = true;
+
+    if (newPass.length < 6) {
+      errorEl.textContent = "Password must be at least 6 characters.";
+      errorEl.hidden = false;
+      return;
+    }
+    if (newPass !== confirmPass) {
+      errorEl.textContent = "Passwords do not match.";
+      errorEl.hidden = false;
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Updating...";
+
+    user.updatePassword(newPass).then(function () {
+      return fbDb.collection("users").doc(user.uid).update({ mustChangePassword: false });
+    }).then(function () {
+      window.location.href = "dashboard.html";
+    }).catch(function (err) {
+      errorEl.textContent = err.message || "Failed to update password.";
+      errorEl.hidden = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Set Password";
+    });
+  });
+}
+
 // ---- Login form handler ----
 var loginForm = document.getElementById("login-form");
 if (loginForm) {
   // If already authenticated, go to dashboard
   fbAuth.onAuthStateChanged(function (user) {
     if (user) {
-      window.location.href = "dashboard.html";
+      fbDb.collection("users").doc(user.uid).get().then(function (doc) {
+        if (doc.exists && doc.data().mustChangePassword) {
+          showChangePasswordModal(user);
+        } else {
+          window.location.href = "dashboard.html";
+        }
+      });
     }
   });
 
@@ -120,12 +171,18 @@ if (loginForm) {
 
     fbAuth.signInWithEmailAndPassword(email, password)
       .then(function (cred) {
-        // Fetch user doc for role
+        // Fetch user doc for role + mustChangePassword flag
         return fbDb.collection("users").doc(cred.user.uid).get().then(function (doc) {
-          var role = doc.exists ? doc.data().role : "analyst";
+          var data = doc.exists ? doc.data() : {};
+          var role = data.role || "analyst";
           setSession(username, role);
           ActivityLog.log("login", { username: username });
-          window.location.href = "dashboard.html";
+
+          if (data.mustChangePassword) {
+            showChangePasswordModal(cred.user);
+          } else {
+            window.location.href = "dashboard.html";
+          }
         });
       })
       .catch(function () {
