@@ -306,8 +306,7 @@
     const actionsDiv = document.createElement("div");
     actionsDiv.className = "report-header-actions";
 
-    const adminSession = getSession();
-    const isUserAdmin = adminSession && adminSession.role === "admin";
+    const isUserAdmin = await isAdmin();
 
     if (isUserAdmin) {
       const editBtn = document.createElement("button");
