@@ -9,11 +9,14 @@
 
   await requireAuth();
 
-  // Show Admin tab if user is admin
+  // Show Admin tab and New Report button only for admins
   isAdmin().then(function (admin) {
     if (admin) {
       var adminTab = document.getElementById("admin-tab");
       if (adminTab) adminTab.hidden = false;
+    } else {
+      var uploadBtn = document.getElementById("upload-btn");
+      if (uploadBtn) uploadBtn.style.display = "none";
     }
   });
 
@@ -303,12 +306,17 @@
     const actionsDiv = document.createElement("div");
     actionsDiv.className = "report-header-actions";
 
-    const editBtn = document.createElement("button");
-    editBtn.type = "button";
-    editBtn.className = "btn-action";
-    editBtn.textContent = "Edit";
-    editBtn.addEventListener("click", () => editReport(report));
-    actionsDiv.appendChild(editBtn);
+    const adminSession = getSession();
+    const isUserAdmin = adminSession && adminSession.role === "admin";
+
+    if (isUserAdmin) {
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "btn-action";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", () => editReport(report));
+      actionsDiv.appendChild(editBtn);
+    }
 
     const printBtn = document.createElement("button");
     printBtn.type = "button";
@@ -324,12 +332,14 @@
     saveBtn.addEventListener("click", () => { ActivityLog.log("report_export", { reportId: report.id, method: "pdf" }); window.print(); });
     actionsDiv.appendChild(saveBtn);
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.type = "button";
-    deleteBtn.className = "btn-delete";
-    deleteBtn.textContent = "Delete";
-    deleteBtn.addEventListener("click", () => confirmDelete(report));
-    actionsDiv.appendChild(deleteBtn);
+    if (isUserAdmin) {
+      const deleteBtn = document.createElement("button");
+      deleteBtn.type = "button";
+      deleteBtn.className = "btn-delete";
+      deleteBtn.textContent = "Delete";
+      deleteBtn.addEventListener("click", () => confirmDelete(report));
+      actionsDiv.appendChild(deleteBtn);
+    }
 
     topRow.appendChild(titleBlock);
     topRow.appendChild(actionsDiv);
@@ -429,7 +439,9 @@
         embedHeader.appendChild(icon);
         embedHeader.appendChild(nameEl);
         embedHeader.appendChild(sizeEl);
-        embedHeader.appendChild(removeBtn);
+        if (isUserAdmin) {
+          embedHeader.appendChild(removeBtn);
+        }
         embed.appendChild(embedHeader);
 
         // Body — auto-expanded
