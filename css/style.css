@@ -1230,10 +1230,44 @@ body {
 /* ---- RESPONSIVE ---- */
 
 @media (max-width: 768px) {
-  /* Topbar */
+  /* Topbar — show tabs, hide logo to make room */
   .topbar {
-    padding: 0 0.75rem;
-    height: 50px;
+    padding: 0 0.5rem;
+    height: auto;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+
+  .topbar-left {
+    display: none;
+  }
+
+  .topbar-center {
+    display: flex;
+    order: 2;
+    width: 100%;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.4rem 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .topbar-tab {
+    font-size: 0.55rem !important;
+    padding: 0.35rem 0.5rem !important;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .topbar-right {
+    order: 1;
+    margin-left: auto;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+  }
+
+  .user-display {
+    display: none;
   }
 
   .nav-title {
@@ -1241,23 +1275,11 @@ body {
     letter-spacing: 0.1em;
   }
 
-  .topbar-center {
-    display: none;
-  }
-
-  .user-display {
-    display: none;
-  }
-
-  .topbar-right {
-    gap: 0.5rem;
-  }
-
   /* Dashboard layout — full-screen toggle on mobile */
   .dashboard-layout {
     flex-direction: column;
-    height: calc(100vh - 50px);
-    /* topbar is 50px on mobile */
+    height: calc(100vh - 70px);
+    /* topbar wraps to ~70px on mobile with tabs */
     overflow: hidden;
   }
 
