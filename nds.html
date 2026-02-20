@@ -9,54 +9,31 @@
   <style>
     .nds-viewer {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: calc(100vh - 52px);
-    }
-    .nds-viewer iframe,
-    .nds-viewer embed {
-      flex: 1;
-      width: 100%;
-      border: none;
-      background: #1a1f2e;
-    }
-    /* PDF.js canvas fallback for file:// */
-    .nds-pages {
-      flex: 1;
       overflow-y: auto;
-      background: #1a1f2e;
+      background: #12151f;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 1rem 0;
       gap: 0.5rem;
     }
-    .nds-pages canvas {
+    .nds-viewer img {
       max-width: 100%;
+      width: 1200px;
+      height: auto;
       box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+      display: block;
     }
-    .nds-loading {
-      color: var(--text-muted);
-      text-align: center;
-      padding: 4rem;
-      font-size: 1rem;
+    @media (max-width: 768px) {
+      .nds-viewer {
+        padding: 0.5rem 0;
+        gap: 0.25rem;
+      }
+      .nds-viewer img {
+        width: 100%;
+      }
     }
   </style>
-  <script>
-    window.pdfjsReady = new Promise(function(resolve) {
-      var s = document.createElement("script");
-      s.src = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js";
-      s.onload = function() {
-        if (window.pdfjsLib) {
-          window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-            "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
-          resolve(window.pdfjsLib);
-        } else { resolve(null); }
-      };
-      s.onerror = function() { resolve(null); };
-      document.head.appendChild(s);
-    });
-  </script>
 </head>
 <body class="dashboard-body" style="display:flex;flex-direction:column;">
   <nav class="topbar">
@@ -76,7 +53,22 @@
   </nav>
 
   <div class="nds-viewer" id="nds-viewer">
-    <div class="nds-loading" id="nds-loading">Loading document...</div>
+    <img src="docs/nds-slides/slide-01.jpg" alt="Slide 1" loading="eager">
+    <img src="docs/nds-slides/slide-02.jpg" alt="Slide 2" loading="lazy">
+    <img src="docs/nds-slides/slide-03.jpg" alt="Slide 3" loading="lazy">
+    <img src="docs/nds-slides/slide-04.jpg" alt="Slide 4" loading="lazy">
+    <img src="docs/nds-slides/slide-05.jpg" alt="Slide 5" loading="lazy">
+    <img src="docs/nds-slides/slide-06.jpg" alt="Slide 6" loading="lazy">
+    <img src="docs/nds-slides/slide-07.jpg" alt="Slide 7" loading="lazy">
+    <img src="docs/nds-slides/slide-08.jpg" alt="Slide 8" loading="lazy">
+    <img src="docs/nds-slides/slide-09.jpg" alt="Slide 9" loading="lazy">
+    <img src="docs/nds-slides/slide-10.jpg" alt="Slide 10" loading="lazy">
+    <img src="docs/nds-slides/slide-11.jpg" alt="Slide 11" loading="lazy">
+    <img src="docs/nds-slides/slide-12.jpg" alt="Slide 12" loading="lazy">
+    <img src="docs/nds-slides/slide-13.jpg" alt="Slide 13" loading="lazy">
+    <img src="docs/nds-slides/slide-14.jpg" alt="Slide 14" loading="lazy">
+    <img src="docs/nds-slides/slide-15.jpg" alt="Slide 15" loading="lazy">
+    <img src="docs/nds-slides/slide-16.jpg" alt="Slide 16" loading="lazy">
   </div>
 
   <footer class="site-footer">
@@ -96,56 +88,6 @@
       var userDisplay = document.getElementById("user-display");
       if (session && userDisplay) userDisplay.textContent = session.username.toUpperCase();
     });
-  </script>
-  <script>
-    var viewer = document.getElementById("nds-viewer");
-    var loading = document.getElementById("nds-loading");
-    var pdfUrl = "docs/nds-2026.pdf";
-
-    // Use PDF.js on mobile and file:// (embed doesn't work on mobile browsers)
-    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
-    if (location.protocol === "file:" || isMobile) {
-      renderWithPDFJS();
-    } else {
-      // Use native embed for desktop HTTPS
-      loading.remove();
-      var embed = document.createElement("embed");
-      embed.src = pdfUrl;
-      embed.type = "application/pdf";
-      viewer.appendChild(embed);
-    }
-
-    async function renderWithPDFJS() {
-      try {
-        var lib = await window.pdfjsReady;
-        if (!lib) throw new Error("PDF.js not available");
-
-        var pdf = await lib.getDocument(pdfUrl).promise;
-        loading.remove();
-
-        var container = document.createElement("div");
-        container.className = "nds-pages";
-        viewer.appendChild(container);
-
-        for (var i = 1; i <= pdf.numPages; i++) {
-          var page = await pdf.getPage(i);
-          var scale = Math.min(1200 / page.getViewport({ scale: 1 }).width, 2);
-          var viewport = page.getViewport({ scale: scale });
-          var canvas = document.createElement("canvas");
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          container.appendChild(canvas);
-          await page.render({ canvasContext: canvas.getContext("2d"), viewport: viewport }).promise;
-        }
-      } catch (e) {
-        loading.textContent = "Could not render PDF. Open directly: ";
-        var link = document.createElement("a");
-        link.href = pdfUrl;
-        link.textContent = "Download PDF";
-        link.style.color = "var(--accent)";
-        loading.appendChild(link);
-      }
-    }
   </script>
 </body>
 </html>
