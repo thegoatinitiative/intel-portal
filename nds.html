@@ -7,17 +7,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap">
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .nds-page {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background: #080a10;
-      position: relative;
-    }
-
     /* CRT scanlines overlay */
-    .nds-page::before {
+    .nds-wrap::before {
       content: '';
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -45,6 +36,7 @@
       color: #ef4444;
       text-transform: uppercase;
       text-shadow: 0 0 8px rgba(239,68,68,0.4);
+      flex-shrink: 0;
     }
 
     /* Document info bar */
@@ -94,40 +86,69 @@
       letter-spacing: 0.08em;
     }
 
-    /* Slide viewer */
+    /* Scrollable viewer */
+    .nds-wrap {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
     .nds-viewer {
       flex: 1;
+      overflow-y: auto;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(52,211,153,0.015) 0%, transparent 60%),
+        #080a10;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-      background:
-        radial-gradient(ellipse at 50% 50%, rgba(52,211,153,0.02) 0%, transparent 70%),
-        #080a10;
+      padding: 1.5rem 0 2rem;
+      gap: 1.25rem;
+      scroll-behavior: smooth;
     }
 
-    .nds-slide-container {
+    /* Individual slide frame */
+    .nds-slide {
       position: relative;
       max-width: 1100px;
-      width: 90%;
+      width: 88%;
     }
 
-    .nds-slide-container img {
+    .nds-slide img {
       width: 100%;
       height: auto;
       display: block;
-      border: 1px solid rgba(52,211,153,0.12);
+      border: 1px solid rgba(52,211,153,0.1);
       box-shadow:
-        0 0 40px rgba(0,0,0,0.6),
-        0 0 1px rgba(52,211,153,0.15),
-        inset 0 0 80px rgba(0,0,0,0.1);
+        0 4px 30px rgba(0,0,0,0.5),
+        0 0 1px rgba(52,211,153,0.12);
     }
 
-    /* Slide corner brackets */
-    .nds-slide-container::before,
-    .nds-slide-container::after {
+    /* Slide number tag */
+    .nds-slide-tag {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: rgba(8,10,16,0.85);
+      border: 1px solid rgba(52,211,153,0.15);
+      border-top: none;
+      border-left: none;
+      padding: 0.2rem 0.6rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      font-weight: 600;
+      color: #34d399;
+      letter-spacing: 0.1em;
+      z-index: 2;
+    }
+
+    /* Corner brackets on first and last slides */
+    .nds-slide:first-child::before,
+    .nds-slide:first-child::after,
+    .nds-slide:last-child::before,
+    .nds-slide:last-child::after {
       content: '';
       position: absolute;
       width: 20px;
@@ -138,75 +159,35 @@
       pointer-events: none;
     }
 
-    .nds-slide-container::before {
+    .nds-slide:first-child::before {
       top: -1px; left: -1px;
       border-width: 2px 0 0 2px;
     }
 
-    .nds-slide-container::after {
+    .nds-slide:first-child::after {
+      top: -1px; right: -1px;
+      border-width: 2px 2px 0 0;
+    }
+
+    .nds-slide:last-child::before {
+      bottom: -1px; left: -1px;
+      border-width: 0 0 2px 2px;
+    }
+
+    .nds-slide:last-child::after {
       bottom: -1px; right: -1px;
       border-width: 0 2px 2px 0;
     }
 
-    /* Navigation controls */
-    .nds-controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      padding: 0.75rem 1.5rem;
-      background: linear-gradient(180deg, #0a0d14 0%, #0c0f18 100%);
-      border-top: 1px solid rgba(52,211,153,0.1);
-      flex-shrink: 0;
+    /* Divider line between slides */
+    .nds-divider {
+      width: 60%;
+      max-width: 500px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(52,211,153,0.12), transparent);
     }
 
-    .nds-nav-btn {
-      background: rgba(52,211,153,0.06);
-      border: 1px solid rgba(52,211,153,0.15);
-      color: #34d399;
-      padding: 0.45rem 1.2rem;
-      border-radius: 4px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .nds-nav-btn:hover {
-      background: rgba(52,211,153,0.12);
-      border-color: rgba(52,211,153,0.35);
-      box-shadow: 0 0 12px rgba(52,211,153,0.1);
-    }
-
-    .nds-nav-btn:disabled {
-      opacity: 0.3;
-      cursor: default;
-    }
-
-    .nds-nav-btn:disabled:hover {
-      background: rgba(52,211,153,0.06);
-      border-color: rgba(52,211,153,0.15);
-      box-shadow: none;
-    }
-
-    .nds-slide-counter {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem;
-      color: #6b7280;
-      letter-spacing: 0.08em;
-      min-width: 80px;
-      text-align: center;
-    }
-
-    .nds-slide-counter .current {
-      color: #34d399;
-      font-weight: 700;
-    }
-
-    /* Status bar at bottom */
+    /* Status bar */
     .nds-status {
       display: flex;
       align-items: center;
@@ -237,35 +218,27 @@
       50% { opacity: 0.4; }
     }
 
-    /* Progress bar */
-    .nds-progress {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #34d399, #10b981);
-      transition: width 0.3s ease;
-      box-shadow: 0 0 8px rgba(52,211,153,0.3);
-      z-index: 3;
+    .nds-slide-indicator {
+      color: #34d399;
+      font-weight: 600;
     }
 
-    /* Keyboard hint */
-    .nds-kbd-hint {
+    /* End of document marker */
+    .nds-end-marker {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.55rem;
+      font-size: 0.6rem;
       color: #374151;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 1rem 0 0.5rem;
+      text-align: center;
     }
 
-    .nds-kbd-hint kbd {
-      display: inline-block;
-      padding: 0.1rem 0.35rem;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 3px;
-      font-size: 0.55rem;
-      color: #6b7280;
-      margin: 0 0.1rem;
+    .nds-end-marker::before,
+    .nds-end-marker::after {
+      content: '///';
+      margin: 0 0.75rem;
+      color: rgba(52,211,153,0.15);
     }
 
     /* Mobile */
@@ -273,7 +246,6 @@
       .doc-header {
         padding: 0.4rem 0.75rem;
         font-size: 0.5rem;
-        gap: 0.5rem;
       }
 
       .doc-header-left { gap: 0.5rem; }
@@ -287,29 +259,18 @@
         letter-spacing: 0.15em;
       }
 
-      .nds-slide-container {
-        width: 100%;
-        padding: 0.25rem;
+      .nds-viewer {
+        padding: 0.75rem 0 1.5rem;
+        gap: 0.75rem;
       }
 
-      .nds-slide-container::before,
-      .nds-slide-container::after {
-        width: 12px;
-        height: 12px;
+      .nds-slide {
+        width: 96%;
       }
 
-      .nds-controls {
-        padding: 0.5rem 0.75rem;
-        gap: 0.5rem;
-      }
-
-      .nds-nav-btn {
-        padding: 0.55rem 1.5rem;
-        font-size: 0.65rem;
-      }
-
-      .nds-slide-counter {
-        font-size: 0.65rem;
+      .nds-slide-tag {
+        font-size: 0.45rem;
+        padding: 0.15rem 0.4rem;
       }
 
       .nds-status {
@@ -317,7 +278,9 @@
         font-size: 0.45rem;
       }
 
-      .nds-kbd-hint { display: none; }
+      .nds-end-marker {
+        font-size: 0.5rem;
+      }
     }
   </style>
 </head>
@@ -353,27 +316,33 @@
     </div>
   </div>
 
-  <div class="nds-page">
+  <div class="nds-wrap">
     <div class="nds-viewer" id="nds-viewer">
-      <div class="nds-slide-container" id="slide-container">
-        <img id="slide-img" src="docs/nds-slides/slide-01.jpg" alt="Slide 1">
-        <div class="nds-progress" id="nds-progress"></div>
-      </div>
-    </div>
-
-    <div class="nds-controls" id="nds-controls">
-      <button class="nds-nav-btn" id="btn-prev" disabled>&larr; PREV</button>
-      <span class="nds-slide-counter">
-        <span class="current" id="slide-num">01</span> / <span id="slide-total">10</span>
-      </span>
-      <button class="nds-nav-btn" id="btn-next">NEXT &rarr;</button>
+      <div class="nds-slide"><span class="nds-slide-tag">SLIDE 01</span><img src="docs/nds-slides/slide-01.jpg" alt="Slide 1" loading="eager"></div>
+      <div class="nds-divider"></div>
+      <div class="nds-slide"><span class="nds-slide-tag">SLIDE 02</span><img src="docs/nds-slides/slide-02.jpg" alt="Slide 2" loading="lazy"></div>
+      <div class="nds-divider"></div>
+      <div class="nds-slide"><span class="nds-slide-tag">SLIDE 03</span><img src="docs/nds-slides/slide-03.jpg" alt="Slide 3" loading="lazy"></div>
+      <div class="nds-divider"></div>
+      <div class="nds-slide"><span class="nds-slide-tag">SLIDE 04</span><img src="docs/nds-slides/slide-04.jpg" alt="Slide 4" loading="lazy"></div>
+      <div class="nds-divider"></div>
+      <div class="nds-slide"><span class="nds-slide-tag">SLIDE 05</span><img src="docs/nds-slides/slide-05.jpg" alt="Slide 5" loading="lazy"></div>
+      <div class="nds-divider"></div>
+      <div class="nds-slide"><span class="nds-slide-tag">SLIDE 06</span><img src="docs/nds-slides/slide-06.jpg" alt="Slide 6" loading="lazy"></div>
+      <div class="nds-divider"></div>
+      <div class="nds-slide"><span class="nds-slide-tag">SLIDE 07</span><img src="docs/nds-slides/slide-07.jpg" alt="Slide 7" loading="lazy"></div>
+      <div class="nds-divider"></div>
+      <div class="nds-slide"><span class="nds-slide-tag">SLIDE 08</span><img src="docs/nds-slides/slide-08.jpg" alt="Slide 8" loading="lazy"></div>
+      <div class="nds-divider"></div>
+      <div class="nds-slide"><span class="nds-slide-tag">SLIDE 09</span><img src="docs/nds-slides/slide-09.jpg" alt="Slide 9" loading="lazy"></div>
+      <div class="nds-divider"></div>
+      <div class="nds-slide"><span class="nds-slide-tag">SLIDE 10</span><img src="docs/nds-slides/slide-10.jpg" alt="Slide 10" loading="lazy"></div>
+      <div class="nds-end-marker">END OF BRIEFING</div>
     </div>
 
     <div class="nds-status">
       <span><span class="nds-status-dot"></span>SECURE VIEWER ACTIVE &mdash; CLASSIFIED</span>
-      <span class="nds-kbd-hint">
-        <kbd>&larr;</kbd> <kbd>&rarr;</kbd> to navigate
-      </span>
+      <span class="nds-slide-indicator" id="scroll-indicator">SLIDE 01 / 10</span>
     </div>
   </div>
 
@@ -395,65 +364,30 @@
       if (session && userDisplay) userDisplay.textContent = session.username.toUpperCase();
     });
 
+    // Track which slide is in view and update the status bar
     (function () {
-      var TOTAL = 10;
-      var current = 1;
-      var img = document.getElementById("slide-img");
-      var numEl = document.getElementById("slide-num");
-      var totalEl = document.getElementById("slide-total");
-      var prevBtn = document.getElementById("btn-prev");
-      var nextBtn = document.getElementById("btn-next");
-      var progress = document.getElementById("nds-progress");
-
-      totalEl.textContent = String(TOTAL).padStart(2, "0");
-
-      // Preload adjacent slides
-      function preload(n) {
-        if (n >= 1 && n <= TOTAL) {
-          var i = new Image();
-          i.src = "docs/nds-slides/slide-" + String(n).padStart(2, "0") + ".jpg";
-        }
-      }
-
-      function goTo(n) {
-        if (n < 1 || n > TOTAL) return;
-        current = n;
-        img.src = "docs/nds-slides/slide-" + String(n).padStart(2, "0") + ".jpg";
-        numEl.textContent = String(n).padStart(2, "0");
-        prevBtn.disabled = (n === 1);
-        nextBtn.disabled = (n === TOTAL);
-        progress.style.width = ((n / TOTAL) * 100) + "%";
-        // Preload next and previous
-        preload(n + 1);
-        preload(n - 1);
-      }
-
-      prevBtn.addEventListener("click", function () { goTo(current - 1); });
-      nextBtn.addEventListener("click", function () { goTo(current + 1); });
-
-      // Keyboard navigation
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); goTo(current + 1); }
-        if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); goTo(current - 1); }
-      });
-
-      // Swipe navigation for mobile
-      var touchStartX = 0;
       var viewer = document.getElementById("nds-viewer");
-      viewer.addEventListener("touchstart", function (e) {
-        touchStartX = e.changedTouches[0].screenX;
-      }, { passive: true });
-      viewer.addEventListener("touchend", function (e) {
-        var diff = touchStartX - e.changedTouches[0].screenX;
-        if (Math.abs(diff) > 50) {
-          if (diff > 0) goTo(current + 1); // swipe left = next
-          else goTo(current - 1);           // swipe right = prev
-        }
-      }, { passive: true });
+      var indicator = document.getElementById("scroll-indicator");
+      var slides = document.querySelectorAll(".nds-slide");
 
-      // Initialize
-      goTo(1);
-      preload(2);
+      viewer.addEventListener("scroll", function () {
+        var viewerRect = viewer.getBoundingClientRect();
+        var viewerCenter = viewerRect.top + viewerRect.height / 2;
+        var closest = 1;
+        var minDist = Infinity;
+
+        slides.forEach(function (slide, i) {
+          var rect = slide.getBoundingClientRect();
+          var center = rect.top + rect.height / 2;
+          var dist = Math.abs(center - viewerCenter);
+          if (dist < minDist) {
+            minDist = dist;
+            closest = i + 1;
+          }
+        });
+
+        indicator.textContent = "SLIDE " + String(closest).padStart(2, "0") + " / " + String(slides.length).padStart(2, "0");
+      });
     })();
   </script>
 </body>
