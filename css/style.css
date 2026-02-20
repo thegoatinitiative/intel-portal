@@ -1246,40 +1246,47 @@ body {
     display: flex;
     order: 2;
     width: 100%;
-    justify-content: center;
+    justify-content: stretch;
     gap: 0.25rem;
-    padding: 0.4rem 0;
+    padding: 0.35rem 0.25rem;
     border-top: 1px solid var(--border);
   }
 
   .topbar-tab {
-    font-size: 0.55rem !important;
-    padding: 0.35rem 0.5rem !important;
-    letter-spacing: 0.06em;
+    flex: 1;
+    text-align: center;
+    font-size: 0.6rem !important;
+    padding: 0.5rem 0.25rem !important;
+    letter-spacing: 0.04em;
     white-space: nowrap;
+    border-radius: 6px;
   }
 
   .topbar-right {
     order: 1;
     margin-left: auto;
     gap: 0.5rem;
-    padding: 0.4rem 0;
+    padding: 0.5rem 0;
   }
 
   .user-display {
     display: none;
   }
 
-  .nav-title {
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
+  .btn-logout {
+    font-size: 0.65rem;
+    padding: 0.35rem 0.75rem;
+  }
+
+  /* Hide footer on mobile for more screen real estate */
+  .site-footer {
+    display: none;
   }
 
   /* Dashboard layout — full-screen toggle on mobile */
   .dashboard-layout {
     flex-direction: column;
-    height: calc(100vh - 70px);
-    /* topbar wraps to ~70px on mobile with tabs */
+    height: calc(100vh - 68px);
     overflow: hidden;
   }
 
@@ -1300,6 +1307,8 @@ body {
 
   .dashboard-layout.mobile-report-open .report-viewer {
     display: block;
+    height: 100%;
+    overflow-y: auto;
   }
 
   /* When no report is open, show sidebar and hide viewer */
@@ -1314,46 +1323,48 @@ body {
     display: flex !important;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.6rem 0.85rem;
     margin: 0.5rem 0.75rem;
     background: var(--bg-card-elevated);
     color: var(--accent);
-    border: 1px solid var(--border);
+    border: 1px solid rgba(52, 211, 153, 0.25);
     border-radius: 8px;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     letter-spacing: 0.03em;
   }
 
   .sidebar-header {
-    padding: 0.75rem;
+    padding: 0.6rem 0.75rem;
   }
 
   .sidebar-header h2 {
-    margin-bottom: 0.35rem;
-    font-size: 0.6rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.55rem;
   }
 
   .search-input {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-  }
-
-  .report-item {
-    padding: 0.65rem 0.75rem;
-  }
-
-  .report-item-name {
+    padding: 0.55rem 0.75rem;
     font-size: 0.9rem;
   }
 
+  /* Report list items — bigger tap targets */
+  .report-item {
+    padding: 0.75rem;
+    border-left-width: 3px;
+  }
+
+  .report-item-name {
+    font-size: 0.95rem;
+  }
+
   .report-item-passport {
-    font-size: 0.75rem;
+    font-size: 0.78rem;
   }
 
   .report-item-date {
-    font-size: 0.68rem;
+    font-size: 0.7rem;
   }
 
   .report-item-classification {
@@ -1363,9 +1374,15 @@ body {
   }
 
   .sidebar-footer {
-    padding: 0.75rem;
+    padding: 0.6rem 0.75rem;
   }
 
+  .btn-upload {
+    padding: 0.65rem;
+    font-size: 0.8rem;
+  }
+
+  /* Report content area */
   .report-content {
     padding: 0.75rem;
   }
@@ -1374,59 +1391,131 @@ body {
   .report-header-banner {
     padding: 1rem;
     border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .report-header-banner::before {
+    height: 2px;
   }
 
   .report-header-top {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.6rem;
   }
 
   .report-title-block h1 {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+
+  .report-title-id {
+    font-size: 0.7rem;
   }
 
   .report-header-actions {
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: 0.35rem;
   }
 
   .report-header-actions .btn-action,
   .report-header-actions .btn-delete {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.65rem;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.7rem;
+    flex: 1;
+    text-align: center;
+    min-width: 0;
   }
 
+  /* Meta grid */
   .report-meta-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
+    gap: 0.6rem;
+  }
+
+  .meta-label {
+    font-size: 0.55rem;
+  }
+
+  .meta-value {
+    font-size: 0.8rem;
+  }
+
+  /* Report body sections */
+  .report-body-section {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  .report-body-section h1 {
+    font-size: 1.05rem;
+  }
+
+  .report-body-section h2 {
+    font-size: 0.95rem;
+  }
+
+  .report-body-section h3 {
+    font-size: 0.85rem;
+  }
+
+  .report-body-section p,
+  .report-body-section li {
+    font-size: 0.85rem;
+    line-height: 1.65;
   }
 
   /* Documents */
   .document-embed {
     border-radius: 8px;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
   }
 
   .document-embed-header {
-    padding: 0.65rem 0.75rem;
-    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    gap: 0.4rem;
     flex-wrap: wrap;
   }
 
   .document-embed-name {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
+  .document-embed-body canvas {
+    max-width: 100% !important;
+  }
+
+  .documents-section-header {
+    font-size: 0.6rem;
+  }
+
   /* Map */
+  .map-section {
+    margin-bottom: 0.75rem;
+  }
+
   .map-container {
     height: 250px;
+    border-radius: 8px;
+  }
+
+  .map-coords {
+    font-size: 0.7rem;
   }
 
   /* Login */
+  .login-body {
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
   .login-container {
     margin: 1rem;
     padding: 1.5rem;
@@ -1437,15 +1526,25 @@ body {
     margin-bottom: 1.5rem;
   }
 
+  .login-header h1 {
+    font-size: 0.9rem;
+  }
+
   .shield-icon {
     font-size: 2.5rem;
   }
 
   /* Modal */
+  .modal-overlay {
+    align-items: flex-start;
+    padding-top: 0.5rem;
+  }
+
   .modal {
-    padding: 1.25rem;
+    padding: 1rem;
     border-radius: 12px;
     max-height: 95vh;
+    margin: 0 0.5rem;
   }
 
   .modal-grid {
@@ -1454,7 +1553,7 @@ body {
   }
 
   .modal-header h2 {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
   .modal-actions {
@@ -1468,7 +1567,11 @@ body {
   }
 
   .drop-zone {
-    padding: 1.25rem;
+    padding: 1rem;
+  }
+
+  .drop-zone-text {
+    font-size: 0.8rem;
   }
 
   /* Confirm dialog */
@@ -1480,6 +1583,7 @@ body {
   /* Admin */
   .admin-layout {
     flex-direction: column;
+    height: calc(100vh - 68px);
   }
 
   .admin-panel {
