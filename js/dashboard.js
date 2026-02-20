@@ -233,6 +233,9 @@
     reportPlaceholder.hidden = true;
     reportContentEl.hidden = false;
 
+    // Mobile: switch to report view
+    document.querySelector(".dashboard-layout").classList.add("mobile-report-open");
+
     // Fetch full report data (with attachment blobs) on demand
     var report;
     try {
@@ -262,6 +265,19 @@
     reportActionsEl.replaceChildren();
     reportMetaEl.replaceChildren();
     reportBodyEl.replaceChildren();
+
+    // ---- Mobile back button ----
+    const backBtn = document.createElement("button");
+    backBtn.className = "mobile-back-btn";
+    backBtn.textContent = "\u2190 All Reports";
+    backBtn.addEventListener("click", function () {
+      document.querySelector(".dashboard-layout").classList.remove("mobile-report-open");
+      activeReportId = null;
+      reportContentEl.hidden = true;
+      reportPlaceholder.hidden = false;
+      renderReportList(searchInput.value);
+    });
+    reportMetaEl.appendChild(backBtn);
 
     // ---- Header Banner ----
     const banner = document.createElement("div");
