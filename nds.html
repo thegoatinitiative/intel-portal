@@ -102,12 +102,12 @@
     var loading = document.getElementById("nds-loading");
     var pdfUrl = "docs/nds-2026.pdf";
 
-    // Try native embed first (works on HTTPS), fall back to PDF.js
-    if (location.protocol === "file:") {
-      // Use PDF.js for file:// URLs
+    // Use PDF.js on mobile and file:// (embed doesn't work on mobile browsers)
+    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    if (location.protocol === "file:" || isMobile) {
       renderWithPDFJS();
     } else {
-      // Use native embed for HTTPS
+      // Use native embed for desktop HTTPS
       loading.remove();
       var embed = document.createElement("embed");
       embed.src = pdfUrl;
