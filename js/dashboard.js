@@ -317,18 +317,25 @@
       actionsDiv.appendChild(editBtn);
     }
 
-    const printBtn = document.createElement("button");
-    printBtn.type = "button";
-    printBtn.className = "btn-action";
-    printBtn.textContent = "Print";
-    printBtn.addEventListener("click", () => { ActivityLog.log("report_export", { reportId: report.id, method: "print" }); printReport(); });
-    actionsDiv.appendChild(printBtn);
+    const isMobile = window.innerWidth <= 768;
+
+    if (!isMobile) {
+      const printBtn = document.createElement("button");
+      printBtn.type = "button";
+      printBtn.className = "btn-action";
+      printBtn.textContent = "Print";
+      printBtn.addEventListener("click", () => { ActivityLog.log("report_export", { reportId: report.id, method: "print" }); window.print(); });
+      actionsDiv.appendChild(printBtn);
+    }
 
     const saveBtn = document.createElement("button");
     saveBtn.type = "button";
     saveBtn.className = "btn-action";
     saveBtn.textContent = "Save PDF";
-    saveBtn.addEventListener("click", () => { ActivityLog.log("report_export", { reportId: report.id, method: "pdf" }); window.print(); });
+    saveBtn.addEventListener("click", () => {
+      ActivityLog.log("report_export", { reportId: report.id, method: "pdf" });
+      exportReportPDF(report);
+    });
     actionsDiv.appendChild(saveBtn);
 
     if (isUserAdmin) {
@@ -557,10 +564,35 @@
     }
   }
 
-  // ---- Print Report ----
+  // ---- Export Report as PDF ----
 
-  function printReport() {
-    window.print();
+  function exportReportPDF(report) {
+    if (!window.html2pdf) {
+      alert("PDF export is loading, please try again in a moment.");
+      return;
+    }
+
+    var el = document.getElementById("report-meta");
+    var bodyEl = document.getElementById("report-body");
+
+    // Create a temporary container with both sections
+    var container = document.createElement("div");
+    container.style.cssText = "background:#fff;color:#1a1a2e;padding:20px;font-family:Inter,sans-serif;";
+    container.innerHTML = el.innerHTML + bodyEl.innerHTML;
+
+    // Remove buttons and interactive elements from the clone
+    container.querySelectorAll("button, .btn-action, .btn-delete, .mobile-back-btn, .remove-btn").forEach(function (b) { b.remove(); });
+
+    var filename = (report.id || "report") + ".pdf";
+
+    html2pdf().set({
+      margin: [10, 10, 10, 10],
+      filename: filename,
+      image: { type: "jpeg", quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+    }).from(container).save();
   }
 
 
