@@ -7,6 +7,7 @@
   "use strict";
 
   await requireAuth();
+  ActivityLog.log("page_view", { page: "admin" });
 
   // Enforce admin role
   var admin = await isAdmin();
@@ -258,6 +259,7 @@
       report_delete: "admin-action-delete",
       report_export: "admin-action-export",
       search: "admin-action-search",
+      page_view: "admin-action-pageview",
     };
     return map[action] || "admin-action-default";
   }
@@ -282,8 +284,13 @@
       if (data.details.subject) parts.push(data.details.subject);
       if (data.details.query) parts.push('"' + data.details.query + '"');
       if (data.details.method) parts.push(data.details.method);
+      if (data.details.page) parts.push(data.details.page);
       details.textContent = parts.join(" \u2014 ");
     }
+
+    var ip = document.createElement("span");
+    ip.className = "admin-activity-ip";
+    ip.textContent = data.ip || "";
 
     var time = document.createElement("span");
     time.className = "admin-activity-time";
@@ -292,6 +299,7 @@
     div.appendChild(badge);
     div.appendChild(user);
     div.appendChild(details);
+    div.appendChild(ip);
     div.appendChild(time);
 
     return div;

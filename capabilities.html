@@ -2234,6 +2234,7 @@
     var session = getSession();
     var userDisplay = document.getElementById("user-display");
     if (session && userDisplay) userDisplay.textContent = session.username.toUpperCase();
+    ActivityLog.log("page_view", { page: "capabilities" });
   });
 </script>
 </body>

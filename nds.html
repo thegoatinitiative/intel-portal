@@ -362,6 +362,7 @@
       var session = getSession();
       var userDisplay = document.getElementById("user-display");
       if (session && userDisplay) userDisplay.textContent = session.username.toUpperCase();
+      ActivityLog.log("page_view", { page: "nds" });
     });
 
     // Track which slide is in view and update the status bar
