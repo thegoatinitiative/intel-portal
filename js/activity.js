@@ -10,13 +10,30 @@ const ActivityLog = (function () {
   let _cachedIp = null;
   const SEARCH_DEBOUNCE_MS = 2000;
 
-  // Fetch IP once per session and cache it
+  // Fetch IP once per session and cache it, with fallback services
+  var _ipServices = [
+    { url: "https://api.ipify.org?format=json", extract: function (d) { return d.ip; } },
+    { url: "https://api.seeip.org/jsonip", extract: function (d) { return d.ip; } },
+    { url: "https://ipapi.co/json/", extract: function (d) { return d.ip; } },
+  ];
+
   function _fetchIp() {
     if (_cachedIp) return Promise.resolve(_cachedIp);
-    return fetch("https://api.ipify.org?format=json")
-      .then(function (r) { return r.json(); })
-      .then(function (data) { _cachedIp = data.ip; return _cachedIp; })
-      .catch(function () { return "unknown"; });
+
+    function _tryService(i) {
+      if (i >= _ipServices.length) return Promise.resolve("unknown");
+      var svc = _ipServices[i];
+      return fetch(svc.url)
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var ip = svc.extract(data);
+          if (ip) { _cachedIp = ip; return ip; }
+          return _tryService(i + 1);
+        })
+        .catch(function () { return _tryService(i + 1); });
+    }
+
+    return _tryService(0);
   }
 
   // Kick off IP fetch immediately on load
