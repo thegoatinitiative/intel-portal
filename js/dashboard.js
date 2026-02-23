@@ -8,6 +8,7 @@
   "use strict";
 
   await requireAuth();
+  ActivityLog.log("page_view", { page: "dashboard" });
 
   // Show Admin tab and New Report button only for admins
   isAdmin().then(function (admin) {

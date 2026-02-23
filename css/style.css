@@ -1895,6 +1895,11 @@ body {
   color: var(--gold);
 }
 
+.admin-action-pageview {
+  background: rgba(14, 165, 233, 0.12);
+  color: #38bdf8;
+}
+
 .admin-action-default {
   background: rgba(107, 114, 128, 0.1);
   color: var(--text-muted);
@@ -1915,6 +1920,14 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.admin-activity-ip {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  min-width: 90px;
 }
 
 .admin-activity-time {
