@@ -591,6 +591,26 @@
 
       reportBodyEl.prepend(wrapper);
     }).catch(function () { /* no assessment available */ });
+
+    // ---- Inline Map (loaded via iframe for JS support) ----
+    var mapUrl = "reports/" + report.id + "-map.html";
+    fetch(mapUrl, { method: "HEAD" }).then(function (resp) {
+      if (!resp.ok) return;
+      var iframe = document.createElement("iframe");
+      iframe.src = mapUrl;
+      iframe.className = "intel-map-embed";
+      iframe.setAttribute("frameborder", "0");
+      iframe.setAttribute("allowfullscreen", "true");
+      // Insert after assessment if present, otherwise prepend
+      var assessment = reportBodyEl.querySelector(".intel-assessment-embed");
+      if (assessment && assessment.nextSibling) {
+        reportBodyEl.insertBefore(iframe, assessment.nextSibling);
+      } else if (assessment) {
+        reportBodyEl.appendChild(iframe);
+      } else {
+        reportBodyEl.prepend(iframe);
+      }
+    }).catch(function () { /* no map available */ });
   }
 
   // ---- Export Report as PDF ----

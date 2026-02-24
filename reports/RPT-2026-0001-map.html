@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRA-2022-2023-001 Travel Pattern Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1d23;
+            color: #e0e2e8;
+        }
+        #map { width: 100%; height: calc(100vh - 52px); }
+        .top-bar {
+            background: #222630;
+            border-bottom: 1px solid #2e3340;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 52px;
+        }
+        .top-bar h1 { font-size: 14px; font-weight: 700; color: #f0f1f4; letter-spacing: 0.5px; }
+        .top-bar .subject-id { color: #3a9d5c; font-size: 13px; font-weight: 600; }
+        .top-bar .fouo {
+            background: #d94452; color: white; padding: 2px 10px; border-radius: 3px;
+            font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+        }
+        .map-legend {
+            background: rgba(34,38,48,0.95); border: 1px solid #2e3340; border-radius: 8px;
+            padding: 16px 20px; font-size: 14px; line-height: 2; color: #e0e2e8;
+        }
+        .map-legend h4 {
+            font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #8b8fa4;
+            margin-bottom: 10px; border-bottom: 1px solid #2e3340; padding-bottom: 6px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+        .legend-line { width: 30px; height: 4px; border-radius: 2px; flex-shrink: 0; }
+        .legend-dot {
+            width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .phase-controls {
+            background: rgba(34,38,48,0.95); border: 1px solid #2e3340; border-radius: 8px;
+            padding: 16px 20px; font-size: 13px;
+        }
+        .phase-controls h4 {
+            font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #8b8fa4;
+            margin-bottom: 10px; border-bottom: 1px solid #2e3340; padding-bottom: 6px;
+        }
+        .phase-btn {
+            display: block; width: 100%; text-align: left; background: #2a2e38;
+            border: 1px solid #363b48; color: #e0e2e8; padding: 6px 10px; margin: 3px 0;
+            border-radius: 4px; cursor: pointer; font-size: 12px; font-family: inherit;
+        }
+        .phase-btn:hover { background: #363b48; }
+        .phase-btn.active { border-color: #3a9d5c; background: rgba(58,157,92,0.15); color: #3a9d5c; }
+        .leaflet-popup-content-wrapper {
+            background: #222630 !important; color: #e0e2e8 !important;
+            border: 1px solid #2e3340 !important; border-radius: 8px !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+        }
+        .leaflet-popup-tip { background: #222630 !important; }
+        .leaflet-popup-content {
+            margin: 14px 16px !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-size: 12px !important; line-height: 1.6 !important;
+        }
+        .stats-bar {
+            background: rgba(34,38,48,0.95); border: 1px solid #2e3340; border-radius: 8px;
+            padding: 10px 16px; display: flex; gap: 20px; font-size: 11px;
+        }
+        .stat-item .stat-num { font-size: 22px; font-weight: 700; color: #3a9d5c; }
+        .stat-item .stat-label {
+            color: #8b8fa4; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div style="display:flex;align-items:center;gap:16px;">
+        <h1>TRAVEL PATTERN MAP</h1>
+        <span class="subject-id">TRA-2022-2023-001 &bull; OK, Velat</span>
+    </div>
+    <span class="fouo">FOUO</span>
+</div>
+
+<div id="map"></div>
+
+<script>
+// Map Init
+var map = L.map('map', {
+    center: [35, 55],
+    zoom: 4,
+    zoomControl: false,
+    attributionControl: false
+});
+
+L.control.zoom({ position: 'topright' }).addTo(map);
+
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 18
+}).addTo(map);
+
+// Add subtle labels overlay on top of satellite
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+    maxZoom: 18,
+    opacity: 0.9
+}).addTo(map);
+
+// Locations
+var locs = {
+    istanbul:    [41.0082, 28.9784],
+    habur:       [37.1325, 42.4567],
+    diyarbakir:  [37.9144, 40.2306],
+    esendere:    [37.39, 44.55],
+    gurbulak:    [39.72, 44.09],
+    dilucu:      [39.62, 44.98],
+    nakhchivan:  [39.21, 45.41],
+    lotfabad:    [37.82, 58.44],
+    artyk:       [37.88, 58.52],
+    ashgabat:    [37.96, 58.33],
+    lebap:       [38.98, 63.57],
+    farap:       [39.17, 63.61],
+    bukhara:     [39.77, 64.42],
+    singapore:   [1.3521, 103.82],
+    campo:       [32.61, -116.47]
+};
+
+var locMeta = {
+    istanbul:   { name:"Istanbul", country:"Turkey", type:"hub", stamps:2, notes:"Departure point for Central Asian operations (Apr 2022)." },
+    habur:      { name:"Habur / Ibrahim Khalil", country:"Turkey-Iraq Border", type:"crossing", stamps:4, notes:"Turkey-Iraq border. Entry/exit stamps Jan 2022. Ibrahim Khalil on Iraq side." },
+    diyarbakir: { name:"Diyarbakir", country:"Turkey", type:"origin", stamps:0, notes:"Subject birthplace. SE Turkey, majority Kurdish region. Assess PKK/KCK nexus." },
+    esendere:   { name:"Esendere", country:"Turkey-Iran Border", type:"crossing", stamps:2, notes:"Remote mountain crossing in Hakkari. Used Jun 2022 exit and Jul 2023 entry." },
+    gurbulak:   { name:"Gurbulak / Bazargan", country:"Turkey-Iran Border", type:"crossing", stamps:10, notes:"Primary Turkey-Iran crossing. Heavily used 2022-2024. Multiple entry/exit stamps." },
+    dilucu:     { name:"Dilucu", country:"Turkey-Azerbaijan Border", type:"crossing", stamps:4, notes:"Turkey-Nakhchivan border. Part of bypass route. 4+ transits documented." },
+    nakhchivan: { name:"Nakhchivan (Sadarak/Sahtaxti)", country:"Azerbaijan Exclave", type:"crossing", stamps:8, notes:"Transit corridor. 8+ stamps across assessment period." },
+    lotfabad:   { name:"Lotfabad Border (Stn 21708)", country:"Iran-Turkmenistan Border", type:"crossing", stamps:12, notes:"Iran-TKM border. Persian calendar stamps. Multiple entry/exit records." },
+    artyk:      { name:"Artyk (Posts 02-08)", country:"Turkmenistan-Iran Border", type:"crossing", stamps:20, notes:"PRIMARY NODE. 6 checkpoint posts used. ~20 stamps. Commuter epicenter. Quadruple crossing 29 May 2023." },
+    ashgabat:   { name:"Ashgabat (Ahal Registration)", country:"Turkmenistan", type:"hub", stamps:1, notes:"Ahal migration registration 03 Jan 2023. Admin/coordination phase." },
+    lebap:      { name:"Lebap Province", country:"Turkmenistan", type:"hub", stamps:1, notes:"Migration registration 18 Dec 2022. Afghan border proximity. ISIS-K logistics corridor." },
+    farap:      { name:"Farap (Posts 01-07)", country:"Turkmenistan-Uzbekistan Border", type:"crossing", stamps:16, notes:"PRIMARY NODE. 7 checkpoint posts used. ~16 stamps. Gateway to Uzbekistan operations." },
+    bukhara:    { name:"Bukhara (Buxoro)", country:"Uzbekistan", type:"hub", stamps:18, notes:"15+ unique station numbers (N009-N087). UZB-side hub for corridor operations." },
+    singapore:  { name:"Singapore", country:"Singapore", type:"financial", stamps:2, notes:"Two 72-96 hr visits (Apr and Jul 2023). Financial layering suspected. No physical stamps." },
+    campo:      { name:"Campo Sector, San Diego", country:"United States", type:"recovery", stamps:0, notes:"RECOVERY SITE. Passport U24623262 found abandoned. Identity scrubbing assessed." }
+};
+
+var typeColors = {
+    recovery: '#d94452', financial: '#e8c84a', origin: '#7c6daa',
+    hub: '#3a9d5c', crossing: '#4a90a8'
+};
+var typeRadii = {
+    recovery: 14, financial: 11, origin: 10, hub: 11, crossing: 9
+};
+var typeLabels = {
+    recovery: 'Recovery Site', financial: 'Financial Node', origin: 'Place of Birth',
+    hub: 'Operational Hub', crossing: 'Border Crossing'
+};
+
+// Route definitions
+var routes = [
+    { id:'phase1', name:'Iraq Ops (Jan 2022)', color:'#5080c0', dash:null, pts:['istanbul','habur'] },
+    { id:'phase2', name:'Iran Transit (Apr-Jun 2022)', color:'#d4883a', dash:null, pts:['istanbul','esendere'] },
+    { id:'ghost1', name:'GHOST: Iran to TKM (Jun-Oct 2022)', color:'#d94452', dash:'8,12', pts:['esendere','lotfabad','artyk'] },
+    { id:'phase3a', name:'TKM-UZB Circuit (Oct-Dec 2022)', color:'#3a9d5c', dash:null, pts:['artyk','ashgabat','lebap','farap','bukhara'] },
+    { id:'nakh', name:'Nakhchivan Bypass Route', color:'#7c6daa', dash:'5,8', pts:['artyk','lotfabad','nakhchivan','dilucu'] },
+    { id:'direct', name:'Gurbulak-Iran Direct', color:'#4a90a8', dash:null, pts:['gurbulak','lotfabad','artyk'] },
+    { id:'commuter', name:'Commuter Pattern (Jan-Aug 2023)', color:'#3a9d5c', dash:null, pts:['artyk','farap','bukhara'] },
+    { id:'singapore', name:'Singapore Financial (Apr/Jul 2023)', color:'#e8c84a', dash:'4,6', pts:['artyk','singapore'] },
+    // Route to Campo removed
+];
+
+// Draw routes
+var routeLayerMap = {};
+routes.forEach(function(r) {
+    var coords = r.pts.map(function(p) { return locs[p]; });
+    var line = L.polyline(coords, {
+        color: r.color, weight: r.dash ? 4 : 5, opacity: 0.95,
+        dashArray: r.dash, lineCap: 'round', lineJoin: 'round'
+    });
+    routeLayerMap[r.id] = L.layerGroup([line]).addTo(map);
+});
+
+// Draw markers
+var primaryNodes = ['artyk', 'farap', 'campo'];
+var labelNodes = ['artyk','farap','campo','singapore','istanbul','bukhara','gurbulak','habur','lebap','diyarbakir','nakhchivan','lotfabad','esendere','dilucu'];
+
+Object.keys(locs).forEach(function(key) {
+    var meta = locMeta[key];
+    var color = typeColors[meta.type];
+    var radius = typeRadii[meta.type];
+
+    if (primaryNodes.indexOf(key) >= 0) {
+        L.circleMarker(locs[key], {
+            radius: radius + 12, fillColor: color, fillOpacity: 0.2,
+            color: color, weight: 2, opacity: 0.4
+        }).addTo(map);
+    }
+
+    var marker = L.circleMarker(locs[key], {
+        radius: radius, fillColor: color, fillOpacity: 1,
+        color: '#ffffff', weight: 3, opacity: 0.9
+    }).addTo(map);
+
+    var popupEl = document.createElement('div');
+
+    var titleEl = document.createElement('div');
+    titleEl.style.cssText = 'font-size:16px;font-weight:700;color:#f0f1f4;margin-bottom:4px;';
+    titleEl.textContent = meta.name;
+    popupEl.appendChild(titleEl);
+
+    var countryEl = document.createElement('div');
+    countryEl.style.cssText = 'font-size:12px;color:#3a9d5c;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;';
+    countryEl.textContent = meta.country;
+    popupEl.appendChild(countryEl);
+
+    var badgeEl = document.createElement('span');
+    badgeEl.style.cssText = 'display:inline-block;padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;background:rgba(74,144,168,0.15);color:#4a90a8;border:1px solid rgba(74,144,168,0.3);';
+    badgeEl.textContent = typeLabels[meta.type];
+    popupEl.appendChild(badgeEl);
+
+    if (meta.stamps > 0) {
+        var stampBadge = document.createElement('span');
+        stampBadge.style.cssText = 'display:inline-block;padding:2px 8px;border-radius:3px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;background:rgba(58,157,92,0.15);color:#3a9d5c;border:1px solid rgba(58,157,92,0.3);margin-left:4px;';
+        stampBadge.textContent = meta.stamps + ' stamps';
+        popupEl.appendChild(stampBadge);
+    }
+
+    var notesWrapper = document.createElement('div');
+    notesWrapper.style.marginTop = '10px';
+
+    var notesLabel = document.createElement('div');
+    notesLabel.style.cssText = 'color:#5c6070;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;';
+    notesLabel.textContent = 'Intelligence Notes';
+    notesWrapper.appendChild(notesLabel);
+
+    var notesValue = document.createElement('div');
+    notesValue.style.cssText = 'color:#e0e2e8;margin-top:4px;font-size:13px;line-height:1.5;';
+    notesValue.textContent = meta.notes;
+    notesWrapper.appendChild(notesValue);
+
+    popupEl.appendChild(notesWrapper);
+
+    marker.bindPopup(popupEl, { maxWidth: 380, minWidth: 250 });
+
+    if (labelNodes.indexOf(key) >= 0) {
+        L.marker(locs[key], {
+            icon: L.divIcon({
+                className: '',
+                html: '<div style="color:' + color + ';font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;text-shadow:0 0 8px rgba(0,0,0,1),0 0 16px rgba(0,0,0,0.9),0 0 24px rgba(0,0,0,0.7),1px 1px 2px rgba(0,0,0,1);transform:translate(' + (radius+8) + 'px,-10px);pointer-events:none;">' + meta.name + '</div>',
+                iconSize: [0, 0]
+            }),
+            interactive: false
+        }).addTo(map);
+    }
+});
+
+// Direction arrows
+function addArrow(from, to, color) {
+    var midLat = (locs[from][0] + locs[to][0]) / 2;
+    var midLng = (locs[from][1] + locs[to][1]) / 2;
+    var angle = Math.atan2(locs[to][1] - locs[from][1], locs[to][0] - locs[from][0]) * 180 / Math.PI;
+    L.marker([midLat, midLng], {
+        icon: L.divIcon({
+            className: '',
+            html: '<div style="color:' + color + ';font-size:18px;transform:rotate(' + (90-angle) + 'deg);text-shadow:0 0 6px rgba(0,0,0,1),0 0 12px rgba(0,0,0,0.8);pointer-events:none;">\u25B6</div>',
+            iconSize: [18, 18], iconAnchor: [9, 9]
+        }),
+        interactive: false
+    }).addTo(map);
+}
+
+addArrow('istanbul','habur','#5080c0');
+addArrow('istanbul','esendere','#d4883a');
+addArrow('esendere','lotfabad','#d94452');
+addArrow('lotfabad','artyk','#d94452');
+addArrow('gurbulak','lotfabad','#4a90a8');
+addArrow('lotfabad','artyk','#4a90a8');
+addArrow('artyk','ashgabat','#3a9d5c');
+addArrow('ashgabat','lebap','#3a9d5c');
+addArrow('lebap','farap','#3a9d5c');
+addArrow('farap','bukhara','#3a9d5c');
+addArrow('artyk','lotfabad','#7c6daa');
+addArrow('nakhchivan','dilucu','#7c6daa');
+addArrow('artyk','singapore','#e8c84a');
+// Arrow to Campo removed
+
+// Legend
+var legend = L.control({ position: 'bottomleft' });
+legend.onAdd = function() {
+    var div = L.DomUtil.create('div', 'map-legend');
+
+    var h4a = document.createElement('h4');
+    h4a.textContent = 'Route Legend';
+    div.appendChild(h4a);
+
+    var legendItems = [
+        { color:'#5080c0', label:'Iraq Operations', solid:true },
+        { color:'#d4883a', label:'Iran Transit', solid:true },
+        { color:'#d94452', label:'Ghost / Dark Period', solid:false },
+        { color:'#3a9d5c', label:'TKM-UZB Circuit', solid:true },
+        { color:'#4a90a8', label:'Gurbulak-Iran Direct', solid:true },
+        { color:'#7c6daa', label:'Nakhchivan Bypass', solid:false },
+        { color:'#e8c84a', label:'Singapore Financial', solid:false }
+    ];
+
+    legendItems.forEach(function(item) {
+        var row = document.createElement('div');
+        row.className = 'legend-item';
+        var line = document.createElement('div');
+        line.className = 'legend-line';
+        if (item.solid) {
+            line.style.background = item.color;
+        } else {
+            line.style.background = 'repeating-linear-gradient(90deg,' + item.color + ' 0,' + item.color + ' 4px,transparent 4px,transparent 8px)';
+            line.style.height = '3px';
+        }
+        row.appendChild(line);
+        var lbl = document.createElement('span');
+        lbl.textContent = item.label;
+        row.appendChild(lbl);
+        div.appendChild(row);
+    });
+
+    var h4b = document.createElement('h4');
+    h4b.textContent = 'Node Types';
+    h4b.style.marginTop = '10px';
+    div.appendChild(h4b);
+
+    var nodeItems = [
+        { color:'#d94452', label:'Recovery Site' },
+        { color:'#e8c84a', label:'Financial Node' },
+        { color:'#3a9d5c', label:'Operational Hub' },
+        { color:'#4a90a8', label:'Border Crossing' },
+        { color:'#7c6daa', label:'Place of Birth' }
+    ];
+
+    nodeItems.forEach(function(item) {
+        var row = document.createElement('div');
+        row.className = 'legend-item';
+        var dot = document.createElement('div');
+        dot.className = 'legend-dot';
+        dot.style.background = item.color;
+        row.appendChild(dot);
+        var lbl = document.createElement('span');
+        lbl.textContent = item.label;
+        row.appendChild(lbl);
+        div.appendChild(row);
+    });
+
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+};
+legend.addTo(map);
+
+// Phase filter controls
+var phaseCtrl = L.control({ position: 'topleft' });
+phaseCtrl.onAdd = function() {
+    var div = L.DomUtil.create('div', 'phase-controls');
+    var h4 = document.createElement('h4');
+    h4.textContent = 'Route Phases';
+    div.appendChild(h4);
+
+    var allBtn = document.createElement('button');
+    allBtn.className = 'phase-btn active';
+    allBtn.textContent = 'Show All Routes';
+    allBtn.dataset.phase = 'all';
+    div.appendChild(allBtn);
+
+    routes.forEach(function(r) {
+        var btn = document.createElement('button');
+        btn.className = 'phase-btn';
+        btn.textContent = r.name;
+        btn.dataset.phase = r.id;
+        btn.style.borderLeft = '3px solid ' + r.color;
+        div.appendChild(btn);
+    });
+
+    div.addEventListener('click', function(e) {
+        if (!e.target.classList.contains('phase-btn')) return;
+        var btns = div.querySelectorAll('.phase-btn');
+        for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+        e.target.classList.add('active');
+        var phase = e.target.dataset.phase;
+        Object.keys(routeLayerMap).forEach(function(k) {
+            if (phase === 'all' || k === phase) {
+                if (!map.hasLayer(routeLayerMap[k])) routeLayerMap[k].addTo(map);
+            } else {
+                if (map.hasLayer(routeLayerMap[k])) map.removeLayer(routeLayerMap[k]);
+            }
+        });
+    });
+
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+};
+phaseCtrl.addTo(map);
+
+// Stats bar
+var statsCtrl = L.control({ position: 'bottomright' });
+statsCtrl.onAdd = function() {
+    var div = L.DomUtil.create('div', 'stats-bar');
+    var stats = [
+        { num:'7', label:'Countries' },
+        { num:'13', label:'Border Posts' },
+        { num:'60+', label:'Crossings' },
+        { num:'24', label:'Months Active' },
+        { num:'2', label:'Ghost Moves' }
+    ];
+    stats.forEach(function(s) {
+        var item = document.createElement('div');
+        item.className = 'stat-item';
+        var numEl = document.createElement('div');
+        numEl.className = 'stat-num';
+        numEl.textContent = s.num;
+        item.appendChild(numEl);
+        var lblEl = document.createElement('div');
+        lblEl.className = 'stat-label';
+        lblEl.textContent = s.label;
+        item.appendChild(lblEl);
+        div.appendChild(item);
+    });
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+};
+statsCtrl.addTo(map);
+
+</script>
+</body>
+</html>
