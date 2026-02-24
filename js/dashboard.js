@@ -339,22 +339,6 @@
     });
     actionsDiv.appendChild(saveBtn);
 
-    // Check for static intel assessment page
-    const assessmentUrl = "reports/" + report.id + ".html";
-    fetch(assessmentUrl, { method: "HEAD" }).then(function (resp) {
-      if (resp.ok) {
-        const assessBtn = document.createElement("button");
-        assessBtn.type = "button";
-        assessBtn.className = "btn-action btn-assessment";
-        assessBtn.textContent = "Intel Assessment";
-        assessBtn.addEventListener("click", function () {
-          ActivityLog.log("report_view", { reportId: report.id, subject: report.subjectName, type: "assessment" });
-          window.open(assessmentUrl, "_blank");
-        });
-        actionsDiv.insertBefore(assessBtn, actionsDiv.querySelector(".btn-delete"));
-      }
-    }).catch(function () { /* no assessment available */ });
-
     if (isUserAdmin) {
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
@@ -579,6 +563,34 @@
       }
       reportBodyEl.appendChild(section);
     }
+
+    // ---- Inline Intel Assessment ----
+    var assessmentUrl = "reports/" + report.id + ".html";
+    fetch(assessmentUrl).then(function (resp) {
+      if (!resp.ok) return;
+      return resp.text();
+    }).then(function (html) {
+      if (!html) return;
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(html, "text/html");
+
+      var wrapper = document.createElement("div");
+      wrapper.className = "intel-assessment-embed";
+
+      // Inject scoped styles from the assessment
+      doc.querySelectorAll("style").forEach(function (s) {
+        var scopedStyle = document.createElement("style");
+        scopedStyle.textContent = s.textContent;
+        wrapper.appendChild(scopedStyle);
+      });
+
+      // Sanitize and inject body content via DOMPurify
+      var content = document.createElement("div");
+      setSafeHTML(content, doc.body.innerHTML);
+      wrapper.appendChild(content);
+
+      reportBodyEl.appendChild(wrapper);
+    }).catch(function () { /* no assessment available */ });
   }
 
   // ---- Export Report as PDF ----
