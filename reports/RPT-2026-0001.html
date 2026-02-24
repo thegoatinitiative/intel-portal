@@ -417,12 +417,19 @@
         }
         .map-legend-embed {
             background: rgba(34,38,48,0.95); border: 1px solid #2e3340; border-radius: 8px;
-            padding: 16px 20px; font-size: 14px; line-height: 2; color: #e0e2e8;
+            padding: 10px 14px; font-size: 14px; line-height: 2; color: #e0e2e8;
         }
+        .map-legend-embed.collapsed .map-legend-body { display: none; }
         .map-legend-embed h4 {
             font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #8b8fa4;
             margin-bottom: 10px; border-bottom: 1px solid #2e3340; padding-bottom: 6px;
         }
+        .map-legend-embed.collapsed h4 { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
+        .map-toggle-btn {
+            background: none; border: none; color: #8b8fa4; cursor: pointer; float: right;
+            font-size: 14px; padding: 0 4px; line-height: 1;
+        }
+        .map-toggle-btn:hover { color: #e0e2e8; }
         .map-legend-item { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
         .map-legend-line { width: 30px; height: 4px; border-radius: 2px; flex-shrink: 0; }
         .map-legend-dot {
@@ -431,12 +438,14 @@
         }
         .map-phase-controls {
             background: rgba(34,38,48,0.95); border: 1px solid #2e3340; border-radius: 8px;
-            padding: 16px 20px; font-size: 13px;
+            padding: 10px 14px; font-size: 13px;
         }
+        .map-phase-controls.collapsed .map-phase-body { display: none; }
         .map-phase-controls h4 {
             font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #8b8fa4;
             margin-bottom: 10px; border-bottom: 1px solid #2e3340; padding-bottom: 6px;
         }
+        .map-phase-controls.collapsed h4 { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
         .map-phase-btn {
             display: block; width: 100%; text-align: left; background: #2a2e38;
             border: 1px solid #363b48; color: #e0e2e8; padding: 6px 10px; margin: 3px 0;
@@ -673,8 +682,17 @@
         // Legend
         var legend = L.control({position:'bottomright'});
         legend.onAdd = function() {
-            var div = L.DomUtil.create('div','map-legend-embed');
-            var h4a = document.createElement('h4'); h4a.textContent='Route Legend'; div.appendChild(h4a);
+            var div = L.DomUtil.create('div','map-legend-embed collapsed');
+            var h4a = document.createElement('h4');
+            h4a.textContent='Route Legend';
+            var toggleBtn = document.createElement('button'); toggleBtn.className='map-toggle-btn'; toggleBtn.textContent='\u25B6';
+            toggleBtn.addEventListener('click', function() {
+                div.classList.toggle('collapsed');
+                toggleBtn.textContent = div.classList.contains('collapsed') ? '\u25B6' : '\u25BC';
+            });
+            h4a.appendChild(toggleBtn);
+            div.appendChild(h4a);
+            var body = document.createElement('div'); body.className='map-legend-body';
             var items = [
                 {color:'#5080c0',label:'Iraq Operations',solid:true},
                 {color:'#d4883a',label:'Iran Transit',solid:true},
@@ -690,15 +708,16 @@
                 if(it.solid){ln.style.background=it.color;}else{ln.style.background='repeating-linear-gradient(90deg,'+it.color+' 0,'+it.color+' 4px,transparent 4px,transparent 8px)';ln.style.height='3px';}
                 row.appendChild(ln);
                 var lb = document.createElement('span'); lb.textContent=it.label; row.appendChild(lb);
-                div.appendChild(row);
+                body.appendChild(row);
             });
-            var h4b = document.createElement('h4'); h4b.textContent='Node Types'; h4b.style.marginTop='10px'; div.appendChild(h4b);
+            var h4b = document.createElement('h4'); h4b.textContent='Node Types'; h4b.style.marginTop='10px'; body.appendChild(h4b);
             [{color:'#d94452',label:'Recovery Site'},{color:'#e8c84a',label:'Financial Node'},{color:'#3a9d5c',label:'Operational Hub'},{color:'#4a90a8',label:'Border Crossing'},{color:'#7c6daa',label:'Place of Birth'}].forEach(function(it){
                 var row=document.createElement('div');row.className='map-legend-item';
                 var dot=document.createElement('div');dot.className='map-legend-dot';dot.style.background=it.color;row.appendChild(dot);
                 var lb=document.createElement('span');lb.textContent=it.label;row.appendChild(lb);
-                div.appendChild(row);
+                body.appendChild(row);
             });
+            div.appendChild(body);
             L.DomEvent.disableClickPropagation(div);
             return div;
         };
@@ -707,15 +726,23 @@
         // Phase controls
         var phaseCtrl = L.control({position:'topleft'});
         phaseCtrl.onAdd = function() {
-            var div = L.DomUtil.create('div','map-phase-controls');
-            var h4=document.createElement('h4');h4.textContent='Route Phases';div.appendChild(h4);
-            var allBtn=document.createElement('button');allBtn.className='map-phase-btn active';allBtn.textContent='Show All Routes';allBtn.dataset.phase='all';div.appendChild(allBtn);
-            routes.forEach(function(r){
-                var btn=document.createElement('button');btn.className='map-phase-btn';btn.textContent=r.name;btn.dataset.phase=r.id;btn.style.borderLeft='3px solid '+r.color;div.appendChild(btn);
+            var div = L.DomUtil.create('div','map-phase-controls collapsed');
+            var h4=document.createElement('h4');h4.textContent='Route Phases';
+            var toggleBtn = document.createElement('button'); toggleBtn.className='map-toggle-btn'; toggleBtn.textContent='\u25B6';
+            toggleBtn.addEventListener('click', function() {
+                div.classList.toggle('collapsed');
+                toggleBtn.textContent = div.classList.contains('collapsed') ? '\u25B6' : '\u25BC';
             });
-            div.addEventListener('click',function(e){
+            h4.appendChild(toggleBtn);
+            div.appendChild(h4);
+            var body = document.createElement('div'); body.className='map-phase-body';
+            var allBtn=document.createElement('button');allBtn.className='map-phase-btn active';allBtn.textContent='Show All Routes';allBtn.dataset.phase='all';body.appendChild(allBtn);
+            routes.forEach(function(r){
+                var btn=document.createElement('button');btn.className='map-phase-btn';btn.textContent=r.name;btn.dataset.phase=r.id;btn.style.borderLeft='3px solid '+r.color;body.appendChild(btn);
+            });
+            body.addEventListener('click',function(e){
                 if(!e.target.classList.contains('map-phase-btn'))return;
-                var btns=div.querySelectorAll('.map-phase-btn');
+                var btns=body.querySelectorAll('.map-phase-btn');
                 for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
                 e.target.classList.add('active');
                 var phase=e.target.dataset.phase;
@@ -724,6 +751,7 @@
                     else{if(map.hasLayer(routeLayerMap[k]))map.removeLayer(routeLayerMap[k]);}
                 });
             });
+            div.appendChild(body);
             L.DomEvent.disableClickPropagation(div);
             return div;
         };
