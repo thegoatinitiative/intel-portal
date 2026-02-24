@@ -229,13 +229,14 @@
       return;
     }
 
-    // Pin reports with intel assessments to top
+    // Pin reports with intel assessments to top, sorted by ID
     var withAssessment = [];
     var without = [];
     filtered.forEach(function (r) {
       if (reportsWithAssessment[r.id]) { withAssessment.push(r); }
       else { without.push(r); }
     });
+    withAssessment.sort(function (a, b) { return a.id.localeCompare(b.id); });
     withAssessment.concat(without).forEach((r) => reportListEl.appendChild(buildReportListItem(r)));
   }
 
