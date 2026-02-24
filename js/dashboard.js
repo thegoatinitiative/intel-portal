@@ -339,6 +339,22 @@
     });
     actionsDiv.appendChild(saveBtn);
 
+    // Check for static intel assessment page
+    const assessmentUrl = "reports/" + report.id + ".html";
+    fetch(assessmentUrl, { method: "HEAD" }).then(function (resp) {
+      if (resp.ok) {
+        const assessBtn = document.createElement("button");
+        assessBtn.type = "button";
+        assessBtn.className = "btn-action btn-assessment";
+        assessBtn.textContent = "Intel Assessment";
+        assessBtn.addEventListener("click", function () {
+          ActivityLog.log("report_view", { reportId: report.id, subject: report.subjectName, type: "assessment" });
+          window.open(assessmentUrl, "_blank");
+        });
+        actionsDiv.insertBefore(assessBtn, actionsDiv.querySelector(".btn-delete"));
+      }
+    }).catch(function () { /* no assessment available */ });
+
     if (isUserAdmin) {
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";

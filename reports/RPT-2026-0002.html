@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Intelligence Assessment: Subject MRT-2024-SD-001</title>
+    <style>
+        :root {
+            --bg-page: #1a1d23;
+            --bg-card: #222630;
+            --bg-card-alt: #272b35;
+            --bg-input: #2a2e38;
+            --bg-row-hover: #2c3040;
+            --bg-row-even: #242836;
+            --border: #2e3340;
+            --border-light: #363b48;
+            --text-primary: #e0e2e8;
+            --text-secondary: #8b8fa4;
+            --text-muted: #5c6070;
+            --white: #f0f1f4;
+            --accent-green: #3a9d5c;
+            --accent-green-bg: rgba(58, 157, 92, 0.15);
+            --accent-red: #d94452;
+            --accent-red-bg: rgba(217, 68, 82, 0.12);
+            --accent-teal: #4a90a8;
+            --accent-teal-bg: rgba(74, 144, 168, 0.15);
+            --accent-orange: #d4883a;
+            --accent-orange-bg: rgba(212, 136, 58, 0.12);
+            --accent-purple: #7c6daa;
+            --accent-purple-bg: rgba(124, 109, 170, 0.12);
+            --accent-blue: #5080c0;
+            --accent-blue-bg: rgba(80, 128, 192, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* Report container */
+        .report-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+
+        /* Report header card */
+        .report-header-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 28px 32px;
+            margin-bottom: 20px;
+        }
+
+        .report-header-card h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .report-subject-id {
+            font-size: 15px;
+            color: var(--accent-green);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .header-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .meta-item {
+            border-left: 2px solid var(--border-light);
+            padding-left: 14px;
+        }
+
+        .meta-item .label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .meta-item .value {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Classification banner */
+        .classification-banner {
+            background: var(--accent-red);
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Section cards */
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .section-card-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .section-num-badge {
+            background: var(--accent-green);
+            color: white;
+            min-width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .section-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .section-card-body {
+            padding: 24px;
+        }
+
+        /* Subsection headers */
+        h3.sub-header {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin: 24px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h3.sub-header:first-child { margin-top: 0; }
+
+        h4.sub-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 16px 0 8px 0;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0 16px 0;
+            font-size: 13px;
+        }
+
+        thead th {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            color: var(--text-primary);
+        }
+
+        tbody tr:nth-child(even) { background: var(--bg-row-even); }
+        tbody tr:hover { background: var(--bg-row-hover); }
+
+        td.field-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            width: 200px;
+            white-space: nowrap;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Badges / Pills — match portal style */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .badge-official { background: var(--accent-green-bg); color: var(--accent-green); border: 1px solid rgba(58, 157, 92, 0.3); }
+        .badge-ghost { background: var(--accent-red-bg); color: var(--accent-red); border: 1px solid rgba(217, 68, 82, 0.3); }
+        .badge-gap { background: var(--accent-orange-bg); color: var(--accent-orange); border: 1px solid rgba(212, 136, 58, 0.3); }
+        .badge-uncertain { background: var(--accent-teal-bg); color: var(--accent-teal); border: 1px solid rgba(74, 144, 168, 0.3); }
+        .badge-dark { background: var(--accent-red-bg); color: var(--accent-red); border: 1px solid rgba(217, 68, 82, 0.3); }
+        .badge-irregular { background: var(--accent-purple-bg); color: var(--accent-purple); border: 1px solid rgba(124, 109, 170, 0.3); }
+
+        .badge-tier3 { background: var(--accent-orange-bg); color: var(--accent-orange); border: 1px solid rgba(212, 136, 58, 0.3); }
+        .badge-analyst { background: var(--accent-green-bg); color: var(--accent-green); border: 1px solid rgba(58, 157, 92, 0.3); }
+
+        /* Highlighted rows */
+        tr.row-gap { background: var(--accent-orange-bg) !important; }
+        tr.row-dark { background: var(--accent-red-bg) !important; }
+        tr.row-flagged { background: var(--accent-red-bg) !important; }
+
+        /* MRZ */
+        .mrz-block {
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--accent-green);
+            padding: 14px 18px;
+            font-size: 13px;
+            letter-spacing: 1.5px;
+            margin: 8px 0 16px 0;
+            overflow-x: auto;
+        }
+
+        .mrz-block div { margin: 2px 0; }
+
+        /* Anomaly checklist */
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 10px 14px;
+            margin: 4px 0;
+            border-radius: 6px;
+            font-size: 13px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .checklist li.flagged {
+            background: var(--accent-red-bg);
+            border-color: rgba(217, 68, 82, 0.25);
+        }
+
+        .checklist li.clear {
+            background: var(--bg-input);
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+
+        .check-icon {
+            font-weight: 700;
+            flex-shrink: 0;
+            width: 18px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .flagged .check-icon { color: var(--accent-red); }
+        .clear .check-icon { color: var(--text-muted); }
+
+        /* Callout boxes */
+        .callout {
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin: 14px 0;
+            border: 1px solid;
+        }
+
+        .callout-risk {
+            background: var(--accent-red-bg);
+            border-color: rgba(217, 68, 82, 0.25);
+        }
+
+        .callout-info {
+            background: var(--accent-teal-bg);
+            border-color: rgba(74, 144, 168, 0.25);
+        }
+
+        .callout-warning {
+            background: var(--accent-orange-bg);
+            border-color: rgba(212, 136, 58, 0.25);
+        }
+
+        .callout-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 8px;
+        }
+
+        .callout-risk .callout-label { color: var(--accent-red); }
+        .callout-info .callout-label { color: var(--accent-teal); }
+        .callout-warning .callout-label { color: var(--accent-orange); }
+
+        /* Paragraphs */
+        p {
+            margin: 10px 0;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        strong { color: var(--white); }
+
+        /* Lists */
+        ul, ol {
+            margin: 10px 0 10px 20px;
+            color: var(--text-primary);
+        }
+
+        li { margin: 6px 0; }
+
+        /* Red flag cards */
+        .red-flag-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent-red);
+            border-radius: 0 6px 6px 0;
+            padding: 14px 18px;
+            margin: 8px 0;
+        }
+
+        .red-flag-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-red);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        /* Directive cards */
+        .directive-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent-green);
+            border-radius: 0 6px 6px 0;
+            padding: 14px 18px;
+            margin: 8px 0;
+        }
+
+        .directive-card strong {
+            color: var(--accent-green);
+        }
+
+        /* Sources footer */
+        .sources-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .sources-card a {
+            color: var(--accent-teal);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .sources-card a:hover { text-decoration: underline; color: var(--white); }
+
+        /* Footer */
+        .report-footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Print */
+        @media print {
+            body { background: white; color: #222; }
+            .top-nav { display: none; }
+            .section-card, .report-header-card, .sources-card { border-color: #ccc; }
+            .section-card { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="classification-banner">FOUO</div>
+
+<div class="report-container">
+
+    <!-- Report Header -->
+    <div class="report-header-card">
+        <h1>Strategic Intelligence Assessment</h1>
+        <div class="report-subject-id">Subject MRT-2024-SD-001</div>
+        <div class="header-meta-grid">
+            <div class="meta-item">
+                <div class="label">Classification</div>
+                <div class="value">FOUO</div>
+            </div>
+            <div class="meta-item">
+                <div class="label">Date of Assessment</div>
+                <div class="value">[DATE]</div>
+            </div>
+            <div class="meta-item">
+                <div class="label">Prepared By</div>
+                <div class="value">The GOAT Initiative</div>
+            </div>
+            <div class="meta-item">
+                <div class="label">Distribution</div>
+                <div class="value">[DISTRIBUTION LIST]</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 0 -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-num-badge">0</div>
+            <div class="section-card-title">Document Recovery and Subject Identification</div>
+        </div>
+        <div class="section-card-body">
+
+            <h3 class="sub-header">Recovery Details</h3>
+            <table>
+                <tbody>
+                    <tr><td class="field-label">Recovery Location</td><td>[Sector], San Diego County, CA</td></tr>
+                    <tr><td class="field-label">Terrain / Environment</td><td>Mountainous terrain, San Diego County backcountry</td></tr>
+                    <tr><td class="field-label">Recovery Context</td><td>Passport recovered in mountains of San Diego County along known illegal entry corridor</td></tr>
+                    <tr><td class="field-label">Document Condition</td><td>Significant wear &mdash; front cover delaminated/peeling along top and right edges exposing underlayer; blue-and-white sticker/tag fragment on upper right corner; interior pages show creasing and vertical tear through spine; consistent with outdoor exposure (sun, moisture) in mountainous terrain</td></tr>
+                    <tr><td class="field-label">Photos Taken at Scene</td><td>[Yes/No &mdash; reference file names]</td></tr>
+                </tbody>
+            </table>
+
+            <h3 class="sub-header">Document Details</h3>
+            <table>
+                <tbody>
+                    <tr><td class="field-label">Document Type</td><td>Passport (P)</td></tr>
+                    <tr><td class="field-label">Issuing Country</td><td>Islamic Republic of Mauritania (MRT)</td></tr>
+                    <tr><td class="field-label">Document Number</td><td><strong>BI9033248</strong></td></tr>
+                    <tr><td class="field-label">Surname</td><td><strong>Mohamed Abe</strong></td></tr>
+                    <tr><td class="field-label">Given Names</td><td><strong>Yeba</strong></td></tr>
+                    <tr><td class="field-label">Nationality</td><td>Mauritanian (Mauritanienne)</td></tr>
+                    <tr><td class="field-label">Date of Birth</td><td>12 February 2002 (age 22&ndash;23 at time of likely transit)</td></tr>
+                    <tr><td class="field-label">Sex</td><td>M</td></tr>
+                    <tr><td class="field-label">Place of Birth</td><td>Bangou, Mauritania</td></tr>
+                    <tr><td class="field-label">Date of Issue</td><td>16 February 2021</td></tr>
+                    <tr><td class="field-label">Date of Expiry</td><td>15 February 2026</td></tr>
+                    <tr><td class="field-label">Issuing Authority</td><td>Directeur General de la Surete Nationale</td></tr>
+                    <tr><td class="field-label">NNI / NIN</td><td>8751655833</td></tr>
+                    <tr><td class="field-label">Profession</td><td>Not listed (---)</td></tr>
+                </tbody>
+            </table>
+
+            <h4 class="sub-label">Machine Readable Zone (MRZ)</h4>
+            <div class="mrz-block">
+                <div>P&lt;MRTMOHAMED&lt;ABE&lt;&lt;YEBA&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</div>
+                <div>BI90332486MRT0202125M2602154&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;8</div>
+            </div>
+
+            <h3 class="sub-header">Visible Stamps, Visas, and Annotations</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Page</th>
+                        <th>Type</th>
+                        <th>Country / Authority</th>
+                        <th>Date</th>
+                        <th>Entry / Exit</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>3</td>
+                        <td>Entry stamp (red/pink, circular)</td>
+                        <td>Angola &mdash; MIGRACAO E ESTRANGEIROS</td>
+                        <td>29 Apr 2022</td>
+                        <td><span class="badge badge-official">Entry</span></td>
+                        <td>First recorded travel after passport issuance</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Stamp (blue, rectangular)</td>
+                        <td><em style="color: var(--text-muted);">Uncertain</em></td>
+                        <td>14 Dec 2022</td>
+                        <td><span class="badge badge-uncertain">Uncertain</span></td>
+                        <td>Partially overlapping; reads &ldquo;J 4 DEC 2022&rdquo;</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Stamp (blue, inverted)</td>
+                        <td><em style="color: var(--text-muted);">Uncertain</em></td>
+                        <td>27 Jun 2024</td>
+                        <td><span class="badge badge-uncertain">Uncertain</span></td>
+                        <td>Inverted; reads &ldquo;27 JUIN 2024&rdquo; &mdash; likely French-language jurisdiction</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Entry stamp (circular)</td>
+                        <td>Angola &mdash; MIGRACAO E ESTRANGEIROS</td>
+                        <td>18 Dec 2022</td>
+                        <td><span class="badge badge-official">Entry</span></td>
+                        <td>Port code A01 E027; re-entry 4 days after Dec 14 stamp</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Work Visa (VWK)</td>
+                        <td>Angola &mdash; SME</td>
+                        <td>12 Sep 2022 &mdash; 14 Sep 2023</td>
+                        <td><span class="badge badge-analyst">Visa</span></td>
+                        <td>Visa #F00179638. Multiple entry. 366-day stay. Luanda.<br><strong>Sponsor: WENJI WA FAMILY-PRESTACAO DE SERVICO LDA</strong><br>Ref: 000948206/SME/22</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Entry stamp (circular, inverted)</td>
+                        <td>Angola &mdash; MIGRACAO E ESTRANGEIROS</td>
+                        <td>28 Apr 2024</td>
+                        <td><span class="badge badge-official">Entry</span></td>
+                        <td>Inverted stamp</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Work Visa (VWK)</td>
+                        <td>Angola &mdash; SME</td>
+                        <td>13 Sep 2023 &mdash; 14 Sep 2024</td>
+                        <td><span class="badge badge-analyst">Visa</span></td>
+                        <td>Visa #F00396427. Multiple entry. 366-day stay. Luanda.<br><strong>Sponsor: WENJI WA FAMILY-PRESTACAO DE SERVICO LDA</strong><br>Ref: 000978878/SME/23</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 class="sub-header">Document Anomalies and Indicators</h3>
+            <ul class="checklist">
+                <li class="clear"><span class="check-icon">&mdash;</span> Document shows signs of tampering or alteration</li>
+                <li class="clear"><span class="check-icon">&mdash;</span> Photo appears substituted or inconsistent with document</li>
+                <li class="clear"><span class="check-icon">&mdash;</span> MRZ data inconsistent with printed biographical data</li>
+                <li class="flagged"><span class="check-icon">&#x26A0;</span> Stamps inconsistent with known travel patterns &mdash; Dec 14, 2022 stamp (uncertain jurisdiction) followed by Angola re-entry Dec 18, 2022 suggests undocumented side-trip</li>
+                <li class="flagged"><span class="check-icon">&#x26A0;</span> Gap between last confirmed stamp (Jun 27, 2024) and recovery in San Diego County &mdash; &ldquo;dark period&rdquo; indicating undocumented transit to U.S. southern border</li>
+                <li class="clear"><span class="check-icon">&mdash;</span> Document reported lost/stolen in INTERPOL SLTD database &mdash; [CHECK PENDING]</li>
+                <li class="clear"><span class="check-icon">&mdash;</span> Multiple documents recovered for same individual under different identities</li>
+                <li class="flagged"><span class="check-icon">&#x26A0;</span> Two consecutive annual work visas sponsored by same entity (WENJI WA FAMILY-PRESTACAO DE SERVICO LDA) &mdash; requires investigation as potential visa facilitation front</li>
+            </ul>
+
+            <h3 class="sub-header">Preliminary Subject Assessment</h3>
+            <table>
+                <tbody>
+                    <tr><td class="field-label">Subject Designation</td><td><strong>MRT-2024-SD-001</strong></td></tr>
+                    <tr><td class="field-label">Assessed Threat Tier</td><td><span class="badge badge-tier3">Tier 3 &mdash; Moderate</span> &nbsp; Pending further investigation of sponsoring entity and network affiliations</td></tr>
+                    <tr><td class="field-label">Watchlist Hits</td><td>[PENDING &mdash; TSDB, TECS, NLETS, INTERPOL, NCIC]</td></tr>
+                    <tr><td class="field-label">Biometric Collection</td><td>Fingerprints lifted: [Yes/No] &ensp;|&ensp; DNA swab: [Yes/No] &ensp;|&ensp; Facial capture: Yes (passport photo available)</td></tr>
+                    <tr><td class="field-label">Known Associates</td><td>None identified from document alone; WENJI WA FAMILY-PRESTACAO DE SERVICO LDA requires network mapping</td></tr>
+                    <tr><td class="field-label">Initial Analyst Notes</td><td>Subject held continuous legal work status in Angola (Sep 2022&ndash;Sep 2024) under same sponsor. Passport discarded in San Diego County mountains consistent with identity-scrubbing tradecraft. Pattern aligns with documented Mauritanian migration surge via South American/Central American corridor to U.S. southern border.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SECTION 1 -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-num-badge">1</div>
+            <div class="section-card-title">Tactical Infiltration and Evidence Evasion</div>
+        </div>
+        <div class="section-card-body">
+            <p>The recovery of Subject MRT-2024-SD-001&rsquo;s Mauritanian passport in the mountains of San Diego County is consistent with the well-documented identity-scrubbing tactic employed by individuals seeking to enter the United States as undocumented &ldquo;clean slates.&rdquo; By discarding the passport prior to or immediately after crossing, the subject severed the evidentiary link between their physical presence and their documented travel history &mdash; specifically, two years of continuous work-visa residency in Angola under a single sponsoring entity, multiple Angolan entry stamps, and at least one unidentified transit stamp from December 2022.</p>
+
+            <p>The document&rsquo;s condition &mdash; significant cover delamination, creasing, and outdoor weathering &mdash; is consistent with deliberate abandonment in rugged terrain. The passport was still valid at the time of presumed crossing (expiry: February 2026), ruling out accidental loss of an expired document.</p>
+
+            <div class="callout callout-risk">
+                <div class="callout-label">Strategic Risk Assessment</div>
+                <p>The deliberate disposal of a still-valid passport containing Angolan work visas, entry stamps, and a traceable sponsoring entity demonstrates awareness that these records could trigger enhanced scrutiny. The subject&rsquo;s connection to a specific Luanda-based employer and repeated Angolan residency would have been immediately flagable in secondary screening, potentially linking the subject to broader migration facilitation networks operating out of West Africa via Angola.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-num-badge">2</div>
+            <div class="section-card-title">Chronological Reconstruction: Mapping the Operational Signature</div>
+        </div>
+        <div class="section-card-body">
+            <p>The passport record reveals a two-year operational footprint centered on Angola, bookended by a 14-month gap between passport issuance and first recorded travel, and a &ldquo;dark period&rdquo; between the last confirmed stamp and passport recovery in San Diego County.</p>
+
+            <h3 class="sub-header">Operational Timeline</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Location / Action</th>
+                        <th>Status</th>
+                        <th>Strategic Implication</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>16 Feb 2021</td>
+                        <td>Passport issued, Mauritania</td>
+                        <td><span class="badge badge-official">Official</span></td>
+                        <td>Document issued to 19-year-old male from Bangou; no profession listed</td>
+                    </tr>
+                    <tr class="row-gap">
+                        <td><strong>Feb 2021 &mdash; Apr 2022</strong></td>
+                        <td><strong>No recorded travel (14 months)</strong></td>
+                        <td><span class="badge badge-gap">Gap</span></td>
+                        <td><strong>Period between issuance and first stamp unaccounted for</strong></td>
+                    </tr>
+                    <tr>
+                        <td>29 Apr 2022</td>
+                        <td>Entry: Angola</td>
+                        <td><span class="badge badge-official">Official</span></td>
+                        <td>First recorded use of passport; entry via MIGRACAO E ESTRANGEIROS</td>
+                    </tr>
+                    <tr>
+                        <td>12 Sep 2022</td>
+                        <td>Work Visa #1 issued, Luanda</td>
+                        <td><span class="badge badge-official">Official</span></td>
+                        <td>VWK visa sponsored by WENJI WA FAMILY; 366-day multiple-entry; Ref 000948206/SME/22</td>
+                    </tr>
+                    <tr>
+                        <td>14 Dec 2022</td>
+                        <td>Stamp &mdash; uncertain jurisdiction</td>
+                        <td><span class="badge badge-uncertain">Uncertain</span></td>
+                        <td>Blue rectangular stamp; reads &ldquo;J 4 DEC 2022&rdquo;</td>
+                    </tr>
+                    <tr>
+                        <td>18 Dec 2022</td>
+                        <td>Re-entry: Angola (Port A01 E027)</td>
+                        <td><span class="badge badge-official">Official</span></td>
+                        <td>Return 4 days after Dec 14 stamp &mdash; brief trip outside Angola</td>
+                    </tr>
+                    <tr>
+                        <td>13 Sep 2023</td>
+                        <td>Work Visa #2 issued, Luanda</td>
+                        <td><span class="badge badge-official">Official</span></td>
+                        <td>Seamless renewal &mdash; same sponsor, same terms; Ref 000978878/SME/23</td>
+                    </tr>
+                    <tr>
+                        <td>28 Apr 2024</td>
+                        <td>Entry: Angola</td>
+                        <td><span class="badge badge-official">Official</span></td>
+                        <td>Re-entry stamp (inverted); subject had been outside Angola</td>
+                    </tr>
+                    <tr>
+                        <td>27 Jun 2024</td>
+                        <td>Stamp &mdash; uncertain jurisdiction</td>
+                        <td><span class="badge badge-uncertain">Uncertain</span></td>
+                        <td>French-language date (&ldquo;JUIN&rdquo;) &mdash; possibly Mauritania or Francophone transit</td>
+                    </tr>
+                    <tr class="row-dark">
+                        <td><strong>Jun 2024 &mdash; Recovery</strong></td>
+                        <td><strong>Transit: Africa to U.S. southern border</strong></td>
+                        <td><span class="badge badge-dark">Dark Period</span></td>
+                        <td><strong>Unaccounted transit; passport recovered in San Diego County mountains</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 class="sub-header">Analysis</h3>
+            <p>The timeline reveals a subject who established a two-year legal residency footprint in Angola under employer sponsorship, then departed and ultimately transited to the U.S. southern border. Two features are analytically significant:</p>
+
+            <p>First, the <strong>seamless visa renewal</strong> &mdash; the second work visa (F00396427) was issued the day after the first expired (Sep 13, 2023 vs. Sep 14, 2023), indicating either a well-organized legitimate employment relationship or a pre-arranged facilitation arrangement.</p>
+
+            <p>Second, the <strong>brief side-trips</strong> &mdash; the Dec 14&ndash;18, 2022 gap and the Apr 28, 2024 re-entry suggest the subject periodically left Angola during his work visa period.</p>
+
+            <div class="callout callout-info">
+                <div class="callout-label">Transit Corridor Assessment</div>
+                <p>The &ldquo;dark period&rdquo; between June 2024 and passport recovery aligns with documented transit times for the Africa-to-South America-to-Central America-to-Mexico-to-U.S. corridor (typically 2&ndash;6 months depending on route and resources).</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-num-badge">3</div>
+            <div class="section-card-title">Geographic Risk Assessment: Analysis of Key Nodes</div>
+        </div>
+        <div class="section-card-body">
+
+            <h3 class="sub-header">Bangou, Mauritania (Origin)</h3>
+            <p>Subject&rsquo;s birthplace. Mauritania has emerged as the single largest source country for African migrants apprehended at the U.S. border, with <strong>15,263 Mauritanians apprehended in FY2023</strong> &mdash; a dramatic surge driven by TikTok-promoted smuggling routes. Travel agencies and paid influencers sell migration packages ($8,000&ndash;$10,000) with flights connecting through Turkey, Colombia, El Salvador, and Nicaragua.</p>
+
+            <h3 class="sub-header">Luanda, Angola (Staging Base)</h3>
+            <p>Angola served as the subject&rsquo;s primary base for two years (2022&ndash;2024). Angola occupies a critical position in African migration networks:</p>
+            <ul>
+                <li><strong>Portuguese-language bridge:</strong> Angolan residents can enter Brazil with minimal friction due to shared language and bilateral agreements, making Angola an ideal staging country for the South American transit corridor.</li>
+                <li><strong>Documented route:</strong> Investigative reporting has confirmed the Angola &gt; Brazil (Sao Paulo) &gt; Peru &gt; Ecuador/Colombia &gt; Darien Gap &gt; Central America &gt; Mexico &gt; U.S. pipeline.</li>
+                <li><strong>Work visa as cover:</strong> A valid Angolan work visa provides a veneer of legitimate economic migration, facilitating air travel to South American entry points without raising flags.</li>
+            </ul>
+
+            <h3 class="sub-header">Transit Corridor: South America to U.S. Southern Border</h3>
+            <p>Documented Mauritanian and Angolan migration routes to San Diego County follow two primary corridors:</p>
+            <ol>
+                <li><strong>TikTok Route (Mauritanian-specific):</strong> Mauritania &gt; Turkey &gt; Colombia/El Salvador &gt; Nicaragua &gt; bus to Guatemala/Mexico &gt; U.S. border. Cost: $8,000&ndash;$10,000.</li>
+                <li><strong>Angola/Brazil Corridor:</strong> Angola &gt; Brazil (Sao Paulo) &gt; overland to Peru/Ecuador &gt; Colombia &gt; Darien Gap &gt; Central America &gt; Mexico &gt; U.S. border. Cost: $6,000+.</li>
+            </ol>
+
+            <div class="callout callout-warning">
+                <div class="callout-label">San Diego County</div>
+                <p>San Diego County &mdash; where the passport was recovered &mdash; became the <strong>primary hotspot for illegal border crossings in 2024</strong>, with 400&ndash;600 migrants released daily at peak.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-num-badge">4</div>
+            <div class="section-card-title">Entity Analysis: WENJI WA FAMILY-PRESTACAO DE SERVICO LDA</div>
+        </div>
+        <div class="section-card-body">
+
+            <h3 class="sub-header">What Is Known</h3>
+            <table>
+                <tbody>
+                    <tr><td class="field-label">Full Name</td><td><strong>WENJI WA FAMILY-PRESTACAO DE SERVICO LDA</strong></td></tr>
+                    <tr><td class="field-label">Location</td><td>Luanda, Angola</td></tr>
+                    <tr><td class="field-label">Entity Type</td><td>LDA (Limitada) &mdash; Angolan limited liability company</td></tr>
+                    <tr><td class="field-label">Business Description</td><td>&ldquo;Prestacao de Servico&rdquo; = Service provision/rendering. Specific sector unknown.</td></tr>
+                    <tr><td class="field-label">Visa Sponsorship</td><td>Two consecutive VWK visas for Subject MRT-2024-SD-001:<br>Visto de Trabalho 000948206/SME/22 (Sep 2022)<br>Visto de Trabalho 000978878/SME/23 (Sep 2023)</td></tr>
+                    <tr class="row-flagged"><td class="field-label">Public Records</td><td><strong>No results found</strong> &mdash; not indexed in Angolan taxpayer lists, Dun &amp; Bradstreet, or any international business databases</td></tr>
+                    <tr class="row-flagged"><td class="field-label">Web Presence</td><td><strong>None identified</strong> &mdash; no website, no social media, no news mentions, no trade directory listings</td></tr>
+                </tbody>
+            </table>
+
+            <h3 class="sub-header">Intelligence Gaps</h3>
+            <ul>
+                <li>Whether the entity is registered with the Angolan General Tax Administration (AGT) and holds a valid NIF</li>
+                <li>Total number of foreign workers sponsored by this entity</li>
+                <li>Whether other Mauritanian nationals hold or held VWK visas under this sponsor</li>
+                <li>Nature of services rendered &mdash; &ldquo;Prestacao de Servico&rdquo; is a generic descriptor</li>
+                <li>Ownership structure, beneficial owners, and capitalization</li>
+                <li>Whether the entity meets Angola&rsquo;s 70% local workforce mandate</li>
+                <li>Physical office location, if any</li>
+            </ul>
+
+            <h3 class="sub-header">Red Flag Indicators</h3>
+
+            <div class="red-flag-card">
+                <p><span class="red-flag-num">1</span> <strong>Zero open-source footprint:</strong> A legitimate employer operating in Luanda for 2+ years that sponsored foreign work visas would have some discoverable presence. The complete absence of any indexable record is an anomaly.</p>
+            </div>
+
+            <div class="red-flag-card">
+                <p><span class="red-flag-num">2</span> <strong>Atypical name structure:</strong> &ldquo;WENJI WA FAMILY&rdquo; does not correspond to Portuguese, Kimbundu, Umbundu, or other Angolan-language naming conventions. May indicate Chinese, East African, or other foreign ownership.</p>
+            </div>
+
+            <div class="red-flag-card">
+                <p><span class="red-flag-num">3</span> <strong>Consecutive identical sponsorship:</strong> Seamless year-on-year renewal of an identical visa for a Mauritanian national with no listed profession, under exact same terms, raises questions about genuine employment vs. facilitation arrangement.</p>
+            </div>
+
+            <div class="red-flag-card">
+                <p><span class="red-flag-num">4</span> <strong>Traceable SME reference numbers:</strong> The two Visto de Trabalho references (000948206/SME/22 and 000978878/SME/23) are queryable through Angola&rsquo;s SME database &mdash; could reveal all visas issued under this sponsor.</p>
+            </div>
+
+            <div class="red-flag-card">
+                <p><span class="red-flag-num">5</span> <strong>Potential visa facilitation front:</strong> An entity providing work visas to foreign nationals with no discoverable business operations warrants classification as a <strong>potential visa facilitation front</strong> &mdash; a shell company providing legal residency cover in a transit country.</p>
+            </div>
+
+            <h3 class="sub-header">Recommended Entity Investigation Actions</h3>
+            <ul>
+                <li><strong>Query Angola SME database</strong> for all Visto de Trabalho issued to this entity</li>
+                <li><strong>Request NIF verification</strong> through Angolan AGT Portal do Contribuinte</li>
+                <li><strong>Obtain visa sponsorship file</strong> including employer justification and 70% workforce compliance proof</li>
+                <li><strong>Cross-reference</strong> entity name and principals against FinCEN, OFAC, and INTERPOL</li>
+                <li><strong>Pattern check</strong> across other recovered passports for same or similar sponsor entities</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-num-badge">5</div>
+            <div class="section-card-title">Threat Synthesis and National Security Implications</div>
+        </div>
+        <div class="section-card-body">
+            <p>Subject MRT-2024-SD-001 presents a profile consistent with the documented surge in Mauritanian migration to the U.S. southern border, but with a distinguishing feature: a two-year legal work visa residency in Angola under a sponsor entity with no discoverable open-source footprint.</p>
+
+            <h3 class="sub-header">Primary Threat Vectors</h3>
+
+            <div class="callout callout-risk">
+                <div class="callout-label">Mauritanian Migration Surge &amp; Organized Smuggling</div>
+                <p>The subject&rsquo;s Mauritanian nationality places him within the largest African-origin migration flow to the U.S. (15,263 apprehensions in FY2023). This flow is facilitated by organized TikTok-promoted smuggling networks charging $8,000&ndash;$10,000 per transit.</p>
+            </div>
+
+            <div class="callout callout-risk">
+                <div class="callout-label">Angola as a Transit Staging Platform</div>
+                <p>The subject&rsquo;s two-year work visa residency under a sponsor with no verifiable presence raises the possibility that Angolan work visas are being used as a staging mechanism within the Africa-to-Americas pipeline. Angola&rsquo;s Portuguese-language bridge to Brazil makes it an ideal gateway.</p>
+            </div>
+
+            <div class="callout callout-risk">
+                <div class="callout-label">Identity Scrubbing &amp; Screening Evasion</div>
+                <p>The deliberate discarding of a still-valid passport containing two years of traceable visa history constitutes a deliberate effort to enter the U.S. free from the scrutiny that these records would trigger.</p>
+            </div>
+
+            <div class="callout callout-warning">
+                <div class="callout-label">Critical Assessment</div>
+                <p>The critical unknown is whether <strong>WENJI WA FAMILY-PRESTACAO DE SERVICO LDA</strong> is a legitimate employer or a visa facilitation front. If the latter, the entity may have sponsored visas for multiple individuals who subsequently transited to the U.S. &mdash; and the SME reference numbers provide a direct investigative thread.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 6 -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-num-badge">6</div>
+            <div class="section-card-title">Operational Directives: Mitigation and Exploitation</div>
+        </div>
+        <div class="section-card-body">
+
+            <div class="directive-card">
+                <p><strong>Query</strong> the Angola SME database using Visto de Trabalho references 000948206/SME/22 and 000978878/SME/23 and entity name WENJI WA FAMILY-PRESTACAO DE SERVICO LDA to identify all sponsored foreign nationals, their nationalities, visa dates, and current statuses.</p>
+            </div>
+
+            <div class="directive-card">
+                <p><strong>Cross-reference</strong> any individuals identified in the SME query against CBP encounter records, TECS, TSDB, and INTERPOL to determine if other sponsored visa holders have appeared at U.S. borders or ports of entry.</p>
+            </div>
+
+            <div class="directive-card">
+                <p><strong>Execute biometric fusion</strong> by cross-querying fingerprints (if recovered) and the passport photo against DHS IDENT/HART, INTERPOL, and DoD ABIS databases.</p>
+            </div>
+
+            <div class="directive-card">
+                <p><strong>Initiate financial trace</strong> on banking or remittance activity associated with NNI 8751655833 through Mauritanian financial intelligence channels, and request Angolan FIU cooperation if financial links to Luanda are identified.</p>
+            </div>
+
+            <div class="directive-card">
+                <p><strong>Synthesize pattern recognition</strong> across all recovered passports in San Diego County to identify other documents containing Angolan work visas, particularly those sponsored by WENJI WA FAMILY or similarly structured LDA entities in Luanda.</p>
+            </div>
+
+            <div class="directive-card">
+                <p><strong>Coordinate partner outreach</strong> with Angolan SME and Mauritanian Surete Nationale to: (a) verify the legitimacy of WENJI WA FAMILY, (b) identify beneficial owners, and (c) determine if the entity has been flagged domestically.</p>
+            </div>
+
+            <div class="directive-card">
+                <p><strong>Map the transit vector</strong> for the dark period (June 2024 to recovery) by querying airline manifests for Luanda&ndash;Sao Paulo, Luanda&ndash;Managua, and other known corridor flights against the subject&rsquo;s name, passport number, and DOB.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SOURCES -->
+    <div class="sources-card">
+        <h3 class="sub-header">Sources Consulted</h3>
+        <ul>
+            <li><a href="https://www.nbcsandiego.com/news/national-international/thousands-more-mauritanians-are-making-their-way-to-the-us-thanks-to-a-route-spread-on-social-media/3288280/">NBC 7 San Diego &mdash; Thousands more Mauritanians making way to U.S. via social media route</a></li>
+            <li><a href="https://www.10news.com/news/local-news/south-bay-news/mauritanians-making-their-way-to-the-u-s-via-border-in-san-diego-area">10News &mdash; Mauritanians making their way to the U.S. via border in San Diego area</a></li>
+            <li><a href="https://www.zammagazine.com/investigations/1262-from-angola-to-america-after-braving-seas-bandits-and-jungle-african-migrants-now-stuck-at-mexico-s-border">ZAM Magazine &mdash; From Angola to America: African Migrants Stuck at Mexico&rsquo;s Border</a></li>
+            <li><a href="https://www.washingtontimes.com/news/2023/aug/19/thousands-more-mauritanians-are-making-their-way-t/">Washington Times &mdash; Thousands more Mauritanians making way to U.S. via TikTok route</a></li>
+            <li><a href="https://www.atlanticcouncil.org/blogs/africasource/immigration-looms-large-over-us-africa-relations-in-2025/">Atlantic Council &mdash; Immigration looms over US-Africa relations in 2025</a></li>
+            <li><a href="https://www.aljazeera.com/news/longform/2023/9/13/illegal-operations-disguised-as-tourism-colombias-vip-migrant-routes">Al Jazeera &mdash; Colombia&rsquo;s VIP migrant routes</a></li>
+            <li><a href="https://www.sandiegouniontribune.com/2024/05/18/shifting-migrant-routes-make-san-diego-the-new-hot-spot-for-illegal-border-crossings/">San Diego Union-Tribune &mdash; Shifting migrant routes make San Diego the new hot spot</a></li>
+            <li><a href="https://www.interpol.int/en/News-and-Events/News/2023/Americas-257-suspected-migrant-smugglers-and-human-traffickers-arrested">INTERPOL &mdash; 257 suspected migrant smugglers arrested</a></li>
+            <li><a href="https://reliefweb.int/report/mexico/african-migration-through-americas-drivers-routes-and-policy-responses">ReliefWeb &mdash; African Migration through the Americas: Drivers, Routes, and Policy Responses</a></li>
+            <li>Angola Work Visa Requirements: <a href="https://www.playroll.com/work-permit-visas/angola">Playroll</a>, <a href="https://www.globalization-partners.com/globalpedia/angola/visa-permits/">Globalization Partners</a>, <a href="https://www.rivermate.com/guides/angola/work-permits-and-visas">Rivermate</a>, <a href="https://consuladogeralangola-uk.org/wp-content/uploads/2023/03/WORK_VISA.pdf">UK Consulate General of Angola</a></li>
+        </ul>
+    </div>
+
+</div>
+
+<div class="report-footer">End of Assessment</div>
+<div class="classification-banner">FOUO</div>
+
+</body>
+</html>
