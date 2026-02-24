@@ -589,7 +589,7 @@
       setSafeHTML(content, doc.body.innerHTML);
       wrapper.appendChild(content);
 
-      reportBodyEl.appendChild(wrapper);
+      reportBodyEl.prepend(wrapper);
     }).catch(function () { /* no assessment available */ });
   }
 
