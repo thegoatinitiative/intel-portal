@@ -63,6 +63,14 @@
     console.error("Failed to load from Firestore:", e);
   }
 
+  // ---- Check which reports have intel assessments ----
+  var reportsWithAssessment = {};
+  await Promise.all(REPORTS.map(function (r) {
+    return fetch("reports/" + r.id + ".html", { method: "HEAD" }).then(function (resp) {
+      if (resp.ok) reportsWithAssessment[r.id] = true;
+    }).catch(function () {});
+  }));
+
   // ---- Helpers ----
 
   function setSafeHTML(el, html) {
@@ -221,7 +229,14 @@
       return;
     }
 
-    filtered.forEach((r) => reportListEl.appendChild(buildReportListItem(r)));
+    // Pin reports with intel assessments to top
+    var withAssessment = [];
+    var without = [];
+    filtered.forEach(function (r) {
+      if (reportsWithAssessment[r.id]) { withAssessment.push(r); }
+      else { without.push(r); }
+    });
+    withAssessment.concat(without).forEach((r) => reportListEl.appendChild(buildReportListItem(r)));
   }
 
   // ---- Report Viewer (executive layout, auto-expanded docs) ----
