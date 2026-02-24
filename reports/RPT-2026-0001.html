@@ -758,7 +758,7 @@
         phaseCtrl.addTo(map);
 
         // Stats
-        var statsCtrl = L.control({position:'bottomleft'});
+        var statsCtrl = L.control({position:'topright'});
         statsCtrl.onAdd = function() {
             var div = L.DomUtil.create('div','map-stats-bar');
             [{num:'7',label:'Countries'},{num:'13',label:'Border Posts'},{num:'60+',label:'Crossings'},{num:'24',label:'Months Active'},{num:'2',label:'Ghost Moves'}].forEach(function(s){
