@@ -564,53 +564,24 @@
       reportBodyEl.appendChild(section);
     }
 
-    // ---- Inline Intel Assessment ----
+    // ---- Inline Intel Assessment (iframe for full JS/CSS support) ----
     var assessmentUrl = "reports/" + report.id + ".html";
-    fetch(assessmentUrl).then(function (resp) {
-      if (!resp.ok) return;
-      return resp.text();
-    }).then(function (html) {
-      if (!html) return;
-      var parser = new DOMParser();
-      var doc = parser.parseFromString(html, "text/html");
-
-      var wrapper = document.createElement("div");
-      wrapper.className = "intel-assessment-embed";
-
-      // Inject scoped styles from the assessment
-      doc.querySelectorAll("style").forEach(function (s) {
-        var scopedStyle = document.createElement("style");
-        scopedStyle.textContent = s.textContent;
-        wrapper.appendChild(scopedStyle);
-      });
-
-      // Sanitize and inject body content via DOMPurify
-      var content = document.createElement("div");
-      setSafeHTML(content, doc.body.innerHTML);
-      wrapper.appendChild(content);
-
-      reportBodyEl.prepend(wrapper);
-    }).catch(function () { /* no assessment available */ });
-
-    // ---- Inline Map (loaded via iframe for JS support) ----
-    var mapUrl = "reports/" + report.id + "-map.html";
-    fetch(mapUrl, { method: "HEAD" }).then(function (resp) {
+    fetch(assessmentUrl, { method: "HEAD" }).then(function (resp) {
       if (!resp.ok) return;
       var iframe = document.createElement("iframe");
-      iframe.src = mapUrl;
-      iframe.className = "intel-map-embed";
+      iframe.src = assessmentUrl;
+      iframe.className = "intel-assessment-iframe";
       iframe.setAttribute("frameborder", "0");
       iframe.setAttribute("allowfullscreen", "true");
-      // Insert after assessment if present, otherwise prepend
-      var assessment = reportBodyEl.querySelector(".intel-assessment-embed");
-      if (assessment && assessment.nextSibling) {
-        reportBodyEl.insertBefore(iframe, assessment.nextSibling);
-      } else if (assessment) {
-        reportBodyEl.appendChild(iframe);
-      } else {
-        reportBodyEl.prepend(iframe);
-      }
-    }).catch(function () { /* no map available */ });
+      // Auto-resize iframe to fit content
+      iframe.addEventListener("load", function () {
+        try {
+          var h = iframe.contentDocument.documentElement.scrollHeight;
+          iframe.style.height = h + "px";
+        } catch (e) { /* cross-origin fallback stays at CSS default */ }
+      });
+      reportBodyEl.prepend(iframe);
+    }).catch(function () { /* no assessment available */ });
   }
 
   // ---- Export Report as PDF ----
