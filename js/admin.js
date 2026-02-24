@@ -367,7 +367,25 @@
       });
     }, function (err) {
       console.error("Activity feed error:", err);
-      setFeedMessage("Error loading activity: " + err.message, "var(--danger)");
+      // Extract index creation URL if present and make it clickable
+      var msg = err.message || "";
+      var urlMatch = msg.match(/(https:\/\/console\.firebase\.google\.com\S+)/);
+      if (urlMatch) {
+        while (activityFeed.firstChild) activityFeed.removeChild(activityFeed.firstChild);
+        var div = document.createElement("div");
+        div.style.cssText = "text-align:center;padding:2rem;color:var(--danger);";
+        div.textContent = "A Firestore index is required for this filter. ";
+        var link = document.createElement("a");
+        link.href = urlMatch[1];
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = "Click here to create it.";
+        link.style.cssText = "color:var(--accent);text-decoration:underline;";
+        div.appendChild(link);
+        activityFeed.appendChild(div);
+      } else {
+        setFeedMessage("Error loading activity: " + msg, "var(--danger)");
+      }
     });
   }
 
