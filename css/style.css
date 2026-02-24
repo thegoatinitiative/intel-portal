@@ -715,6 +715,16 @@ body {
   transform: translateY(-1px);
 }
 
+/* ---- INTEL EMBEDS ---- */
+
+.intel-map-embed {
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
 /* ---- BUTTONS ---- */
 
 .btn-action {
