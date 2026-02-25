@@ -345,16 +345,6 @@
       actionsDiv.appendChild(printBtn);
     }
 
-    const saveBtn = document.createElement("button");
-    saveBtn.type = "button";
-    saveBtn.className = "btn-action";
-    saveBtn.textContent = "Save PDF";
-    saveBtn.addEventListener("click", () => {
-      ActivityLog.log("report_export", { reportId: report.id, method: "pdf" });
-      exportReportPDF(report);
-    });
-    actionsDiv.appendChild(saveBtn);
-
     if (isUserAdmin) {
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
