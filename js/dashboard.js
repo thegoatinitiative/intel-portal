@@ -351,16 +351,7 @@
     saveBtn.textContent = "Save PDF";
     saveBtn.addEventListener("click", () => {
       ActivityLog.log("report_export", { reportId: report.id, method: "pdf" });
-      // If an assessment page exists, open it for print-to-PDF
-      var pdfUrl = "reports/" + report.id + ".html";
-      fetch(pdfUrl, { method: "HEAD" }).then(function (resp) {
-        if (resp.ok) {
-          var win = window.open(pdfUrl, "_blank");
-          win.addEventListener("load", function () { win.print(); });
-        } else {
-          exportReportPDF(report);
-        }
-      }).catch(function () { exportReportPDF(report); });
+      exportReportPDF(report);
     });
     actionsDiv.appendChild(saveBtn);
 
@@ -618,81 +609,26 @@
     }
 
     var el = document.getElementById("report-meta");
+    var bodyEl = document.getElementById("report-body");
+
+    // Create a temporary container with both sections
+    var container = document.createElement("div");
+    container.style.cssText = "background:#fff;color:#1a1a2e;padding:20px;font-family:Inter,sans-serif;";
+    container.innerHTML = el.innerHTML + bodyEl.innerHTML;
+
+    // Remove buttons, interactive elements, and iframes
+    container.querySelectorAll("button, .btn-action, .btn-delete, .mobile-back-btn, .remove-btn, iframe").forEach(function (b) { b.remove(); });
+
     var filename = (report.id || "report") + ".pdf";
 
-    // Try to fetch the assessment HTML for this report
-    var assessmentUrl = "reports/" + report.id + ".html";
-    fetch(assessmentUrl).then(function (resp) {
-      if (!resp.ok) return null;
-      return resp.text();
-    }).then(function (assessmentHtml) {
-      var container = document.createElement("div");
-      container.style.cssText = "background:#0a0a0f;color:#e0e2e8;padding:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;width:750px;";
-
-      // Add report header
-      container.appendChild(el.cloneNode(true));
-
-      // Add assessment content if available
-      if (assessmentHtml) {
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(assessmentHtml, "text/html");
-
-        var assessDiv = document.createElement("div");
-
-        // Copy styles directly (not via setSafeHTML which strips them)
-        doc.querySelectorAll("style").forEach(function (s) {
-          var style = document.createElement("style");
-          style.textContent = s.textContent;
-          assessDiv.appendChild(style);
-        });
-        // PDF layout overrides
-        var overrideStyle = document.createElement("style");
-        overrideStyle.textContent = ".report-container{max-width:100%!important;padding:10px 0!important;} .section-card,.report-header-card,.sources-card{margin-bottom:12px!important;} table{font-size:11px!important;} .header-meta-grid{grid-template-columns:repeat(2,1fr)!important;} td.field-label{width:140px!important;font-size:10px!important;} .classification-banner{display:none!important;}";
-        assessDiv.appendChild(overrideStyle);
-
-        // Copy body content (skip scripts and map elements)
-        var bodyContent = doc.body.cloneNode(true);
-        bodyContent.querySelectorAll("script, #travel-map, #travel-map-container, .leaflet-control-container, .top-bar, link").forEach(function (n) { n.remove(); });
-
-        // Sanitize just the body content, then append to assessDiv
-        var sanitized = document.createElement("div");
-        setSafeHTML(sanitized, bodyContent.innerHTML);
-        assessDiv.appendChild(sanitized);
-
-        container.appendChild(assessDiv);
-      }
-
-      // Remove buttons and interactive elements
-      container.querySelectorAll("button, .btn-action, .btn-delete, .mobile-back-btn, .remove-btn").forEach(function (b) { b.remove(); });
-
-      // Temporarily add to DOM so html2canvas can render it
-      container.style.position = "fixed";
-      container.style.top = "0";
-      container.style.left = "0";
-      container.style.zIndex = "-1";
-      container.style.opacity = "0.01";
-      document.body.appendChild(container);
-
-      html2pdf().set({
-        margin: [8, 5, 8, 5],
-        filename: filename,
-        image: { type: "jpeg", quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, scrollY: 0, backgroundColor: "#0a0a0f", windowWidth: 750 },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: ["avoid-all", "css", "legacy"] }
-      }).from(container).save().then(function () {
-        document.body.removeChild(container);
-      });
-    }).catch(function () {
-      // Fallback: export just the header
-      html2pdf().set({
-        margin: [10, 10, 10, 10],
-        filename: filename,
-        image: { type: "jpeg", quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      }).from(el).save();
-    });
+    html2pdf().set({
+      margin: [10, 10, 10, 10],
+      filename: filename,
+      image: { type: "jpeg", quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] }
+    }).from(container).save();
   }
 
 
