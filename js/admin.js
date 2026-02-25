@@ -87,38 +87,45 @@
 
         // Editable display name cell
         var tdName = document.createElement("td");
+        var nameWrap = document.createElement("div");
+        nameWrap.style.cssText = "display:flex;align-items:center;gap:0.4rem;cursor:pointer;";
+        nameWrap.title = "Click to edit";
         var nameSpan = document.createElement("span");
-        nameSpan.className = "editable-name";
         nameSpan.textContent = d.displayName || "\u2014";
-        nameSpan.title = "Click to edit";
-        nameSpan.style.cursor = "pointer";
-        nameSpan.addEventListener("click", function () {
+        var editIcon = document.createElement("span");
+        editIcon.textContent = "\u270E";
+        editIcon.style.cssText = "font-size:0.7rem;opacity:0.4;";
+        nameWrap.appendChild(nameSpan);
+        nameWrap.appendChild(editIcon);
+        nameWrap.addEventListener("click", function () {
           var input = document.createElement("input");
           input.type = "text";
           input.value = d.displayName || "";
           input.placeholder = "Enter name";
-          input.className = "inline-name-input";
           input.style.cssText = "width:100%;padding:0.3rem 0.5rem;font-size:0.8rem;background:var(--surface-2);border:1px solid var(--accent);color:var(--text-primary);border-radius:4px;font-family:var(--font-sans);";
-          tdName.replaceChild(input, nameSpan);
+          tdName.replaceChild(input, nameWrap);
           input.focus();
+          var saved = false;
           function saveName() {
+            if (saved) return;
+            saved = true;
             var newName = input.value.trim();
             fbDb.collection("users").doc(doc.id).update({ displayName: newName }).then(function () {
               nameSpan.textContent = newName || "\u2014";
               d.displayName = newName;
-              tdName.replaceChild(nameSpan, input);
+              tdName.replaceChild(nameWrap, input);
             }).catch(function (err) {
               alert("Error saving name: " + err.message);
-              tdName.replaceChild(nameSpan, input);
+              tdName.replaceChild(nameWrap, input);
             });
           }
           input.addEventListener("blur", saveName);
           input.addEventListener("keydown", function (ev) {
             if (ev.key === "Enter") { ev.preventDefault(); input.blur(); }
-            if (ev.key === "Escape") { tdName.replaceChild(nameSpan, input); }
+            if (ev.key === "Escape") { tdName.replaceChild(nameWrap, input); }
           });
         });
-        tdName.appendChild(nameSpan);
+        tdName.appendChild(nameWrap);
 
         var tdRole = document.createElement("td");
         var roleBadge = document.createElement("span");
