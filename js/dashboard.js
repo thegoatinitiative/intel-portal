@@ -459,9 +459,25 @@
           }
         });
 
+        const downloadBtn = document.createElement("button");
+        downloadBtn.className = "btn-action";
+        downloadBtn.textContent = "Download";
+        downloadBtn.style.cssText = "margin-left:auto;padding:0.25rem 0.7rem;font-size:0.65rem;flex-shrink:0;";
+        downloadBtn.addEventListener("click", function () {
+          var dlSrc = att.storageUrl || att.dataUrl;
+          if (!dlSrc) return;
+          var a = document.createElement("a");
+          a.href = dlSrc;
+          a.download = att.name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        });
+
         embedHeader.appendChild(icon);
         embedHeader.appendChild(nameEl);
         embedHeader.appendChild(sizeEl);
+        embedHeader.appendChild(downloadBtn);
         if (isUserAdmin) {
           embedHeader.appendChild(removeBtn);
         }
