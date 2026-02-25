@@ -30,6 +30,7 @@
 
   const reportListEl = document.getElementById("report-list");
   const searchInput = document.getElementById("search-input");
+  const countryFilter = document.getElementById("country-filter");
   const reportPlaceholder = document.getElementById("report-placeholder");
   const reportContentEl = document.getElementById("report-content");
   const reportActionsEl = document.getElementById("report-actions");
@@ -71,6 +72,23 @@
       if (resp.ok) reportsWithAssessment[r.id] = true;
     }).catch(function () {});
   }));
+
+  // ---- Populate country filter dropdown ----
+  (function populateCountryFilter() {
+    var nationalities = [];
+    REPORTS.forEach(function (r) {
+      if (r.nationality && nationalities.indexOf(r.nationality) === -1) {
+        nationalities.push(r.nationality);
+      }
+    });
+    nationalities.sort();
+    nationalities.forEach(function (n) {
+      var opt = document.createElement("option");
+      opt.value = n;
+      opt.textContent = n;
+      countryFilter.appendChild(opt);
+    });
+  })();
 
   // ---- Helpers ----
 
@@ -207,11 +225,13 @@
     return li;
   }
 
-  function renderReportList(filter) {
+  function renderReportList(filter, country) {
     const query = (filter || "").toLowerCase();
+    const countryVal = (country || "").toLowerCase();
     reportListEl.replaceChildren();
 
     const filtered = REPORTS.filter((r) => {
+      if (countryVal && r.nationality.toLowerCase() !== countryVal) return false;
       if (!query) return true;
       return (
         r.passportNumber.toLowerCase().includes(query) ||
@@ -249,7 +269,7 @@
 
     activeReportId = id;
     ActivityLog.log("report_view", { reportId: id, subject: reportMeta.subjectName });
-    renderReportList(searchInput.value);
+    renderReportList(searchInput.value, countryFilter.value);
 
     reportPlaceholder.hidden = true;
     reportContentEl.hidden = false;
@@ -296,7 +316,7 @@
       activeReportId = null;
       reportContentEl.hidden = true;
       reportPlaceholder.hidden = false;
-      renderReportList(searchInput.value);
+      renderReportList(searchInput.value, countryFilter.value);
     });
     reportMetaEl.appendChild(backBtn);
 
@@ -722,7 +742,7 @@
       activeReportId = null;
       reportContentEl.hidden = true;
       reportPlaceholder.hidden = false;
-      renderReportList(searchInput.value);
+      renderReportList(searchInput.value, countryFilter.value);
     });
 
     actions.appendChild(cancelBtn);
@@ -887,7 +907,7 @@
 
         const id = editingReportId;
         closeModal();
-        renderReportList(searchInput.value);
+        renderReportList(searchInput.value, countryFilter.value);
         openReport(id);
       }
     } else {
@@ -918,7 +938,7 @@
       }
 
       closeModal();
-      renderReportList(searchInput.value);
+      renderReportList(searchInput.value, countryFilter.value);
       openReport(id);
     }
   });
@@ -944,12 +964,15 @@
     });
   }
 
-  // ---- Search ----
+  // ---- Search & Country Filter ----
   searchInput.addEventListener("input", () => {
-    renderReportList(searchInput.value);
+    renderReportList(searchInput.value, countryFilter.value);
     ActivityLog.logSearch(searchInput.value);
+  });
+  countryFilter.addEventListener("change", () => {
+    renderReportList(searchInput.value, countryFilter.value);
   });
 
   // ---- Init ----
-  renderReportList("");
+  renderReportList("", "");
 })();
