@@ -613,11 +613,41 @@
 
     // Create a temporary container with both sections
     var container = document.createElement("div");
-    container.style.cssText = "background:#fff;color:#1a1a2e;padding:20px;font-family:Inter,sans-serif;";
-    container.innerHTML = el.innerHTML + bodyEl.innerHTML;
+    container.style.cssText = "background:#0a0a0f;color:#e0e2e8;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;";
+
+    // Clone meta section
+    container.appendChild(el.cloneNode(true));
+
+    // Clone body section, replacing iframes with their content
+    var bodyClone = bodyEl.cloneNode(true);
+    var iframes = bodyEl.querySelectorAll("iframe.intel-assessment-iframe");
+    var iframeClones = bodyClone.querySelectorAll("iframe.intel-assessment-iframe");
+    for (var i = 0; i < iframes.length; i++) {
+      try {
+        var iframeDoc = iframes[i].contentDocument;
+        if (iframeDoc) {
+          var inlineDiv = document.createElement("div");
+          inlineDiv.className = "intel-assessment-pdf";
+          // Copy styles from iframe
+          iframeDoc.querySelectorAll("style").forEach(function (s) {
+            var style = document.createElement("style");
+            style.textContent = s.textContent;
+            inlineDiv.appendChild(style);
+          });
+          // Copy body content
+          var content = document.createElement("div");
+          setSafeHTML(content, iframeDoc.body.innerHTML);
+          inlineDiv.appendChild(content);
+          iframeClones[i].parentNode.replaceChild(inlineDiv, iframeClones[i]);
+        }
+      } catch (e) { /* cross-origin, skip */ }
+    }
+    container.appendChild(bodyClone);
 
     // Remove buttons and interactive elements from the clone
     container.querySelectorAll("button, .btn-action, .btn-delete, .mobile-back-btn, .remove-btn").forEach(function (b) { b.remove(); });
+    // Remove map elements that don't render in PDF
+    container.querySelectorAll(".leaflet-control-container, #travel-map, #travel-map-container").forEach(function (m) { m.remove(); });
 
     var filename = (report.id || "report") + ".pdf";
 
@@ -625,7 +655,7 @@
       margin: [10, 10, 10, 10],
       filename: filename,
       image: { type: "jpeg", quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0, backgroundColor: "#0a0a0f" },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       pagebreak: { mode: ["avoid-all", "css", "legacy"] }
     }).from(container).save();
