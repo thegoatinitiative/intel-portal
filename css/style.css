@@ -414,6 +414,143 @@ body {
   opacity: 0.25;
 }
 
+/* ---- Spinning Intel Globe ---- */
+.globe-container {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.globe {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.globe-sphere {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(52, 211, 153, 0.25);
+  animation: globe-spin 12s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.globe-meridian {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(52, 211, 153, 0.18);
+}
+
+.globe-meridian.m2 {
+  transform: rotateY(60deg);
+}
+
+.globe-meridian.m3 {
+  transform: rotateY(120deg);
+}
+
+.globe-equator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(52, 211, 153, 0.15);
+}
+
+.globe-equator.e1 {
+  top: 50%;
+  height: 0;
+  transform: translateY(-50%) rotateX(90deg) scaleY(0.3);
+  border-width: 1px;
+  width: 100%;
+}
+
+.globe-equator.e2 {
+  top: 30%;
+  left: 15%;
+  right: 15%;
+  height: 0;
+  transform: rotateX(90deg) scaleY(0.3);
+  width: 70%;
+}
+
+.globe-equator.e3 {
+  top: 70%;
+  left: 15%;
+  right: 15%;
+  height: 0;
+  transform: rotateX(90deg) scaleY(0.3);
+  width: 70%;
+}
+
+.globe-ring {
+  position: absolute;
+  inset: -15px;
+  border-radius: 50%;
+  border: 1px solid rgba(52, 211, 153, 0.1);
+  animation: globe-ring-pulse 4s ease-in-out infinite;
+}
+
+.globe-glow {
+  position: absolute;
+  inset: -30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.08) 0%, transparent 70%);
+  animation: globe-glow-pulse 3s ease-in-out infinite;
+}
+
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent, rgba(52, 211, 153, 0.6), transparent);
+  transform-origin: center center;
+  animation: scan-rotate 4s linear infinite;
+  opacity: 0.5;
+}
+
+.globe-label {
+  margin-top: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--accent);
+  opacity: 0.5;
+  text-transform: uppercase;
+  animation: label-pulse 3s ease-in-out infinite;
+}
+
+@keyframes globe-spin {
+  from { transform: rotateY(0deg) rotateX(15deg); }
+  to   { transform: rotateY(360deg) rotateX(15deg); }
+}
+
+@keyframes globe-ring-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50%      { opacity: 0.7; transform: scale(1.04); }
+}
+
+@keyframes globe-glow-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+
+@keyframes scan-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes label-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.8; }
+}
+/* ---- End Globe ---- */
+
 .report-placeholder h2 {
   font-size: 1.15rem;
   margin-bottom: 0.5rem;
