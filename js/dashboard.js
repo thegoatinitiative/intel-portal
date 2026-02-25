@@ -618,7 +618,7 @@
       return resp.text();
     }).then(function (assessmentHtml) {
       var container = document.createElement("div");
-      container.style.cssText = "background:#0a0a0f;color:#e0e2e8;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;";
+      container.style.cssText = "background:#0a0a0f;color:#e0e2e8;padding:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;width:750px;max-width:750px;overflow:hidden;";
 
       // Add report header
       container.appendChild(el.cloneNode(true));
@@ -629,15 +629,20 @@
         var doc = parser.parseFromString(assessmentHtml, "text/html");
 
         var assessDiv = document.createElement("div");
-        // Copy styles
+
+        // Copy styles but override max-width for PDF
         doc.querySelectorAll("style").forEach(function (s) {
           var style = document.createElement("style");
           style.textContent = s.textContent;
           assessDiv.appendChild(style);
         });
+        var overrideStyle = document.createElement("style");
+        overrideStyle.textContent = ".report-container{max-width:100%!important;padding:10px 0!important;} .section-card,.report-header-card,.sources-card{margin-bottom:12px!important;} table{font-size:11px!important;} .header-meta-grid{grid-template-columns:repeat(2,1fr)!important;} td.field-label{width:140px!important;font-size:10px!important;}";
+        assessDiv.appendChild(overrideStyle);
+
         // Copy body content (skip scripts and map elements)
         var bodyContent = doc.body.cloneNode(true);
-        bodyContent.querySelectorAll("script, #travel-map, #travel-map-container, .leaflet-control-container").forEach(function (el) { el.remove(); });
+        bodyContent.querySelectorAll("script, #travel-map, #travel-map-container, .leaflet-control-container, .top-bar").forEach(function (el) { el.remove(); });
         setSafeHTML(assessDiv, assessDiv.innerHTML + bodyContent.innerHTML);
         container.appendChild(assessDiv);
       }
@@ -645,14 +650,21 @@
       // Remove buttons and interactive elements
       container.querySelectorAll("button, .btn-action, .btn-delete, .mobile-back-btn, .remove-btn").forEach(function (b) { b.remove(); });
 
+      // Temporarily add to DOM for html2canvas to measure
+      container.style.position = "absolute";
+      container.style.left = "-9999px";
+      document.body.appendChild(container);
+
       html2pdf().set({
-        margin: [10, 10, 10, 10],
+        margin: [8, 5, 8, 5],
         filename: filename,
         image: { type: "jpeg", quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, scrollY: 0, backgroundColor: "#0a0a0f" },
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0, backgroundColor: "#0a0a0f", width: 750 },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         pagebreak: { mode: ["avoid-all", "css", "legacy"] }
-      }).from(container).save();
+      }).from(container).save().then(function () {
+        document.body.removeChild(container);
+      });
     }).catch(function () {
       // Fallback: export just the header
       html2pdf().set({
