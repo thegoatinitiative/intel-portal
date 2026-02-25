@@ -56,7 +56,7 @@
     clearTable(tbody);
     var tr = document.createElement("tr");
     var td = document.createElement("td");
-    td.colSpan = 3;
+    td.colSpan = 5;
     td.style.textAlign = "center";
     td.style.color = "var(--text-muted)";
     td.textContent = text;
@@ -84,6 +84,41 @@
         var tdUser = document.createElement("td");
         tdUser.textContent = d.username || "\u2014";
         tdUser.style.fontFamily = "var(--font-mono)";
+
+        // Editable display name cell
+        var tdName = document.createElement("td");
+        var nameSpan = document.createElement("span");
+        nameSpan.className = "editable-name";
+        nameSpan.textContent = d.displayName || "\u2014";
+        nameSpan.title = "Click to edit";
+        nameSpan.style.cursor = "pointer";
+        nameSpan.addEventListener("click", function () {
+          var input = document.createElement("input");
+          input.type = "text";
+          input.value = d.displayName || "";
+          input.placeholder = "Enter name";
+          input.className = "inline-name-input";
+          input.style.cssText = "width:100%;padding:0.3rem 0.5rem;font-size:0.8rem;background:var(--surface-2);border:1px solid var(--accent);color:var(--text-primary);border-radius:4px;font-family:var(--font-sans);";
+          tdName.replaceChild(input, nameSpan);
+          input.focus();
+          function saveName() {
+            var newName = input.value.trim();
+            fbDb.collection("users").doc(doc.id).update({ displayName: newName }).then(function () {
+              nameSpan.textContent = newName || "\u2014";
+              d.displayName = newName;
+              tdName.replaceChild(nameSpan, input);
+            }).catch(function (err) {
+              alert("Error saving name: " + err.message);
+              tdName.replaceChild(nameSpan, input);
+            });
+          }
+          input.addEventListener("blur", saveName);
+          input.addEventListener("keydown", function (ev) {
+            if (ev.key === "Enter") { ev.preventDefault(); input.blur(); }
+            if (ev.key === "Escape") { tdName.replaceChild(nameSpan, input); }
+          });
+        });
+        tdName.appendChild(nameSpan);
 
         var tdRole = document.createElement("td");
         var roleBadge = document.createElement("span");
@@ -113,6 +148,7 @@
         }
 
         tr.appendChild(tdUser);
+        tr.appendChild(tdName);
         tr.appendChild(tdRole);
         tr.appendChild(tdCreated);
         tr.appendChild(tdActions);
@@ -173,6 +209,7 @@
   createUserForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var username = document.getElementById("new-username").value.trim().toLowerCase();
+    var displayName = document.getElementById("new-displayname").value.trim();
     var password = document.getElementById("new-password").value;
     var role = document.getElementById("new-role").value;
 
@@ -205,6 +242,7 @@
         // Write user doc to Firestore
         return fbDb.collection("users").doc(cred.user.uid).set({
           username: username,
+          displayName: displayName,
           role: role,
           mustChangePassword: true,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
