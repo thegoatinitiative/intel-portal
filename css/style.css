@@ -1909,6 +1909,10 @@ body {
   background: rgba(14, 165, 233, 0.12);
   color: #38bdf8;
 }
+.admin-action-time {
+  background: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+}
 
 .admin-action-default {
   background: rgba(107, 114, 128, 0.1);

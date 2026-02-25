@@ -8,6 +8,7 @@
 
   await requireAuth();
   ActivityLog.log("page_view", { page: "admin" });
+  ActivityLog.startPageTimer("admin");
 
   // Enforce admin role
   var admin = await isAdmin();
@@ -305,6 +306,7 @@
       report_export: "admin-action-export",
       search: "admin-action-search",
       page_view: "admin-action-pageview",
+      time_on_page: "admin-action-time",
     };
     return map[action] || "admin-action-default";
   }
@@ -330,6 +332,12 @@
       if (data.details.query) parts.push('"' + data.details.query + '"');
       if (data.details.method) parts.push(data.details.method);
       if (data.details.page) parts.push(data.details.page);
+      if (data.details.seconds != null) {
+        var s = data.details.seconds;
+        var m = Math.floor(s / 60);
+        var rem = s % 60;
+        parts.push(m > 0 ? m + "m " + rem + "s" : rem + "s");
+      }
       details.textContent = parts.join(" \u2014 ");
     }
 
@@ -439,5 +447,69 @@
 
   // Re-subscribe on filter change
   applyFilters.addEventListener("click", subscribeToActivity);
+
+  // ---- Download Activity Log as CSV ----
+  var downloadBtn = document.getElementById("download-csv-btn");
+  if (downloadBtn) {
+    downloadBtn.addEventListener("click", function () {
+      downloadBtn.disabled = true;
+      downloadBtn.textContent = "Exporting...";
+
+      fbDb.collection("activity").orderBy("timestamp", "desc").limit(5000).get()
+        .then(function (snap) {
+          var rows = [["Timestamp", "Username", "Action", "Details", "IP", "User Agent"]];
+          snap.forEach(function (doc) {
+            var d = doc.data();
+            var ts = "";
+            if (d.timestamp && d.timestamp.toDate) {
+              ts = d.timestamp.toDate().toISOString();
+            }
+            var detailStr = "";
+            if (d.details) {
+              var parts = [];
+              if (d.details.page) parts.push("page:" + d.details.page);
+              if (d.details.reportId) parts.push("report:" + d.details.reportId);
+              if (d.details.subject) parts.push("subject:" + d.details.subject);
+              if (d.details.query) parts.push("query:" + d.details.query);
+              if (d.details.method) parts.push("method:" + d.details.method);
+              if (d.details.seconds != null) parts.push("duration:" + d.details.seconds + "s");
+              detailStr = parts.join("; ");
+            }
+            rows.push([
+              ts,
+              d.username || "",
+              d.action || "",
+              detailStr,
+              d.ip || "",
+              (d.userAgent || "").replace(/,/g, " "),
+            ]);
+          });
+
+          // Build CSV
+          var csv = rows.map(function (row) {
+            return row.map(function (cell) {
+              return '"' + String(cell).replace(/"/g, '""') + '"';
+            }).join(",");
+          }).join("\n");
+
+          var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = "intel_portal_activity_" + new Date().toISOString().slice(0, 10) + ".csv";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        })
+        .catch(function (err) {
+          alert("Export failed: " + err.message);
+        })
+        .finally(function () {
+          downloadBtn.disabled = false;
+          downloadBtn.textContent = "Download CSV";
+        });
+    });
+  }
 
 })();
