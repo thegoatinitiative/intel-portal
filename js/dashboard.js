@@ -618,7 +618,7 @@
       return resp.text();
     }).then(function (assessmentHtml) {
       var container = document.createElement("div");
-      container.style.cssText = "background:#0a0a0f;color:#e0e2e8;padding:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;width:750px;max-width:750px;overflow:hidden;";
+      container.style.cssText = "background:#0a0a0f;color:#e0e2e8;padding:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;width:750px;";
 
       // Add report header
       container.appendChild(el.cloneNode(true));
@@ -630,36 +630,45 @@
 
         var assessDiv = document.createElement("div");
 
-        // Copy styles but override max-width for PDF
+        // Copy styles directly (not via setSafeHTML which strips them)
         doc.querySelectorAll("style").forEach(function (s) {
           var style = document.createElement("style");
           style.textContent = s.textContent;
           assessDiv.appendChild(style);
         });
+        // PDF layout overrides
         var overrideStyle = document.createElement("style");
-        overrideStyle.textContent = ".report-container{max-width:100%!important;padding:10px 0!important;} .section-card,.report-header-card,.sources-card{margin-bottom:12px!important;} table{font-size:11px!important;} .header-meta-grid{grid-template-columns:repeat(2,1fr)!important;} td.field-label{width:140px!important;font-size:10px!important;}";
+        overrideStyle.textContent = ".report-container{max-width:100%!important;padding:10px 0!important;} .section-card,.report-header-card,.sources-card{margin-bottom:12px!important;} table{font-size:11px!important;} .header-meta-grid{grid-template-columns:repeat(2,1fr)!important;} td.field-label{width:140px!important;font-size:10px!important;} .classification-banner{display:none!important;}";
         assessDiv.appendChild(overrideStyle);
 
         // Copy body content (skip scripts and map elements)
         var bodyContent = doc.body.cloneNode(true);
-        bodyContent.querySelectorAll("script, #travel-map, #travel-map-container, .leaflet-control-container, .top-bar").forEach(function (el) { el.remove(); });
-        setSafeHTML(assessDiv, assessDiv.innerHTML + bodyContent.innerHTML);
+        bodyContent.querySelectorAll("script, #travel-map, #travel-map-container, .leaflet-control-container, .top-bar, link").forEach(function (n) { n.remove(); });
+
+        // Sanitize just the body content, then append to assessDiv
+        var sanitized = document.createElement("div");
+        setSafeHTML(sanitized, bodyContent.innerHTML);
+        assessDiv.appendChild(sanitized);
+
         container.appendChild(assessDiv);
       }
 
       // Remove buttons and interactive elements
       container.querySelectorAll("button, .btn-action, .btn-delete, .mobile-back-btn, .remove-btn").forEach(function (b) { b.remove(); });
 
-      // Temporarily add to DOM for html2canvas to measure
-      container.style.position = "absolute";
-      container.style.left = "-9999px";
+      // Temporarily add to DOM so html2canvas can render it
+      container.style.position = "fixed";
+      container.style.top = "0";
+      container.style.left = "0";
+      container.style.zIndex = "-1";
+      container.style.opacity = "0.01";
       document.body.appendChild(container);
 
       html2pdf().set({
         margin: [8, 5, 8, 5],
         filename: filename,
         image: { type: "jpeg", quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, scrollY: 0, backgroundColor: "#0a0a0f", width: 750 },
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0, backgroundColor: "#0a0a0f", windowWidth: 750 },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         pagebreak: { mode: ["avoid-all", "css", "legacy"] }
       }).from(container).save().then(function () {
