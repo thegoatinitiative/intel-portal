@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategic Intelligence Assessment: Subject IRIDIUM-7</title>
+<style>
+  :root {
+    /* Exact dashboard palette */
+    --bg-page: #0d1117;
+    --bg-card: #161b22;
+    --bg-header: #1c2333;
+    --bg-inset: #0d1117;
+    --border: #30363d;
+    --border-subtle: #21262d;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --text-muted: #656d76;
+    --green: #3fb950;
+    --green-emphasis: #238636;
+    --green-subtle: rgba(63, 185, 80, 0.10);
+    --green-border: rgba(63, 185, 80, 0.20);
+    --coral: #da6456;
+    --coral-emphasis: #e8655a;
+    --coral-subtle: rgba(218, 100, 86, 0.10);
+    --coral-border: rgba(218, 100, 86, 0.20);
+    --amber: #d29922;
+    --amber-subtle: rgba(210, 153, 34, 0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .classification-banner {
+    background: var(--coral-emphasis);
+    color: #fff;
+    text-align: center;
+    padding: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 32px 60px;
+  }
+
+  .report-header {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+
+  .report-header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .report-header .subject-line {
+    color: var(--green);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 18px;
+  }
+
+  .header-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0;
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+
+  .header-meta .meta-item {
+    padding: 0 12px;
+    border-right: 1px solid var(--border);
+  }
+
+  .header-meta .meta-item:first-child { padding-left: 0; }
+  .header-meta .meta-item:last-child { border-right: none; }
+
+  .header-meta .meta-label {
+    display: block;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+  }
+
+  .header-meta .meta-value {
+    color: var(--text-primary);
+    font-size: 13px;
+  }
+
+  .placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .badge-green {
+    display: inline-block;
+    background: var(--green-emphasis);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-coral {
+    display: inline-block;
+    background: var(--coral-emphasis);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  .section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-number {
+    background: var(--green);
+    color: var(--bg-page);
+    font-weight: 700;
+    font-size: 12px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-header h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .section-body {
+    padding: 20px;
+  }
+
+  .subsection-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin: 20px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .subsection-title:first-child {
+    margin-top: 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 16px;
+    font-size: 13px;
+  }
+
+  thead th {
+    background: var(--bg-header);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  tbody td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-subtle);
+    vertical-align: top;
+    color: var(--text-primary);
+  }
+
+  tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.015);
+  }
+
+  td strong {
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  td code, p code {
+    background: rgba(63, 185, 80, 0.08);
+    color: var(--green);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+  }
+
+  .gap-row td {
+    background: var(--amber-subtle);
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  .dark-period td {
+    background: var(--coral-subtle);
+    color: var(--coral-emphasis);
+    font-weight: 600;
+  }
+
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+  }
+
+  .checklist li {
+    padding: 6px 10px;
+    margin: 3px 0;
+    border-radius: 4px;
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .checklist li .check-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    margin-top: 1px;
+  }
+
+  .checklist li.unchecked .check-icon {
+    border: 1.5px solid var(--border);
+    color: transparent;
+  }
+
+  .checklist li.checked .check-icon {
+    background: var(--green-emphasis);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .checklist li.checked {
+    background: var(--green-subtle);
+    color: var(--green);
+  }
+
+  .checklist li.unchecked {
+    color: var(--text-secondary);
+  }
+
+  p {
+    margin: 10px 0;
+    color: var(--text-primary);
+  }
+
+  .risk-box {
+    background: var(--coral-subtle);
+    border: 1px solid var(--coral-border);
+    border-left: 3px solid var(--coral);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+
+  .risk-box-title {
+    color: var(--coral-emphasis);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  .risk-box p {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 13px;
+  }
+
+  .analysis-box {
+    background: var(--green-subtle);
+    border: 1px solid var(--green-border);
+    border-left: 3px solid var(--green);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+
+  .analysis-box h4 {
+    color: var(--green);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  .geo-node {
+    margin: 14px 0;
+    padding: 16px 18px;
+    background: var(--bg-header);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .geo-node h4 {
+    color: var(--green);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .geo-node ul {
+    margin: 8px 0 0 18px;
+    color: var(--text-secondary);
+  }
+
+  .geo-node ul li {
+    margin: 5px 0;
+    font-size: 13px;
+  }
+
+  .threat-vector {
+    margin: 12px 0;
+    padding: 14px 18px;
+    background: var(--coral-subtle);
+    border: 1px solid var(--coral-border);
+    border-radius: 6px;
+  }
+
+  .threat-vector h4 {
+    color: var(--coral-emphasis);
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .directive-list {
+    list-style: none;
+    padding: 0;
+    counter-reset: directive;
+  }
+
+  .directive-list li {
+    counter-increment: directive;
+    padding: 12px 16px 12px 50px;
+    margin: 6px 0;
+    background: var(--bg-header);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    position: relative;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .directive-list li::before {
+    content: counter(directive);
+    position: absolute;
+    left: 16px;
+    top: 12px;
+    background: var(--green);
+    color: var(--bg-page);
+    font-weight: 700;
+    font-size: 11px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .directive-list li strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .numbered-list {
+    padding-left: 20px;
+    margin: 8px 0;
+  }
+
+  .numbered-list li {
+    margin: 6px 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .numbered-list li strong {
+    color: var(--text-primary);
+  }
+
+  .indicator-list {
+    list-style: none;
+    padding: 0;
+    counter-reset: indicator;
+  }
+
+  .indicator-list li {
+    counter-increment: indicator;
+    padding: 10px 14px 10px 40px;
+    margin: 5px 0;
+    background: var(--green-subtle);
+    border: 1px solid var(--green-border);
+    border-radius: 6px;
+    position: relative;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .indicator-list li::before {
+    content: counter(indicator) ".";
+    position: absolute;
+    left: 14px;
+    top: 10px;
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  .indicator-list li strong {
+    color: var(--green);
+  }
+
+  .priority-actions {
+    list-style: none;
+    padding: 0;
+  }
+
+  .priority-actions li {
+    padding: 8px 12px 8px 26px;
+    margin: 3px 0;
+    position: relative;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .priority-actions li::before {
+    content: "\25B8";
+    position: absolute;
+    left: 8px;
+    color: var(--green);
+    font-size: 12px;
+    top: 9px;
+  }
+
+  .priority-actions li strong {
+    color: var(--text-primary);
+  }
+
+  .end-marker {
+    text-align: center;
+    margin: 32px 0 16px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .sources-section {
+    margin-top: 24px;
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .sources-section h3 {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .sources-section ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sources-section li {
+    padding: 5px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .sources-section li:last-child {
+    border-bottom: none;
+  }
+
+  .sources-section a {
+    color: var(--green);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .sources-section a:hover {
+    color: #56d364;
+    text-decoration: underline;
+  }
+
+  @media print {
+    .classification-banner { position: static; }
+    body { background: white; color: #1c1c1c; font-size: 11pt; }
+    .section { border: 1px solid #ccc; break-inside: avoid; }
+    .section-header { background: #f0f0f0; }
+    .report-header { border-color: #ccc; }
+    table { font-size: 10pt; }
+    a { color: #238636; }
+    .badge-green { background: #238636; }
+  }
+</style>
+</head>
+<body>
+
+<div class="classification-banner">Secret // NOFORN</div>
+
+<div class="container">
+
+  <!-- Report Header -->
+  <div class="report-header">
+    <h1>Strategic Intelligence Assessment</h1>
+    <div class="subject-line">Subject IRIDIUM-7 &mdash; Dual-Identity Iranian Defense Official Operating Under Venezuelan Cover</div>
+    <div class="header-meta">
+      <div class="meta-item">
+        <span class="meta-label">Classification</span>
+        <span class="meta-value"><span class="badge-coral">SECRET // NOFORN</span></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Date of Assessment</span>
+        <span class="meta-value">25 February 2026</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prepared By</span>
+        <span class="meta-value">CI-OSINT Fusion Cell</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Distribution</span>
+        <span class="meta-value">ODNI, DIA, CBP-NTC, ICE-HSI, OFAC, SOUTHCOM J2</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 0: Document Recovery and Subject Identification -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">0</div>
+      <h2>Document Recovery and Subject Identification</h2>
+    </div>
+    <div class="section-body">
+
+      <h3 class="subsection-title">Recovery Details</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Date of Recovery</strong></td><td>25 February 2026</td></tr>
+          <tr><td><strong>Time of Recovery</strong></td><td>Approximate &mdash; documents surfaced via OSINT imagery analysis</td></tr>
+          <tr><td><strong>Recovery Location</strong></td><td>Digital acquisition &mdash; images circulating in open-source reporting channels; physical origin undetermined</td></tr>
+          <tr><td><strong>GPS Coordinates</strong></td><td>N/A &mdash; digital recovery</td></tr>
+          <tr><td><strong>Terrain/Environment</strong></td><td>N/A &mdash; documents photographed in controlled environment (indoor, hands holding documents)</td></tr>
+          <tr><td><strong>Recovered By</strong></td><td>OSINT Analyst &mdash; CI-OSINT Fusion Cell</td></tr>
+          <tr><td><strong>Chain of Custody ID</strong></td><td>OSINT-2026-0225-IRIDIUM7</td></tr>
+          <tr><td><strong>Recovery Context</strong></td><td>Two identity documents photographed together and disseminated through open-source channels. The pairing of an Iranian diplomatic passport with a Venezuelan national identity card under a different name suggests deliberate exposure by a source with access to both documents, or a leak from a counterintelligence operation.</td></tr>
+          <tr><td><strong>Other Items Recovered</strong></td><td>Two documents recovered as a pair: (1) Iranian Diplomatic Passport, (2) Venezuelan C&eacute;dula de Identidad. The co-location of both documents in a single photographic frame is itself an intelligence indicator.</td></tr>
+          <tr><td><strong>Document Condition</strong></td><td>Both documents appear in good physical condition. The passport shows normal wear consistent with active use. The c&eacute;dula appears well-preserved. No visible water damage, tearing, or deliberate destruction.</td></tr>
+          <tr><td><strong>Photos Taken at Scene</strong></td><td>Yes &mdash; <code>Screenshot 2026-02-25 at 1.48.27 PM.png</code> (passport), <code>Screenshot 2026-02-25 at 1.48.36 PM.png</code> (c&eacute;dula)</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Document 1 &mdash; Iranian Diplomatic Passport</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Document Type</strong></td><td>Diplomatic Passport (PD) &mdash; issued to government officials with diplomatic status</td></tr>
+          <tr><td><strong>Issuing Country</strong></td><td>Islamic Republic of Iran (IRN)</td></tr>
+          <tr><td><strong>Document Number</strong></td><td><code>D10005432</code></td></tr>
+          <tr><td><strong>Surname</strong></td><td>REZAEI (&#1585;&#1590;&#1575;&#1574;&#1740;)</td></tr>
+          <tr><td><strong>Given Names</strong></td><td>ISSA (&#1593;&#1740;&#1587;&#1740;)</td></tr>
+          <tr><td><strong>Nationality</strong></td><td>Iranian</td></tr>
+          <tr><td><strong>Date of Birth</strong></td><td>23 May 1963 (age 62 at time of assessment; age 56 at passport issuance)</td></tr>
+          <tr><td><strong>Sex</strong></td><td>M</td></tr>
+          <tr><td><strong>Place of Birth</strong></td><td>Ray (Rey), Tehran Province, Iran</td></tr>
+          <tr><td><strong>Date of Issue</strong></td><td>02 July 2019</td></tr>
+          <tr><td><strong>Date of Expiry</strong></td><td>Not visible in image &mdash; Iranian diplomatic passports typically valid 5 years (estimated expiry: July 2024)</td></tr>
+          <tr><td><strong>Issuing Authority</strong></td><td>Ministry of Foreign Affairs, Islamic Republic of Iran</td></tr>
+          <tr><td><strong>Father's Name</strong></td><td>MOHAMMAD HOSSEIN (&#1605;&#1581;&#1605;&#1583; &#1581;&#1587;&#1740;&#1606;)</td></tr>
+          <tr><td><strong>Shenasnameh Number</strong></td><td>224 (visible on right side of document in Farsi)</td></tr>
+          <tr><td><strong>Title / Position</strong></td><td><strong>DEPUTY MINISTER OF DEFENSE AND ARMED FORCES LOGISTICS</strong></td></tr>
+          <tr><td><strong>Serial Number</strong></td><td><code>10005432</code> (printed top-left of biographical page)</td></tr>
+          <tr><td><strong>MRZ Line 1</strong></td><td>Not visible in image</td></tr>
+          <tr><td><strong>MRZ Line 2</strong></td><td>Not visible in image</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Document 2 &mdash; Venezuelan C&eacute;dula de Identidad</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Document Type</strong></td><td>C&eacute;dula de Identidad (National Identity Card)</td></tr>
+          <tr><td><strong>Issuing Country</strong></td><td>Rep&uacute;blica Bolivariana de Venezuela (VEN)</td></tr>
+          <tr><td><strong>Document Number</strong></td><td><code>V-24.041.282</code></td></tr>
+          <tr><td><strong>Surname (Apellidos)</strong></td><td>THOMAS YOKHANA</td></tr>
+          <tr><td><strong>Given Names (Nombres)</strong></td><td>SIMON</td></tr>
+          <tr><td><strong>Nationality</strong></td><td>VENEZOLANO</td></tr>
+          <tr><td><strong>Date of Birth</strong></td><td>18 March 1966</td></tr>
+          <tr><td><strong>Sex</strong></td><td>M (implied)</td></tr>
+          <tr><td><strong>Marital Status</strong></td><td>CASADO (Married)</td></tr>
+          <tr><td><strong>Date of Issue (Expedici&oacute;n)</strong></td><td>11 June 2015</td></tr>
+          <tr><td><strong>Date of Expiry (Vencimiento)</strong></td><td>June 2025</td></tr>
+          <tr><td><strong>Issuing Authority</strong></td><td>SAIME &mdash; Servicio Administrativo de Identificaci&oacute;n, Migraci&oacute;n y Extranjer&iacute;a</td></tr>
+          <tr><td><strong>Director of SAIME at Issuance</strong></td><td>Dante Rivas (signature and name: <code>MM755</code>)</td></tr>
+          <tr><td><strong>Fingerprint</strong></td><td>Left thumbprint present on document</td></tr>
+          <tr><td><strong>Holder Signature</strong></td><td>Present &mdash; Firma Titular</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Cross-Document Analysis</h3>
+      <table>
+        <thead>
+          <tr><th>Attribute</th><th>Iranian Passport</th><th>Venezuelan C&eacute;dula</th><th>Assessment</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Name</strong></td>
+            <td>Issa REZAEI</td>
+            <td>Simon THOMAS YOKHANA</td>
+            <td>Completely different identities. "Thomas Yokhana" is an Assyrian Christian name &mdash; inconsistent with Iranian Shia government official profile</td>
+          </tr>
+          <tr>
+            <td><strong>Date of Birth</strong></td>
+            <td>23 May 1963</td>
+            <td>18 March 1966</td>
+            <td>3-year discrepancy. Deliberate age alteration to frustrate biometric age-matching algorithms</td>
+          </tr>
+          <tr>
+            <td><strong>Nationality Claimed</strong></td>
+            <td>Iranian</td>
+            <td>Venezuelan</td>
+            <td>Dual documentation &mdash; Venezuelan c&eacute;dula provides Western Hemisphere cover identity</td>
+          </tr>
+          <tr>
+            <td><strong>Issue Period</strong></td>
+            <td>July 2019</td>
+            <td>June 2015</td>
+            <td>Venezuelan identity established 4 years before diplomatic passport issuance &mdash; suggests pre-planned operational cover</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Document Anomalies and Indicators</h3>
+      <ul class="checklist">
+        <li class="unchecked"><span class="check-icon"></span> Document shows signs of tampering or alteration</li>
+        <li class="unchecked"><span class="check-icon"></span> Photo appears substituted or inconsistent with document</li>
+        <li class="unchecked"><span class="check-icon"></span> MRZ data inconsistent with printed biographical data</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Stamps inconsistent with known travel patterns</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Gap between last confirmed stamp and recovery location indicating undocumented transit</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Document reported lost/stolen in INTERPOL SLTD database &mdash; PENDING VERIFICATION</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Multiple documents recovered for same individual under different identities &mdash; CONFIRMED: Iranian diplomatic passport and Venezuelan c&eacute;dula with completely different biographical data</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Venezuelan c&eacute;dula number <code>V-24.041.282</code> under name "Simon Thomas Yokhana" matches identity specifically cited in OSINT reporting as one of three Iranian agents granted Venezuelan nationality for military operations (PanamPost, August 2020)</li>
+      </ul>
+
+      <h3 class="subsection-title">Preliminary Subject Assessment</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Subject Designation</strong></td><td>IRIDIUM-7</td></tr>
+          <tr><td><strong>Assessed Threat Tier</strong></td><td><span class="badge-coral">Tier 1 (Critical)</span> &mdash; Subject holds Deputy Minister rank within MODAFL, a sanctioned entity directly responsible for Iran's ballistic missile program. Dual identity under Venezuelan cover indicates active covert operational role in the Western Hemisphere.</td></tr>
+          <tr><td><strong>Watchlist Hits</strong></td><td>PENDING &mdash; TSDB, TECS, NLETS, INTERPOL, NCIC, OFAC SDN List. Note: MODAFL is a designated entity under E.O. 13382 (WMD proliferators). All senior officials may be subject to derivative designation.</td></tr>
+          <tr><td><strong>Biometric Collection</strong></td><td>Fingerprints lifted: Yes (left thumbprint visible on Venezuelan c&eacute;dula) | DNA swab: No | Facial capture: Yes (passport photo and c&eacute;dula photo available for facial recognition cross-referencing)</td></tr>
+          <tr><td><strong>Known Associates</strong></td><td>Al&iacute; Asghar Sassani (<code>CI.V-17.754.727</code>) &mdash; Iranian agent also issued Venezuelan identity; Pedro Khalil (<code>CI.V-14.216.334</code>) &mdash; Iranian agent also issued Venezuelan identity. All three named together in intelligence reporting as part of an Iranian military contingent operating in Venezuela.</td></tr>
+          <tr><td><strong>Initial Analyst Notes</strong></td><td>The co-recovery of these two documents constitutes a critical intelligence find. A sitting Deputy Minister of MODAFL &mdash; the sanctioned entity controlling Iran's entire defense industrial complex, including its ballistic missile and drone programs &mdash; operating under a fabricated Venezuelan Christian identity represents a sophisticated state-directed intelligence operation. The Venezuelan c&eacute;dula was issued in June 2015 under SAIME Director Dante Rivas during the peak period of documented Venezuelan passport fraud involving Middle Eastern nationals. The "Simon Thomas Yokhana" alias uses an Assyrian Christian name pattern, likely selected to avoid suspicion at Western screening checkpoints where an overtly Iranian-Islamic name would trigger enhanced vetting.</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- Section 1: Tactical Infiltration and Evidence Evasion -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <h2>Tactical Infiltration and Evidence Evasion</h2>
+    </div>
+    <div class="section-body">
+      <p>The recovery of two identity documents for the same individual under completely different biographical legends represents a textbook dual-identity operational security (OPSEC) configuration. The Iranian diplomatic passport (<code>D10005432</code>) establishes the subject's true identity as Issa Rezaei, a senior MODAFL official with the rank of Deputy Minister of Defense and Armed Forces Logistics. The Venezuelan c&eacute;dula (<code>V-24.041.282</code>) under the name "Simon Thomas Yokhana" represents a fully backstopped cover identity issued through Venezuela's compromised SAIME apparatus.</p>
+
+      <p>The c&eacute;dula was issued on 11 June 2015, when Dante Rivas was serving as Director of SAIME &mdash; his second tenure in the role after being re-appointed by President Nicol&aacute;s Maduro on 27 May 2015. This timing is significant: Rivas had previously been removed from SAIME in 2012 by Hugo Ch&aacute;vez, and his reinstatement coincided with the acceleration of Iran-Venezuela defense cooperation. The document bears Rivas's printed name and the code <code>MM755</code>.</p>
+
+      <p>The alias construction is deliberate and sophisticated. "Simon Thomas Yokhana" presents as an Assyrian Christian name &mdash; a minority community with diaspora populations across the Middle East and Latin America. This ethnoreligious masking serves two purposes: it provides a plausible explanation for Middle Eastern physiological features while completely obscuring any connection to the Iranian government or Shia establishment. The 3-year date-of-birth discrepancy (1963 vs. 1966) is within the margin that complicates but does not prevent biometric age estimation, suggesting awareness of facial recognition age-verification tolerances.</p>
+
+      <div class="risk-box">
+        <div class="risk-box-title">Strategic Risk Assessment</div>
+        <p>The subject's dual-identity configuration indicates state-level tradecraft, not improvised identity fraud. A Deputy Minister of MODAFL would not independently procure a Venezuelan cover identity &mdash; this represents an institutionalized capability, likely coordinated between MODAFL's intelligence protection organization, Iran's Ministry of Intelligence and Security (MOIS), and cooperating elements within Venezuela's SAIME and military intelligence (DGCIM). The existence of at least two additional Iranian agents with similar Venezuelan documentation (Sassani and Khalil) confirms this is a systematic program, not an isolated case. The operational implication is that an unknown number of additional MODAFL, IRGC, and Quds Force operatives may hold similar Venezuelan cover identities enabling Western Hemisphere access without triggering standard Iranian-national screening protocols.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Chronological Reconstruction -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <h2>Chronological Reconstruction: Mapping the Operational Signature</h2>
+    </div>
+    <div class="section-body">
+      <p>The combined document evidence establishes a timeline spanning from 2015 to at least 2019, with the Venezuelan cover identity pre-dating the diplomatic passport by four years. This sequencing &mdash; cover identity first, official documentation second &mdash; suggests the Venezuelan legend was established as operational infrastructure before the subject assumed the Deputy Minister role, or alternatively, that the cover identity was created in anticipation of future covert travel requirements as the subject rose through MODAFL ranks.</p>
+
+      <h3 class="subsection-title">Operational Timeline</h3>
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Location/Action</th><th>Operational Status</th><th>Strategic Implication</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>23 May 1963</td>
+            <td>Born in Ray (Rey), Tehran Province, Iran</td>
+            <td>Official</td>
+            <td>Ray is an ancient city now absorbed into greater Tehran, proximate to key military-industrial sites including Iran Electronics Industries facilities</td>
+          </tr>
+          <tr class="gap-row">
+            <td>1963 &ndash; 2015</td>
+            <td>No documentary evidence of career progression</td>
+            <td>Gap</td>
+            <td>52-year gap. Subject's military/defense career trajectory prior to document evidence is entirely unknown. MODAFL Deputy Minister rank suggests decades of service within defense establishment</td>
+          </tr>
+          <tr>
+            <td>11 Jun 2015</td>
+            <td>Venezuelan C&eacute;dula issued &mdash; Caracas, Venezuela (SAIME)</td>
+            <td>Covert</td>
+            <td>Cover identity "Simon Thomas Yokhana" established. Issued 15 days after Dante Rivas re-appointed as SAIME Director. C&eacute;dula prefix "V" indicates Venezuelan national status (not resident/foreigner), meaning subject was granted full citizenship</td>
+          </tr>
+          <tr class="gap-row">
+            <td>Jun 2015 &ndash; Jul 2019</td>
+            <td>No documentary evidence</td>
+            <td>Gap</td>
+            <td>4-year operational window during which subject possessed Venezuelan cover identity. Travel under the Yokhana alias during this period is unverified but presumed</td>
+          </tr>
+          <tr>
+            <td>02 Jul 2019</td>
+            <td>Iranian Diplomatic Passport issued &mdash; Tehran, Iran</td>
+            <td>Official</td>
+            <td>Subject formally documented as Deputy Minister of Defense and Armed Forces Logistics. Issuance of a PD-type diplomatic passport confirms active senior government status</td>
+          </tr>
+          <tr class="gap-row">
+            <td>Jul 2019 &ndash; Aug 2020</td>
+            <td>Period of reported Iranian military contingent deployment to Venezuela</td>
+            <td>Gap</td>
+            <td>Intelligence reporting (Aug 2020) places "Simon Thomas Yokhana" as part of an Iranian contingent touring Venezuelan military zones for weapons depot site selection and missile assembly planning</td>
+          </tr>
+          <tr class="dark-period">
+            <td>Aug 2020 &ndash; Present</td>
+            <td>Subject's current location and activity unknown</td>
+            <td>Dark Period</td>
+            <td>No further documentary evidence. Venezuelan c&eacute;dula expired June 2025. Diplomatic passport likely expired July 2024. Subject may have obtained replacement documents under either or additional identities</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="analysis-box">
+        <h4>Analysis</h4>
+        <p>The timeline reveals a carefully staged operational sequence. The Venezuelan cover identity was established in 2015 during a period of intensified Iran-Venezuela defense cooperation, providing the subject with Western Hemisphere mobility under a non-Iranian identity. The diplomatic passport issuance in 2019 formalized the subject's senior MODAFL status, but the pre-existing Venezuelan cover suggests the subject was already conducting clandestine operations in Latin America before receiving official diplomatic documentation. The August 2020 OSINT reporting that specifically names "Simon Thomas Yokhana" with c&eacute;dula number <code>V-24.041.282</code> as part of an Iranian missile installation team directly links these documents to an active military operation. The current dark period beginning after the 2020 exposure is consistent with an operational stand-down or identity rotation following compromise of the Yokhana alias.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Geographic Risk Assessment -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <h2>Geographic Risk Assessment: Analysis of Key Nodes</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="geo-node">
+        <h4>Ray (Rey), Tehran Province, Iran (Origin)</h4>
+        <p>Ray is one of the oldest cities in Iran, now functionally a southern district of greater Tehran. The subject's birthplace is significant in the context of Iran's defense-industrial geography. Ray and its surrounding areas host multiple facilities connected to Iran's military-industrial complex, including elements of Iran Electronics Industries (IEI), a wholly-owned MODAFL subsidiary sanctioned under E.O. 13382. The proximity of the subject's origin to these facilities, combined with his eventual appointment as MODAFL Deputy Minister, suggests a career trajectory deeply embedded in Iran's defense establishment from an early stage.</p>
+      </div>
+
+      <div class="geo-node">
+        <h4>Caracas, Venezuela (Staging Base / Cover Identity Anchor)</h4>
+        <p>Venezuela serves as Iran's primary Western Hemisphere partner and the anchor point for the subject's cover identity. The Maduro regime's SAIME apparatus has been documented issuing fraudulent identity documents to at least 10,000 Middle Eastern nationals, including Iranians, Syrians, and individuals with ties to Hezbollah. The subject's c&eacute;dula was issued during the peak operational period of this program.</p>
+        <ul>
+          <li><strong>Institutional complicity:</strong> SAIME Director Dante Rivas, a PSUV loyalist who served as Minister of Commerce (2014) and later as National Assembly deputy, personally authorized the identity document infrastructure</li>
+          <li><strong>Iran-Venezuela defense axis:</strong> Bilateral defense cooperation agreements enable Iranian military personnel to operate within Venezuelan territory under diplomatic or commercial cover</li>
+          <li><strong>Quds Force presence:</strong> Iranian IRGC-Quds Force operatives have been documented providing security and intelligence support to the Maduro regime in Caracas, creating an established operational support network for visiting MODAFL officials</li>
+          <li><strong>C&eacute;dula as travel document:</strong> A Venezuelan c&eacute;dula, while not a travel document itself, supports applications for a Venezuelan passport &mdash; which enables visa-free or visa-on-arrival access to over 130 countries, dramatically expanding the subject's covert travel options beyond what an Iranian passport permits</li>
+        </ul>
+      </div>
+
+      <div class="geo-node">
+        <h4>Transit Corridor: Tehran &ndash; Caracas &ndash; Western Hemisphere</h4>
+        <p>The Iran-Venezuela air corridor has been a documented vector for sanctions evasion, military equipment transfer, and personnel movement since at least 2007. The subject's dual documentation enables travel via two distinct pathways:</p>
+        <ol class="numbered-list">
+          <li><strong>Official channel (Rezaei identity):</strong> Tehran &rarr; Damascus/Beirut &rarr; Caracas via Conviasa or Mahan Air charter flights. Diplomatic passport provides immunity from customs inspection and diplomatic pouch privileges</li>
+          <li><strong>Covert channel (Yokhana identity):</strong> Departure from any third country using Venezuelan documentation &rarr; commercial flights to any Western Hemisphere destination. The Yokhana identity enables transit through countries that would otherwise flag or deny entry to an Iranian diplomatic passport holder</li>
+          <li><strong>Combined approach:</strong> Official travel to Caracas as Rezaei, followed by onward travel within the Americas as Yokhana &mdash; effectively laundering the subject's identity through Venezuelan territorial sovereignty</li>
+        </ol>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 4: Entity Analysis -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <h2>Entity Analysis: Ministry of Defense and Armed Forces Logistics (MODAFL)</h2>
+    </div>
+    <div class="section-body">
+
+      <h3 class="subsection-title">What Is Known</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Full Name</strong></td><td>Ministry of Defence and Armed Forces Logistics (MODAFL) &mdash; &#1608;&#1586;&#1575;&#1585;&#1578; &#1583;&#1601;&#1575;&#1593; &#1608; &#1662;&#1588;&#1578;&#1740;&#1576;&#1575;&#1606;&#1740; &#1606;&#1740;&#1585;&#1608;&#1607;&#1575;&#1740; &#1605;&#1587;&#1604;&#1581;</td></tr>
+          <tr><td><strong>Location</strong></td><td>Tehran, Islamic Republic of Iran</td></tr>
+          <tr><td><strong>Entity Type</strong></td><td>Government ministry &mdash; executive branch of the Islamic Republic of Iran</td></tr>
+          <tr><td><strong>Business Description</strong></td><td>Unified defense ministry established in 1989 by merging the Defense Ministry and IRGC Ministry. Controls Iran's entire defense-industrial base including weapons research, development, production, and procurement for all armed forces (Artesh, IRGC, Basij, Law Enforcement)</td></tr>
+          <tr><td><strong>Sanctions Status</strong></td><td>Designated under E.O. 13382 (WMD Proliferators); UN Security Council Resolutions 1737, 1747, 1803, 1929; EU Council Decision 2010/413/CFSP. MODAFL is the parent entity of DIO, AIO, IEI, HESA, and over 300 subsidiary companies</td></tr>
+          <tr><td><strong>Key Subsidiaries</strong></td><td>Defense Industries Organization (DIO) &mdash; 300+ companies, conventional arms; Aerospace Industries Organization (AIO) &mdash; ballistic missile program manager; Iran Electronics Industries (IEI) &mdash; electronics/radar; Iran Aircraft Manufacturing Company (HESA) &mdash; aircraft and UAVs; Armament Industries Group; Farasakht Industries; Shiraz Electronics Industries; Iran Communications Industries</td></tr>
+          <tr><td><strong>Minister of Defense (at passport issuance)</strong></td><td>Brigadier General Amir Hatami &mdash; named in intelligence reporting as the Iranian counterpart in the Venezuela missile procurement negotiations</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">What Is Not Known (Intelligence Gaps)</h3>
+      <ul class="priority-actions">
+        <li>The subject's specific portfolio within MODAFL &mdash; "Deputy Minister" is a broad designation covering multiple directorates (international affairs, research, logistics, manpower, intelligence protection). Which directorate Rezaei heads determines the nature and scope of his Venezuelan operations</li>
+        <li>Whether the subject holds additional cover identities beyond the Yokhana alias &mdash; the existence of one fabricated identity strongly suggests others may exist in additional jurisdictions (Nicaragua, Bolivia, Cuba, or non-aligned states)</li>
+        <li>The full scope of the SAIME-issued identity program &mdash; only three names have been publicly identified (Sassani, Yokhana/Rezaei, Khalil). The true number of Iranian defense and intelligence operatives holding Venezuelan documentation is unknown</li>
+        <li>Whether the subject has traveled to or through the United States, Canada, or allied nations using the Yokhana identity &mdash; Venezuelan nationals enjoy broad travel access that Iranian nationals do not</li>
+        <li>The subject's current operational status post-2020 exposure &mdash; whether he remains active in the Western Hemisphere under a new identity, has returned to Iran, or has transitioned to a different operational theater</li>
+      </ul>
+
+      <h3 class="subsection-title">Indicators Requiring Further Investigation</h3>
+      <ol class="indicator-list">
+        <li><strong>Asymmetric name construction:</strong> The selection of an Assyrian Christian alias ("Thomas Yokhana") for a senior Iranian Shia government official is a deliberate ethnoreligious masking technique. This indicates access to sophisticated identity-legend construction capabilities and awareness of Western screening biases that associate Iranian threat profiles with Islamic naming conventions</li>
+        <li><strong>C&eacute;dula timing correlation:</strong> The c&eacute;dula issuance on 11 June 2015 falls exactly 15 days after Dante Rivas was re-installed as SAIME Director (27 May 2015), suggesting Rivas's reappointment may have been specifically arranged to facilitate the issuance of these documents</li>
+        <li><strong>Passport-to-missile pipeline:</strong> The August 2020 intelligence reporting directly links "Simon Thomas Yokhana" and two other Venezuelan-documented Iranians to an active missile installation program in Venezuela, supervised by then-Defense Minister Amir Hatami. This connects the identity fraud directly to weapons proliferation</li>
+        <li><strong>Date-of-birth manipulation:</strong> The 3-year discrepancy between documents (1963 vs. 1966) is too large to be a clerical error and too small to represent a different individual. This is a deliberate biometric counter-measure</li>
+      </ol>
+
+      <h3 class="subsection-title">Recommended Priority Actions for Entity Investigation</h3>
+      <ul class="priority-actions">
+        <li><strong>Query</strong> OFAC SDN database for Issa Rezaei, all transliteration variants (Isa, Eisa, Issa; Rezaei, Rezai, Rezaee, Reza'i), and associated MODAFL designations to determine if the subject is individually sanctioned or captured under MODAFL umbrella designations</li>
+        <li><strong>Cross-reference</strong> the c&eacute;dula number <code>V-24.041.282</code> and the Yokhana alias against CBP TECS/ATS records to determine whether the subject has entered or attempted to enter U.S. territory</li>
+        <li><strong>Task</strong> liaison with Venezuelan opposition intelligence contacts to obtain the full SAIME issuance records from Dante Rivas's second tenure (May 2015 &ndash; 2018) for cross-referencing against Iranian defense and intelligence personnel databases</li>
+        <li><strong>Submit</strong> both facial images to NEC NeoFace and FBI NGI for automated facial recognition searches across DHS IDENT, DOS CCD, and allied biometric holdings</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- Section 5: Threat Synthesis -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <h2>Threat Synthesis and National Security Implications</h2>
+    </div>
+    <div class="section-body">
+      <p>The IRIDIUM-7 case represents the convergence of three critical national security threat streams: Iranian weapons proliferation, Venezuelan state-sponsored identity fraud, and covert military infrastructure development in the Western Hemisphere. The subject is not an isolated operative but a senior institutional figure &mdash; a Deputy Minister within a sanctioned entity that controls Iran's ballistic missile, drone, and conventional weapons programs &mdash; operating under state-issued cover documentation provided by a cooperating foreign government.</p>
+
+      <h3 class="subsection-title">Primary Threat Vectors</h3>
+
+      <div class="threat-vector">
+        <h4>Weapons Proliferation and Forward Deployment</h4>
+        <p>The August 2020 intelligence reporting places the subject (under the Yokhana alias) as part of an Iranian contingent conducting site surveys for weapons depots and missile assembly facilities in Venezuela. This directly links MODAFL's Deputy Minister to forward-deployment planning for Iranian weapons systems within the Western Hemisphere. Iran's Aerospace Industries Organization (AIO), a MODAFL subsidiary, manages Iran's ballistic missile program. The deployment of a Deputy Minister-level official to conduct site surveys indicates this is not a theoretical or aspirational program but one at the operational planning stage. The concurrent delivery of Iranian fast-attack boats (Peykaap-III) and anti-ship missiles (Nasir/CM-90) to Venezuela confirms an active weapons transfer pipeline.</p>
+      </div>
+
+      <div class="threat-vector">
+        <h4>Systematic Identity Laundering Infrastructure</h4>
+        <p>The Yokhana c&eacute;dula is not an isolated document fraud &mdash; it is a product of a systematic state-to-state identity laundering program. Venezuela's SAIME issued an estimated 10,000+ fraudulent identity documents to Middle Eastern nationals between 2008 and 2017, with Tareck El Aissami (later sanctioned as a narcotics kingpin and added to the ICE Most Wanted List) overseeing the program during his tenure as Interior Minister. The subject's document was issued during Dante Rivas's second term as SAIME Director, indicating the program survived multiple leadership changes and was institutionally embedded. The implication: there is an unknown population of Iranian defense and intelligence operatives holding valid Venezuelan identity documents who can move through the Western Hemisphere without triggering Iranian-national screening protocols.</p>
+      </div>
+
+      <div class="threat-vector">
+        <h4>Diplomatic Immunity as Operational Shield</h4>
+        <p>The subject's PD-type diplomatic passport provides an additional layer of operational protection. When traveling as Rezaei, the subject is entitled to diplomatic immunity under the Vienna Convention, diplomatic pouch privileges (enabling uninspected transport of materials, communications equipment, or technical documents), and exemption from customs inspection at ports of entry. The dual-document configuration creates a flexible operational envelope: diplomatic immunity for official visits, anonymous commercial travel for covert operations. This is the hallmark of a state intelligence service's approach to protecting a high-value asset, not the improvisation of an individual actor.</p>
+      </div>
+
+      <div class="analysis-box">
+        <h4>Assessment</h4>
+        <p>IRIDIUM-7 represents a confirmed case of a senior Iranian defense official operating under fabricated Venezuelan identity documentation in the Western Hemisphere. The critical unknowns are: (1) whether the subject has accessed U.S. territory or allied nations under the Yokhana alias; (2) the total number of similarly documented Iranian officials; (3) the current status of missile and weapons infrastructure development in Venezuela; and (4) whether replacement identities have been issued following the 2020 exposure. The most urgent investigative thread is the biometric cross-reference &mdash; the passport photo, c&eacute;dula photo, and thumbprint provide three distinct biometric vectors that can be run against U.S. and allied holdings to determine the full scope of the subject's travel history and any additional aliases.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 6: Operational Directives -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <h2>Operational Directives: Mitigation and Exploitation</h2>
+    </div>
+    <div class="section-body">
+      <ol class="directive-list">
+        <li><strong>Submit</strong> both facial images (passport and c&eacute;dula) and the recovered thumbprint to FBI NGI, DHS IDENT, and DOS CCD for biometric searches. Cross-reference results against TSDB, TECS, and allied Five Eyes biometric holdings. Expected outcome: determine whether the subject has been encountered at any U.S. or allied port of entry under either identity or additional aliases.</li>
+        <li><strong>Query</strong> OFAC SDN List, E.O. 13382 designations, and UNSC consolidated sanctions lists for all transliteration variants of "Issa Rezaei" and known MODAFL deputy ministers. If not individually designated, initiate referral to OFAC for designation as a MODAFL official facilitating weapons proliferation.</li>
+        <li><strong>Task</strong> CBP National Targeting Center to conduct historical lookback on c&eacute;dula number <code>V-24.041.282</code>, all name variants of "Simon Thomas Yokhana," and Venezuelan passport numbers that may be linked to this c&eacute;dula, against ATS and APIS records for any U.S.-bound travel.</li>
+        <li><strong>Coordinate</strong> with ICE-HSI Attaché Bogotá and Caracas (if accessible) to request SAIME issuance records for the period 27 May 2015 through 31 December 2015, specifically c&eacute;dula issuances authorized under the <code>MM755</code> batch code associated with Director Dante Rivas, to identify the full cohort of documents issued to Iranian nationals.</li>
+        <li><strong>Issue</strong> INTERPOL Red Notice request and I-24/3 diffusion for Issa Rezaei with alias "Simon Thomas Yokhana," including both photographs, DOBs (23/05/1963 and 18/03/1966), and all document numbers. Cross-list in INTERPOL SLTD for both document numbers.</li>
+        <li><strong>Brief</strong> SOUTHCOM J2, DIA Iran Division, and CIA CTC/WMD on the confirmed link between a named MODAFL Deputy Minister and the Venezuelan identity-laundering program. Request intelligence community assessment of the total scope of MODAFL personnel operating under Venezuelan documentation.</li>
+        <li><strong>Alert</strong> Five Eyes partners (FVEY) and key allied immigration services (Israel, UAE, Saudi Arabia, Colombia, Brazil, Panama) to add both identities and biometrics to their screening systems, with particular attention to the Yokhana alias pattern as an indicator of additional undiscovered Iranian cover identities using Assyrian Christian name constructions.</li>
+        <li><strong>Investigate</strong> the two co-named associates &mdash; Al&iacute; Asghar Sassani (<code>CI.V-17.754.727</code>) and Pedro Khalil (<code>CI.V-14.216.334</code>) &mdash; using the same biometric and database query protocols. Determine whether these c&eacute;dula numbers correspond to additional senior Iranian defense or intelligence officials.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- End of Assessment -->
+  <div class="end-marker">END OF ASSESSMENT</div>
+
+  <!-- Sources -->
+  <div class="sources-section">
+    <h3>Sources Consulted</h3>
+    <ul>
+      <li><a href="https://panampost.com/sabrina-martin/2020/08/25/iranies-nacionalidad-venezolana/">PanamPost &mdash; "Agentes iran&iacute;es de nacionalidad venezolana gestionan instalaci&oacute;n de misiles" (25 August 2020)</a></li>
+      <li><a href="https://www.iranwatch.org/iranian-entities/ministry-defense-armed-forces-logistics-modafl">Iran Watch &mdash; "Ministry of Defense and Armed Forces Logistics (MODAFL)" Entity Profile</a></li>
+      <li><a href="https://en.wikipedia.org/wiki/Passport_fraud_in_Venezuela_and_Iraq">Wikipedia &mdash; "Passport fraud in Venezuela and Iraq"</a></li>
+      <li><a href="https://www.cnn.com/2017/02/08/world/venezuela-passports-investigation/index.html">CNN &mdash; "Venezuela may have given passports to people with ties to terrorism" (8 February 2017)</a></li>
+      <li><a href="https://efectococuyo.com/politica/el-hijo-prodigo-dante-rivas-regresa-al-saime/">Efecto Cocuyo &mdash; "El hijo pr&oacute;digo: Dante Rivas regresa al SAIME"</a></li>
+      <li><a href="https://home.treasury.gov/news/press-releases/hp1145">U.S. Department of the Treasury &mdash; "Treasury Designates Iranian Military Firms" (E.O. 13382 Designations)</a></li>
+      <li><a href="https://iranwire.com/en/features/69471/">IranWire &mdash; "Tareck El Aissami: Hezbollah's Biggest Benefactor in Venezuela"</a></li>
+      <li><a href="https://www.foxnews.com/world/venezuela-illegally-issued-10000-passports-to-syrians-iranians-report-says">Fox News &mdash; "Venezuela illegally issued 10,000 passports to Syrians, Iranians, report says"</a></li>
+      <li><a href="https://www.infobae.com/venezuela/2025/12/24/quienes-son-los-iranies-de-la-fuerza-quds-que-dan-apoyo-a-maduro-en-caracas-en-su-momento-mas-dramatico/">Infobae &mdash; "Qui&eacute;nes son los iran&iacute;es de la Fuerza Quds que dan apoyo a Maduro en Caracas" (24 December 2025)</a></li>
+      <li><a href="https://en.wikipedia.org/wiki/Ministry_of_Defence_and_Armed_Forces_Logistics_(Iran)">Wikipedia &mdash; "Ministry of Defence and Armed Forces Logistics (Iran)"</a></li>
+    </ul>
+  </div>
+
+</div>
+
+</body>
+</html>
