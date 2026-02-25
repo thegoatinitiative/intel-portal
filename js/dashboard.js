@@ -9,6 +9,7 @@
 
   await requireAuth();
   ActivityLog.log("page_view", { page: "dashboard" });
+  ActivityLog.startPageTimer("dashboard");
 
   // Show Admin tab and New Report button only for admins
   isAdmin().then(function (admin) {

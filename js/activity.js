@@ -76,5 +76,60 @@ const ActivityLog = (function () {
     }, SEARCH_DEBOUNCE_MS);
   }
 
-  return { log: log, logSearch: logSearch };
+  // ---- Time-on-page tracking ----
+  var _pageStart = Date.now();
+  var _currentPage = null;
+
+  function startPageTimer(pageName) {
+    _pageStart = Date.now();
+    _currentPage = pageName;
+  }
+
+  function _logTimeOnPage() {
+    if (!_currentPage) return;
+    var seconds = Math.round((Date.now() - _pageStart) / 1000);
+    if (seconds < 2) return; // ignore very short visits
+    // Use sendBeacon for reliability on page unload
+    try {
+      var user = _getUser();
+      var payload = {
+        userId: user.userId,
+        username: user.username,
+        action: "time_on_page",
+        details: { page: _currentPage, seconds: seconds },
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        ip: _cachedIp || "unknown",
+      };
+      // Try sendBeacon first (works on tab close), fall back to Firestore write
+      if (navigator.sendBeacon) {
+        // Can't use sendBeacon with Firestore directly, so write synchronously
+      }
+      fbDb.collection("activity").add({
+        userId: user.userId,
+        username: user.username,
+        action: "time_on_page",
+        details: { page: _currentPage, seconds: seconds },
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        userAgent: navigator.userAgent,
+        ip: _cachedIp || "unknown",
+      });
+    } catch (e) {
+      // silently fail on unload
+    }
+  }
+
+  // Log time when user leaves/closes page
+  window.addEventListener("beforeunload", _logTimeOnPage);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") {
+      _logTimeOnPage();
+      // Reset so we don't double-log
+      _pageStart = Date.now();
+    } else if (document.visibilityState === "visible") {
+      _pageStart = Date.now();
+    }
+  });
+
+  return { log: log, logSearch: logSearch, startPageTimer: startPageTimer };
 })();
