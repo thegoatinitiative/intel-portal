@@ -65,6 +65,23 @@
     console.error("Failed to load from Firestore:", e);
   }
 
+  // ---- Seed RPT-2026-0012 if not already present ----
+  if (!REPORTS.find(function (r) { return r.id === "RPT-2026-0012"; })) {
+    var seedReport = {
+      id: "RPT-2026-0012",
+      passportNumber: "D10005432",
+      subjectName: "Issa REZAEI",
+      nationality: "Iranian",
+      date: "2026-02-25",
+      classification: "secret",
+      summary: "Dual-Identity Iranian Defense Official Operating Under Venezuelan Cover (Subject IRIDIUM-7)",
+      content: "",
+      attachments: []
+    };
+    REPORTS.push(seedReport);
+    StorageDB.saveReport(seedReport).catch(function (e) { console.error("Failed to seed RPT-2026-0012:", e); });
+  }
+
   // ---- Check which reports have intel assessments ----
   var reportsWithAssessment = {};
   await Promise.all(REPORTS.map(function (r) {
