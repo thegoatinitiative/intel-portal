@@ -351,7 +351,16 @@
     saveBtn.textContent = "Save PDF";
     saveBtn.addEventListener("click", () => {
       ActivityLog.log("report_export", { reportId: report.id, method: "pdf" });
-      exportReportPDF(report);
+      // If an assessment page exists, open it for print-to-PDF
+      var pdfUrl = "reports/" + report.id + ".html";
+      fetch(pdfUrl, { method: "HEAD" }).then(function (resp) {
+        if (resp.ok) {
+          var win = window.open(pdfUrl, "_blank");
+          win.addEventListener("load", function () { win.print(); });
+        } else {
+          exportReportPDF(report);
+        }
+      }).catch(function () { exportReportPDF(report); });
     });
     actionsDiv.appendChild(saveBtn);
 
