@@ -82,6 +82,23 @@
     StorageDB.saveReport(seedReport).catch(function (e) { console.error("Failed to seed RPT-2026-0012:", e); });
   }
 
+  // ---- Seed RPT-2026-0013 if not already present ----
+  if (!REPORTS.find(function (r) { return r.id === "RPT-2026-0013"; })) {
+    var seedReport2 = {
+      id: "RPT-2026-0013",
+      passportNumber: "E84248574",
+      subjectName: "ZHANG Ping",
+      nationality: "Chinese",
+      date: "2026-02-25",
+      classification: "confidential",
+      summary: "PRC National with Multi-Country Transit Anomaly — Tier 2 Legitimate-Travel Anomaly (Subject ZHANG, Ping)",
+      content: "",
+      attachments: []
+    };
+    REPORTS.push(seedReport2);
+    StorageDB.saveReport(seedReport2).catch(function (e) { console.error("Failed to seed RPT-2026-0013:", e); });
+  }
+
   // ---- Check which reports have intel assessments ----
   var reportsWithAssessment = {};
   await Promise.all(REPORTS.map(function (r) {

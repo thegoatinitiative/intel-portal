@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategic Intelligence Assessment: Subject ZHANG, Ping</title>
+<style>
+  :root {
+    /* Exact dashboard palette */
+    --bg-page: #0d1117;
+    --bg-card: #161b22;
+    --bg-header: #1c2333;
+    --bg-inset: #0d1117;
+    --border: #30363d;
+    --border-subtle: #21262d;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --text-muted: #656d76;
+    --green: #3fb950;
+    --green-emphasis: #238636;
+    --green-subtle: rgba(63, 185, 80, 0.10);
+    --green-border: rgba(63, 185, 80, 0.20);
+    --coral: #da6456;
+    --coral-emphasis: #e8655a;
+    --coral-subtle: rgba(218, 100, 86, 0.10);
+    --coral-border: rgba(218, 100, 86, 0.20);
+    --amber: #d29922;
+    --amber-subtle: rgba(210, 153, 34, 0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .classification-banner {
+    background: var(--coral-emphasis);
+    color: #fff;
+    text-align: center;
+    padding: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 32px 60px;
+  }
+
+  .report-header {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+
+  .report-header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .report-header .subject-line {
+    color: var(--green);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 18px;
+  }
+
+  .header-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0;
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+
+  .header-meta .meta-item {
+    padding: 0 12px;
+    border-right: 1px solid var(--border);
+  }
+
+  .header-meta .meta-item:first-child { padding-left: 0; }
+  .header-meta .meta-item:last-child { border-right: none; }
+
+  .header-meta .meta-label {
+    display: block;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+  }
+
+  .header-meta .meta-value {
+    color: var(--text-primary);
+    font-size: 13px;
+  }
+
+  .placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .badge-green {
+    display: inline-block;
+    background: var(--green-emphasis);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-official {
+    display: inline-block;
+    background: var(--green-emphasis);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-dark {
+    display: inline-block;
+    background: var(--coral-emphasis);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-gap {
+    display: inline-block;
+    background: var(--amber);
+    color: #000;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-tier2 {
+    display: inline-block;
+    background: var(--amber);
+    color: #000;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  .section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-number {
+    background: var(--green);
+    color: var(--bg-page);
+    font-weight: 700;
+    font-size: 12px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-header h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .section-body {
+    padding: 20px;
+  }
+
+  .subsection-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin: 20px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .subsection-title:first-child {
+    margin-top: 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 16px;
+    font-size: 13px;
+  }
+
+  thead th {
+    background: var(--bg-header);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  tbody td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-subtle);
+    vertical-align: top;
+    color: var(--text-primary);
+  }
+
+  tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.015);
+  }
+
+  td strong {
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  td code, p code {
+    background: rgba(63, 185, 80, 0.08);
+    color: var(--green);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+  }
+
+  .gap-row td {
+    background: var(--amber-subtle);
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  .dark-period td {
+    background: var(--coral-subtle);
+    color: var(--coral-emphasis);
+    font-weight: 600;
+  }
+
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+  }
+
+  .checklist li {
+    padding: 6px 10px;
+    margin: 3px 0;
+    border-radius: 4px;
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .checklist li .check-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    margin-top: 1px;
+  }
+
+  .checklist li.unchecked .check-icon {
+    border: 1.5px solid var(--border);
+    color: transparent;
+  }
+
+  .checklist li.checked .check-icon {
+    background: var(--green-emphasis);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .checklist li.checked {
+    background: var(--green-subtle);
+    color: var(--green);
+  }
+
+  .checklist li.unchecked {
+    color: var(--text-secondary);
+  }
+
+  p {
+    margin: 10px 0;
+    color: var(--text-primary);
+  }
+
+  .risk-box {
+    background: var(--coral-subtle);
+    border: 1px solid var(--coral-border);
+    border-left: 3px solid var(--coral);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+
+  .risk-box-title {
+    color: var(--coral-emphasis);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  .risk-box p {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 13px;
+  }
+
+  .analysis-box {
+    background: var(--green-subtle);
+    border: 1px solid var(--green-border);
+    border-left: 3px solid var(--green);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+
+  .analysis-box h4 {
+    color: var(--green);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  .geo-node {
+    margin: 14px 0;
+    padding: 16px 18px;
+    background: var(--bg-header);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .geo-node h4 {
+    color: var(--green);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .geo-node ul {
+    margin: 8px 0 0 18px;
+    color: var(--text-secondary);
+  }
+
+  .geo-node ul li {
+    margin: 5px 0;
+    font-size: 13px;
+  }
+
+  .threat-vector {
+    margin: 12px 0;
+    padding: 14px 18px;
+    background: var(--coral-subtle);
+    border: 1px solid var(--coral-border);
+    border-radius: 6px;
+  }
+
+  .threat-vector h4 {
+    color: var(--coral-emphasis);
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .directive-list {
+    list-style: none;
+    padding: 0;
+    counter-reset: directive;
+  }
+
+  .directive-list li {
+    counter-increment: directive;
+    padding: 12px 16px 12px 50px;
+    margin: 6px 0;
+    background: var(--bg-header);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    position: relative;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .directive-list li::before {
+    content: counter(directive);
+    position: absolute;
+    left: 16px;
+    top: 12px;
+    background: var(--green);
+    color: var(--bg-page);
+    font-weight: 700;
+    font-size: 11px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .directive-list li strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .numbered-list {
+    padding-left: 20px;
+    margin: 8px 0;
+  }
+
+  .numbered-list li {
+    margin: 6px 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .numbered-list li strong {
+    color: var(--text-primary);
+  }
+
+  .indicator-list {
+    list-style: none;
+    padding: 0;
+    counter-reset: indicator;
+  }
+
+  .indicator-list li {
+    counter-increment: indicator;
+    padding: 10px 14px 10px 40px;
+    margin: 5px 0;
+    background: var(--green-subtle);
+    border: 1px solid var(--green-border);
+    border-radius: 6px;
+    position: relative;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .indicator-list li::before {
+    content: counter(indicator) ".";
+    position: absolute;
+    left: 14px;
+    top: 10px;
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  .indicator-list li strong {
+    color: var(--green);
+  }
+
+  .priority-actions {
+    list-style: none;
+    padding: 0;
+  }
+
+  .priority-actions li {
+    padding: 8px 12px 8px 26px;
+    margin: 3px 0;
+    position: relative;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .priority-actions li::before {
+    content: "\25B8";
+    position: absolute;
+    left: 8px;
+    color: var(--green);
+    font-size: 12px;
+    top: 9px;
+  }
+
+  .priority-actions li strong {
+    color: var(--text-primary);
+  }
+
+  .end-marker {
+    text-align: center;
+    margin: 32px 0 16px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .sources-section {
+    margin-top: 24px;
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .sources-section h3 {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .sources-section ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sources-section li {
+    padding: 5px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .sources-section li:last-child {
+    border-bottom: none;
+  }
+
+  .sources-section a {
+    color: var(--green);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .sources-section a:hover {
+    color: #56d364;
+    text-decoration: underline;
+  }
+
+  @media print {
+    .classification-banner { position: static; }
+    body { background: white; color: #1c1c1c; font-size: 11pt; }
+    .section { border: 1px solid #ccc; break-inside: avoid; }
+    .section-header { background: #f0f0f0; }
+    .report-header { border-color: #ccc; }
+    table { font-size: 10pt; }
+    a { color: #238636; }
+    .badge-green { background: #238636; }
+  }
+  /* ── Map Section ── */
+  .map-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .map-section .section-header {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .map-section .section-header .map-icon {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid var(--green);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; position: relative;
+  }
+  .map-section .section-header .map-icon::after {
+    content: ''; width: 8px; height: 8px;
+    background: var(--green); border-radius: 50%;
+  }
+  .map-section .section-header h2 {
+    font-size: 14px; font-weight: 700; color: var(--text-primary);
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+
+  .map-wrap { position: relative; border-top: 1px solid var(--border); }
+
+  #travel-map { width: 100%; height: 580px; z-index: 1; }
+
+  /* ── Stats Overlay ── */
+  .map-stats {
+    position: absolute; top: 12px; right: 12px; z-index: 1000;
+    display: flex; gap: 0;
+    background: rgba(13,17,23,0.88); border: 1px solid var(--border);
+    border-radius: 6px; backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); overflow: hidden;
+  }
+  .map-stats .ms {
+    padding: 10px 16px; text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .map-stats .ms:last-child { border-right: none; }
+  .ms .mv { display: block; font-size: 20px; font-weight: 800; color: var(--green); line-height: 1.1; }
+  .ms .ml { display: block; font-size: 8px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 1.2px; margin-top: 2px; }
+
+  /* ── Floating Panels ── */
+  .mp {
+    position: absolute; z-index: 1000;
+    background: rgba(13,17,23,0.88); border: 1px solid var(--border);
+    border-radius: 6px; backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); overflow: hidden;
+  }
+  .mp.phases { top: 12px; left: 12px; }
+  .mp.legend { bottom: 12px; right: 12px; }
+
+  .mp-tog {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 14px; cursor: pointer; user-select: none;
+    font-size: 11px; font-weight: 700; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .mp-tog .arr { font-size: 8px; transition: transform 0.2s; }
+  .mp-tog .arr.open { transform: rotate(90deg); }
+
+  .mp-body { display: none; padding: 0 14px 12px; font-size: 12px; }
+  .mp-body.open { display: block; }
+
+  .ph-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0; color: var(--text-secondary);
+    cursor: pointer; font-size: 12px; transition: color 0.15s;
+  }
+  .ph-item:hover { color: var(--text-primary); }
+  .ph-item.active { color: #fff; font-weight: 600; }
+  .ph-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  .lg-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 0; color: var(--text-secondary); font-size: 11px;
+  }
+  .lg-swatch { width: 28px; height: 4px; border-radius: 2px; flex-shrink: 0; }
+  .lg-swatch.dashed {
+    background: repeating-linear-gradient(90deg,
+      var(--coral) 0 6px, transparent 6px 11px);
+  }
+  .lg-circ {
+    width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+    border: 2.5px solid #fff;
+  }
+
+  /* ── Leaflet dark-theme overrides ── */
+  .leaflet-container { background: #0d1117 !important; font-family: inherit !important; }
+  .leaflet-control-zoom a {
+    background: rgba(13,17,23,0.88) !important; color: var(--text-primary) !important;
+    border-color: var(--border) !important; width: 32px !important; height: 32px !important;
+    line-height: 32px !important; font-size: 16px !important;
+  }
+  .leaflet-control-zoom a:hover { background: var(--bg-header) !important; }
+  .leaflet-popup-content-wrapper {
+    background: rgba(13,17,23,0.94) !important; color: var(--text-primary) !important;
+    border: 1px solid var(--border) !important; border-radius: 8px !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+  }
+  .leaflet-popup-tip { background: rgba(13,17,23,0.94) !important; }
+  .leaflet-popup-content {
+    margin: 12px 16px !important; font-size: 12px !important; line-height: 1.6 !important;
+  }
+  .leaflet-popup-close-button { color: var(--text-muted) !important; font-size: 18px !important; }
+  .pop-title { font-weight: 700; font-size: 13px; margin-bottom: 2px; letter-spacing: 0.3px; }
+  .pop-date { font-size: 11px; font-weight: 600; margin-bottom: 3px; }
+  .pop-detail { color: var(--text-secondary); font-size: 11px; line-height: 1.5; }
+
+  /* ── Custom markers ── */
+  .leaflet-div-icon { background: transparent !important; border: none !important; }
+
+  .mk { position: relative; display: flex; align-items: center; justify-content: center; }
+  .mk-dot {
+    border-radius: 50%; border: 3px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .mk-dot.origin   { width: 20px; height: 20px; background: #3fb950; }
+  .mk-dot.transit   { width: 16px; height: 16px; background: #58a6ff; }
+  .mk-dot.dest      { width: 16px; height: 16px; background: #d29922; }
+  .mk-dot.cbp       { width: 18px; height: 18px; background: #bc8cff; }
+  .mk-dot.dark-term { width: 18px; height: 18px; background: #da6456; }
+
+  /* pulsing ring on dark terminus */
+  .mk-dot.dark-term { animation: pulse-ring 2s ease-out infinite; }
+  @keyframes pulse-ring {
+    0%   { box-shadow: 0 0 0 1px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.5), 0 0 0 0 rgba(218,100,86,0.5); }
+    70%  { box-shadow: 0 0 0 1px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.5), 0 0 0 14px rgba(218,100,86,0); }
+    100% { box-shadow: 0 0 0 1px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.5), 0 0 0 0 rgba(218,100,86,0); }
+  }
+
+  /* permanent labels on map */
+  .city-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.6px;
+    color: #fff; white-space: nowrap; pointer-events: none;
+    text-shadow: 0 0 6px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.9),
+                 1px 1px 2px rgba(0,0,0,0.8), -1px -1px 2px rgba(0,0,0,0.8);
+  }
+  .city-label.muted {
+    font-size: 10px; font-weight: 600; color: rgba(201,209,217,0.55);
+  }
+  .city-label.phase-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    padding: 2px 6px; border-radius: 3px;
+  }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+<div class="classification-banner">Law Enforcement Sensitive &mdash; For Official Use Only</div>
+
+<div class="container">
+
+  <!-- Report Header -->
+  <div class="report-header">
+    <h1>Strategic Intelligence Assessment</h1>
+    <div class="subject-line">Subject ZHANG, Ping &mdash; PRC Passport E84248574 <span class="badge-tier2">TIER 2 / LEGITIMATE-TRAVEL ANOMALY</span></div>
+    <div class="header-meta">
+      <div class="meta-item">
+        <span class="meta-label">Classification</span>
+        <span class="meta-value"><span class="badge-green">LES // FOUO</span></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Date of Assessment</span>
+        <span class="meta-value">25 FEB 2026</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prepared By</span>
+        <span class="meta-value">DOCEX / Field Intelligence Unit</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Distribution</span>
+        <span class="meta-value">USBP Intel, HSI, CBP Targeting, NCSC</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Travel Pattern Map -->
+  <div class="map-section">
+    <div class="section-header">
+      <div class="map-icon"></div>
+      <h2>Travel Pattern Map &mdash; Operational Movements</h2>
+    </div>
+    <div class="map-wrap">
+      <div id="travel-map"></div>
+
+      <!-- Stats Overlay -->
+      <div class="map-stats">
+        <div class="ms"><span class="mv">8</span><span class="ml">Countries</span></div>
+        <div class="ms"><span class="mv">15</span><span class="ml">Stamps</span></div>
+        <div class="ms"><span class="mv">60</span><span class="ml">Months</span></div>
+        <div class="ms"><span class="mv">2</span><span class="ml">Dark Periods</span></div>
+        <div class="ms"><span class="mv">1</span><span class="ml">Ghost Move</span></div>
+      </div>
+
+      <!-- Route Phases -->
+      <div class="mp phases">
+        <div class="mp-tog" onclick="togP('phases')">
+          <span>Route Phases</span><span class="arr" id="phases-arr">&#9654;</span>
+        </div>
+        <div class="mp-body" id="phases-body">
+          <div class="ph-item active" onclick="showPh('all')" id="ph-all">
+            <div class="ph-dot" style="background:#8b949e;"></div><span>All Phases</span>
+          </div>
+          <div class="ph-item" onclick="showPh(1)" id="ph-1">
+            <div class="ph-dot" style="background:#58a6ff;"></div><span>Phase 1: UAE (2018)</span>
+          </div>
+          <div class="ph-item" onclick="showPh(2)" id="ph-2">
+            <div class="ph-dot" style="background:#3fb950;"></div><span>Phase 2: Gulf/Hajj (2022)</span>
+          </div>
+          <div class="ph-item" onclick="showPh(3)" id="ph-3">
+            <div class="ph-dot" style="background:#bc8cff;"></div><span>Phase 3: Western Hem. (2023)</span>
+          </div>
+          <div class="ph-item" onclick="showPh(4)" id="ph-4">
+            <div class="ph-dot" style="background:#da6456;"></div><span>Dark: CDMX &rarr; Border</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Route Legend -->
+      <div class="mp legend">
+        <div class="mp-tog" onclick="togP('legend')">
+          <span>Route Legend</span><span class="arr" id="legend-arr">&#9654;</span>
+        </div>
+        <div class="mp-body" id="legend-body">
+          <div class="lg-item"><div class="lg-swatch" style="background:#58a6ff;"></div>Phase 1 &mdash; Early Travel</div>
+          <div class="lg-item"><div class="lg-swatch" style="background:#3fb950;"></div>Phase 2 &mdash; Gulf / Hajj Circuit</div>
+          <div class="lg-item"><div class="lg-swatch" style="background:#bc8cff;"></div>Phase 3 &mdash; Western Hemisphere</div>
+          <div class="lg-item"><div class="lg-swatch dashed"></div>Dark Period (Unrecorded)</div>
+          <div style="height:6px;"></div>
+          <div class="lg-item"><div class="lg-circ" style="background:#3fb950;"></div>Origin / Home Base</div>
+          <div class="lg-item"><div class="lg-circ" style="background:#58a6ff;"></div>Transit Node</div>
+          <div class="lg-item"><div class="lg-circ" style="background:#bc8cff;"></div>U.S. CBP Admission</div>
+          <div class="lg-item"><div class="lg-circ" style="background:#d29922;"></div>Destination / Waypoint</div>
+          <div class="lg-item"><div class="lg-circ" style="background:#da6456;"></div>Dark Period Terminus</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 0: Document Recovery and Subject Identification -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">0</div>
+      <h2>Document Recovery and Subject Identification</h2>
+    </div>
+    <div class="section-body">
+
+      <h3 class="subsection-title">Recovery Details</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Date of Recovery</strong></td><td class="placeholder">PENDING &mdash; Not provided</td></tr>
+          <tr><td><strong>Time of Recovery</strong></td><td class="placeholder">PENDING &mdash; Not provided</td></tr>
+          <tr><td><strong>Recovery Location</strong></td><td class="placeholder">PENDING &mdash; Context indicates U.S.&ndash;Mexico border corridor recovery (source file path: "Border Photos/Docs Surgical Look")</td></tr>
+          <tr><td><strong>GPS Coordinates</strong></td><td class="placeholder">PENDING &mdash; Not provided</td></tr>
+          <tr><td><strong>Terrain/Environment</strong></td><td class="placeholder">PENDING &mdash; Back cover shows significant environmental damage (dark soiling, possible mold/moisture exposure) consistent with extended outdoor exposure in arid-to-semi-arid terrain</td></tr>
+          <tr><td><strong>Recovered By</strong></td><td class="placeholder">PENDING</td></tr>
+          <tr><td><strong>Chain of Custody ID</strong></td><td class="placeholder">PENDING</td></tr>
+          <tr><td><strong>Recovery Context</strong></td><td>Document catalogued under "Docs Surgical Look" collection &mdash; classification consistent with documents recovered during border enforcement operations. Passport is substantially intact with all visa pages present but bio data page was not photographed. Back cover bears U.S. CBP processing label confirming prior U.S. admission.</td></tr>
+          <tr><td><strong>Other Items Recovered</strong></td><td class="placeholder">PENDING &mdash; Not specified</td></tr>
+          <tr><td><strong>Document Condition</strong></td><td>Passport structurally intact. Cover shows heavy dark soiling and what appears to be mold or moisture damage on back exterior. Interior visa pages in good condition with legible stamps. CBP processing sticker affixed to back cover, partially obscured by environmental damage but fully legible. Bio data page not photographed &mdash; unclear if removed, damaged, or simply not captured in imaging.</td></tr>
+          <tr><td><strong>Photos Taken at Scene</strong></td><td>Yes &mdash; 8 images: cover, statutory page, visa pages (pp. 08&ndash;09, 10&ndash;11, 16&ndash;19, 24, 46), and back cover with CBP label</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Document Details</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Document Type</strong></td><td>Passport (P) &mdash; Regular e-Passport (electronic chip indicated on cover)</td></tr>
+          <tr><td><strong>Issuing Country</strong></td><td>People's Republic of China (CHN)</td></tr>
+          <tr><td><strong>Document Number</strong></td><td><code>E84248574</code></td></tr>
+          <tr><td><strong>Surname</strong></td><td>ZHANG (张)</td></tr>
+          <tr><td><strong>Given Names</strong></td><td>PING (萍/平) &mdash; confirmed via CBP processing label; given name gender-ambiguous in Chinese</td></tr>
+          <tr><td><strong>Nationality</strong></td><td>Chinese</td></tr>
+          <tr><td><strong>Date of Birth</strong></td><td class="placeholder">NOT VISIBLE &mdash; Bio page not photographed. Sri Lanka ETA reference <code>2208311V1963414</code> may encode DOB or application metadata.</td></tr>
+          <tr><td><strong>Sex</strong></td><td class="placeholder">NOT VISIBLE &mdash; Bio page not photographed</td></tr>
+          <tr><td><strong>Place of Birth</strong></td><td class="placeholder">NOT VISIBLE &mdash; Bio page not photographed. China exit stamp from Hangzhou (杭州) suggests Zhejiang Province nexus.</td></tr>
+          <tr><td><strong>Date of Issue</strong></td><td class="placeholder">NOT VISIBLE &mdash; "E"-prefix series issued 2012&ndash;present by PRC MPS Exit-Entry Administration</td></tr>
+          <tr><td><strong>Date of Expiry</strong></td><td class="placeholder">NOT VISIBLE &mdash; Passport accepted at multiple POEs through Mar 2024, confirming validity through at least that date</td></tr>
+          <tr><td><strong>Issuing Authority</strong></td><td>PRC Ministry of Public Security, Exit-Entry Administration &mdash; specific PSB office not visible (bio page absent)</td></tr>
+          <tr><td><strong>NNI/NIN</strong></td><td class="placeholder">NOT VISIBLE &mdash; PRC Resident Identity Card number (18-digit) not captured. CBP label reference <code>5493 1728</code> may correspond to U.S. visa foil number or admission record.</td></tr>
+          <tr><td><strong>Profession/Occupation</strong></td><td class="placeholder">NOT VISIBLE</td></tr>
+          <tr><td><strong>MRZ Line 1</strong></td><td class="placeholder">NOT VISIBLE &mdash; Bio page not photographed</td></tr>
+          <tr><td><strong>MRZ Line 2</strong></td><td class="placeholder">NOT VISIBLE &mdash; Bio page not photographed</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Visible Stamps, Visas, and Annotations</h3>
+      <table>
+        <thead>
+          <tr><th>Page</th><th>Type</th><th>Country/Authority</th><th>Date</th><th>Entry/Exit</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>08</td>
+            <td>Immigration stamp (oval, blue)</td>
+            <td>United Arab Emirates</td>
+            <td>12 DEC 2018</td>
+            <td>Entry</td>
+            <td>Stamp #18493. Oval format with "UAE" and "ENTRY" in English/Arabic. Earliest recorded travel event in document.</td>
+          </tr>
+          <tr>
+            <td>08</td>
+            <td>Immigration stamp (green, circular)</td>
+            <td>UAE &mdash; Additional</td>
+            <td>~DEC 2018</td>
+            <td>N/A</td>
+            <td>Partially overlapping green circular stamp, ref #17948. Likely UAE departure or secondary processing. Date partially obscured.</td>
+          </tr>
+          <tr>
+            <td>08</td>
+            <td>Immigration stamp (rectangular)</td>
+            <td>Kingdom of Bahrain &mdash; Bahrain Int'l Airport Passports</td>
+            <td>16 JUN 2022</td>
+            <td>Entry</td>
+            <td>Clear rectangular entry stamp. Corresponds to China exit (Hangzhou) on 15 JUN 2022 &mdash; next-day arrival consistent with direct flight routing.</td>
+          </tr>
+          <tr>
+            <td>09</td>
+            <td>Immigration stamp (circular, blue/red)</td>
+            <td>Mexico &mdash; Estados Unidos Mexicanos, Secretar&iacute;a de Gobernaci&oacute;n, Delegaci&oacute;n Gobernaci&oacute;n, Ciudad de M&eacute;xico</td>
+            <td>22 DIC 2023</td>
+            <td>Entry</td>
+            <td>Entry stamp "E" marked in red. Port of entry: Mexico City (AICM). Reference: QR.CDDA 1 DNX001. Handwritten "Fecha" notation and officer signature.</td>
+          </tr>
+          <tr>
+            <td>09</td>
+            <td>Handwritten annotation + stamp</td>
+            <td>Mexico &mdash; Archivo de Visas</td>
+            <td>29-DIC-23</td>
+            <td>N/A</td>
+            <td>Second Mexico date stamp with handwritten annotation. May indicate visa extension processing, FMM completion, or exit record. "Archivo de Visas" suggests document filing.</td>
+          </tr>
+          <tr>
+            <td>11</td>
+            <td>Immigration sticker (ETA/Visa)</td>
+            <td>Sri Lanka &mdash; Immigration and Emigration, BIA (Bandaranaike International Airport)</td>
+            <td>05 SEP 2022</td>
+            <td>Entry</td>
+            <td>Electronic sticker with QR code. Passport # confirmed: <code>E84248574</code>. Reference: <code>2208311V1963414</code>. Duration: 30 days. Category: 1st Visit. Expiry: 05/10/2022. Control #: B-03120164.</td>
+          </tr>
+          <tr>
+            <td>11</td>
+            <td>Immigration stamp (circular, blue)</td>
+            <td>Sri Lanka &mdash; BIA / Colombo</td>
+            <td>05 SEP 2022</td>
+            <td>Entry</td>
+            <td>Circular arrival stamp with officer signature. "CONTROL OFFICER" text visible.</td>
+          </tr>
+          <tr>
+            <td>11</td>
+            <td>Immigration stamp (circular)</td>
+            <td>Sri Lanka</td>
+            <td>07 SEP 2022</td>
+            <td>Exit</td>
+            <td>Departure stamp at BIA. Subject departed Sri Lanka after approximately 2 days &mdash; unusually brief for a 30-day tourist authorization.</td>
+          </tr>
+          <tr>
+            <td>19</td>
+            <td>Landing Permission sticker</td>
+            <td>Japan &mdash; Immigration Inspector, Narita Airport</td>
+            <td>18 DEC 2023</td>
+            <td>Entry</td>
+            <td>Blue sticker with QR code. Status: 短期滞在 (Temporary Visitor). Duration: 90 days. Valid until: 17 MAR 2024. Reference: <code>LHH7935156</code>. Control: <code>2023474201</code>. Port: NARITA.</td>
+          </tr>
+          <tr>
+            <td>24</td>
+            <td>Handwritten annotation (Arabic)</td>
+            <td>Saudi Arabia</td>
+            <td>N/A</td>
+            <td>N/A</td>
+            <td>Handwritten "سياحية" (tourism/tourist) in Arabic script. Below: Arabic-Indic numerals <code>٤٨١٤٧١٣٩٥٠</code> (4814713950) &mdash; likely visa reference or file number.</td>
+          </tr>
+          <tr>
+            <td>24</td>
+            <td>Immigration stamp (oval)</td>
+            <td>Saudi Arabia &mdash; Kingdom of Saudi Arabia</td>
+            <td>12 Dhul Hijjah 1443 AH (~11 JUL 2022)</td>
+            <td>Entry</td>
+            <td>Oval entry stamp with "ENTRY / دخول" text. Hijri date: ١٢ ذو الحجة ١٤٤٣. This date falls during Hajj 2022 (8&ndash;13 Dhul Hijjah) &mdash; specifically Eid al-Adha, the final day of Hajj rites.</td>
+          </tr>
+          <tr>
+            <td>24</td>
+            <td>Immigration stamp (circular, green)</td>
+            <td>Kingdom of Bahrain &mdash; Bahrain Int'l Airport Passports</td>
+            <td>~JUL/AUG 2022</td>
+            <td>Exit</td>
+            <td>Circular "EXIT" stamp. Date partially illegible. Consistent with departure from Bahrain after return from Saudi Arabia, prior to onward travel to Sri Lanka.</td>
+          </tr>
+          <tr>
+            <td>46</td>
+            <td>Border inspection stamp (rectangular, red)</td>
+            <td>China &mdash; 中国边检 (China Border Inspection), Hangzhou (杭州)</td>
+            <td>2022-06-15</td>
+            <td>Exit</td>
+            <td>Exit stamp: 杭州【出】. Flight indicator: ✈ 0221. Control sequence: <code>LC0090221</code>. Departure via Hangzhou Xiaoshan International Airport (HGH).</td>
+          </tr>
+          <tr>
+            <td>46</td>
+            <td>Border inspection stamp (oval, red)</td>
+            <td>China &mdash; 中国边检 (China Border Inspection), Baiyun/Guangzhou (白云)</td>
+            <td>2022-09-07</td>
+            <td>Entry</td>
+            <td>Entry stamp: 白云【入】. Return via Guangzhou Baiyun International Airport (CAN). Same date as Sri Lanka departure &mdash; consistent with direct Colombo&ndash;Guangzhou routing.</td>
+          </tr>
+          <tr>
+            <td>Back</td>
+            <td>CBP processing label (adhesive sticker)</td>
+            <td>United States &mdash; U.S. Customs and Border Protection</td>
+            <td>25 OCT 2023 (Julian: 2023298)</td>
+            <td>Entry</td>
+            <td>Name: PING ZHANG. Passport: E84248574. Visa class: <code>B1/B2</code>. Reference: <code>5493 1728</code>. Processing: PDS / Regular. Time: 08:15. Sequence: 252. Barcodes: <code>85079805</code> / <code>AA00CDD79P</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Document Anomalies and Indicators</h3>
+      <ul class="checklist">
+        <li class="unchecked"><span class="check-icon"></span> Document shows signs of tampering or alteration</li>
+        <li class="unchecked"><span class="check-icon"></span> Photo appears substituted or inconsistent with document</li>
+        <li class="unchecked"><span class="check-icon"></span> MRZ data inconsistent with printed biographical data</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Stamps inconsistent with known travel patterns &mdash; Japan entry (18 DEC 2023) followed by Mexico City entry (22 DIC 2023) within 4 days represents an anomalous routing pattern for a legitimate tourist</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Gap between last confirmed stamp and recovery location indicating undocumented transit &mdash; Last documented location is Mexico City (29 DEC 2023); passport recovered in border corridor context with no U.S. re-entry stamp post-Mexico</li>
+        <li class="unchecked"><span class="check-icon"></span> Document reported lost/stolen in INTERPOL SLTD database &mdash; PENDING query</li>
+        <li class="unchecked"><span class="check-icon"></span> Multiple documents recovered for same individual under different identities</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Bio data page not photographed or potentially removed &mdash; prevents biometric cross-reference, DOB confirmation, and MRZ validation</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Subject held valid U.S. B1/B2 visa and was lawfully admitted 25 OCT 2023, then traveled to Japan and Mexico before passport recovery in border context &mdash; suggests possible visa violation or irregular re-entry attempt after initial lawful admission</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Sri Lanka visit lasted ~2 days despite 30-day authorization &mdash; anomalously brief stay consistent with transit stop rather than tourism</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Saudi Arabia entry during Hajj period (12 Dhul Hijjah 1443) with "tourist" visa annotation &mdash; may indicate religious pilgrimage performed under tourist visa category</li>
+      </ul>
+
+      <h3 class="subsection-title">Preliminary Subject Assessment</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Subject Designation</strong></td><td>ZHANG, Ping &mdash; PRC national, passport <code>E84248574</code></td></tr>
+          <tr><td><strong>Assessed Threat Tier</strong></td><td><span class="badge-tier2">TIER 2 / HIGH</span> &mdash; PRC national with confirmed prior U.S. lawful admission on B1/B2, extensive Gulf and East Asian travel history, and passport recovered in border corridor context post-Mexico entry. Profile diverges fundamentally from typical irregular migrant &mdash; subject had legitimate means of entry but passport disposition suggests potential status violation, secondary irregular crossing attempt, or deliberate document disposal. PRC SIA screening protocols apply.</td></tr>
+          <tr><td><strong>Watchlist Hits</strong></td><td class="placeholder">PENDING &mdash; TSDB, TECS, NLETS, INTERPOL SLTD, NCIC, CBP TECS (query on B1/B2 admission record 25 OCT 2023)</td></tr>
+          <tr><td><strong>Biometric Collection</strong></td><td>Fingerprints lifted: PENDING | DNA swab: PENDING | Facial capture: NOT POSSIBLE (bio page absent) &mdash; CBP biometric records from 25 OCT 2023 admission should contain 10-print and facial capture</td></tr>
+          <tr><td><strong>Known Associates</strong></td><td>None identified from document alone. CBP admission record and I-94 data may reveal travel companions, sponsoring party, or declared U.S. address.</td></tr>
+          <tr><td><strong>Initial Analyst Notes</strong></td><td>ZHANG, Ping presents a qualitatively distinct profile from typical irregular border crossers. The subject obtained a U.S. B1/B2 visa (requiring in-person consular interview and vetting), was lawfully admitted through primary inspection on 25 OCT 2023, then traveled to Japan (18 DEC 2023) and Mexico City (22 DEC 2023) within a compressed timeframe. The passport's recovery in a border enforcement context, with environmental damage suggesting outdoor exposure, raises critical questions about why a B1/B2 holder would abandon a valid travel document. The Gulf travel circuit during Hajj 2022 and the anomalous 2-day Sri Lanka transit add intelligence complexity. Absence of the bio data page &mdash; whether by removal or photographic omission &mdash; is a significant analytical gap.</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- Section 1: Tactical Infiltration and Evidence Evasion -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <h2>Tactical Infiltration and Evidence Evasion</h2>
+    </div>
+    <div class="section-body">
+      <p>The recovery of ZHANG's passport in a border corridor context &mdash; categorized under "Docs Surgical Look" in the collection database &mdash; places this document within a pattern of travel documents recovered during enforcement operations along the U.S.&ndash;Mexico border. However, the document's profile is fundamentally anomalous within that collection: this is not a passport stripped of its bio page by a smuggling network, nor a damaged document discarded by an irregular migrant. This is a substantially intact PRC e-passport bearing stamps from seven countries across the Gulf, South Asia, East Asia, North America, and Latin America, with a U.S. CBP processing label confirming prior lawful admission on a B1/B2 visa.</p>
+
+      <p>The back cover shows heavy dark soiling and what appears to be mold or moisture damage, consistent with extended outdoor exposure. This environmental degradation suggests the passport was not recently lost in an urban or airport setting, but rather spent a significant period exposed to ground-level conditions &mdash; consistent with trail-side recovery in the border region. The interior pages, by contrast, remain in good condition, indicating the cover bore the brunt of environmental exposure while the booklet remained closed.</p>
+
+      <p>The critical question is why a B1/B2 visa holder &mdash; someone who had already been vetted by a U.S. consular officer, approved for a visa, and admitted through primary CBP inspection &mdash; would subsequently have their passport recovered in a context associated with irregular border crossing. Several hypotheses emerge: (1) the subject's B1/B2 status expired or was revoked, and the subject attempted irregular re-entry from Mexico; (2) the subject disposed of the passport intentionally to assume a different identity for a second U.S. entry; (3) the passport was lost or stolen in transit through Mexico; or (4) the subject was victimized by criminal networks operating in the border region. The Japan&ndash;Mexico City sequence in late December 2023, occurring less than two months after lawful U.S. admission, strongly suggests the subject departed the U.S. and may have been unable or unwilling to re-enter through a port of entry.</p>
+
+      <div class="risk-box">
+        <div class="risk-box-title">Strategic Risk Assessment</div>
+        <p>The presence of a CBP processing label confirms the U.S. government has biometric and biographic records for this individual from the 25 OCT 2023 admission. If the subject subsequently attempted irregular entry, this represents a case where the legitimate visa system was used as the initial vector and the irregular crossing was a secondary or fallback mechanism &mdash; a pattern associated with visa overstay subjects who depart and cannot re-enter, or with individuals whose status was terminated and who subsequently attempt clandestine return. The PRC nationality, combined with the Gulf/Hajj travel pattern, places this case at the intersection of PRC SIA screening protocols and broader counterintelligence equities. The intact condition of the passport interior &mdash; with all stamps preserved &mdash; may indicate the document was discarded after it could no longer serve its intended purpose (e.g., visa cancelled, identity compromised) rather than as a deliberate evidence-destruction measure.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Chronological Reconstruction -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <h2>Chronological Reconstruction: Mapping the Operational Signature</h2>
+    </div>
+    <div class="section-body">
+      <p>ZHANG's passport reveals a travel footprint spanning at least six years (2018&ndash;2024) across three continents, with distinct operational phases: an early Gulf visit (2018), a sustained Gulf&ndash;South Asia circuit during the Hajj period (mid-2022), a significant dormant period inside China (late 2022&ndash;late 2023), and a rapid Western Hemisphere sequence (U.S.&ndash;Japan&ndash;Mexico) compressed into approximately two months in late 2023. The subject's departure port of Hangzhou and return port of Guangzhou suggest a base in eastern China, likely Zhejiang or Guangdong Province. The Hajj-period Saudi entry introduces a religious dimension that may contextualize the Gulf travel pattern. The terminal sequence &mdash; U.S. admission followed by Japan and Mexico within weeks &mdash; is the most analytically significant and operationally concerning pattern in the document.</p>
+
+      <h3 class="subsection-title">Operational Timeline</h3>
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Location/Action</th><th>Operational Status</th><th>Strategic Implication</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>~2012&ndash;2018</td>
+            <td>PRC passport E84248574 issued (E-series)</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>Standard PRC regular passport. E-prefix indicates electronic biometric passport issued by Ministry of Public Security.</td>
+          </tr>
+          <tr>
+            <td>12 DEC 2018</td>
+            <td>Entry: United Arab Emirates (stamp #18493)</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>Earliest documented travel. UAE grants visa-free or visa-on-arrival to PRC passport holders in certain categories. Purpose of visit unknown.</td>
+          </tr>
+          <tr class="gap-row">
+            <td>DEC 2018 &mdash; JUN 2022</td>
+            <td>No recorded international travel (3.5 years)</td>
+            <td><span class="badge-gap">GAP</span></td>
+            <td>Extended dormancy partially attributable to PRC COVID-19 border closures (MAR 2020&ndash;JAN 2023). However, the gap begins 15 months before pandemic restrictions. Subject may have traveled on a different document, remained domestic, or the relevant pages were not photographed.</td>
+          </tr>
+          <tr>
+            <td>15 JUN 2022</td>
+            <td>Exit: China via Hangzhou Xiaoshan Int'l Airport (HGH), Flight 0221</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>Departure during PRC "zero-COVID" era when outbound travel was severely restricted. Exit approval during this period required documented business, medical, or humanitarian justification &mdash; indicating either official permission or an exception pathway.</td>
+          </tr>
+          <tr>
+            <td>16 JUN 2022</td>
+            <td>Entry: Kingdom of Bahrain via Bahrain Int'l Airport</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>Next-day arrival from Hangzhou. Bahrain serves as a common transit hub and gateway to Saudi Arabia (connected via King Fahd Causeway).</td>
+          </tr>
+          <tr>
+            <td>~11 JUL 2022</td>
+            <td>Entry: Kingdom of Saudi Arabia (tourist visa, 12 Dhul Hijjah 1443 AH)</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>Entry on the final day of Hajj (Eid al-Adha). "سياحية" (tourist) annotation. Ref: 4814713950. Entry during Hajj under tourist visa &mdash; Saudi Arabia permitted Hajj on tourist e-visas beginning 2019. This timing strongly suggests pilgrimage participation.</td>
+          </tr>
+          <tr>
+            <td>~JUL/AUG 2022</td>
+            <td>Exit: Kingdom of Bahrain via Bahrain Int'l Airport</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>Return transit through Bahrain after Saudi visit. Exact date illegible. Onward movement to Sri Lanka.</td>
+          </tr>
+          <tr>
+            <td>05 SEP 2022</td>
+            <td>Entry: Sri Lanka via BIA (Bandaranaike International Airport)</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>ETA sticker: 30-day authorization, 1st visit. Control: B-03120164. Arrival after Gulf circuit. Colombo has direct connections to Gulf and East Asian hubs.</td>
+          </tr>
+          <tr>
+            <td>07 SEP 2022</td>
+            <td>Exit: Sri Lanka via BIA</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>Departure after only ~2 days of a 30-day authorization. Anomalously brief. Consistent with a transit stop, brief meeting, or logistical waypoint rather than tourism.</td>
+          </tr>
+          <tr>
+            <td>07 SEP 2022</td>
+            <td>Entry: China via Guangzhou Baiyun Int'l Airport (CAN)</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>Same-day return from Sri Lanka. Direct Colombo&ndash;Guangzhou routing. Return to a different city than departure (Hangzhou out, Guangzhou in) &mdash; may reflect airline routing or a secondary residence/business connection in Guangdong.</td>
+          </tr>
+          <tr class="gap-row">
+            <td>SEP 2022 &mdash; OCT 2023</td>
+            <td>No recorded international travel (13 months)</td>
+            <td><span class="badge-gap">GAP</span></td>
+            <td>Gap spans remainder of zero-COVID and early post-reopening period. PRC fully reopened borders JAN 2023. Subject did not resume international travel for approximately 10 months after reopening.</td>
+          </tr>
+          <tr>
+            <td>25 OCT 2023</td>
+            <td>Entry: United States via CBP primary inspection (B1/B2 visa)</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>Lawful admission on B1/B2 (business/tourist) visa. Processing: PDS / Regular at 08:15. B1/B2 requires in-person consular interview and TECS/CLASS vetting. Subject passed all screening. Sequence #252. Port of entry not specified on label.</td>
+          </tr>
+          <tr>
+            <td>18 DEC 2023</td>
+            <td>Entry: Japan via Narita Airport (temporary visitor, 90 days)</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>Entered Japan 54 days after U.S. admission. This implies the subject departed the U.S. at some point between 25 OCT and 18 DEC 2023. Ref: LHH7935156. Valid until 17 MAR 2024.</td>
+          </tr>
+          <tr>
+            <td>22 DEC 2023</td>
+            <td>Entry: Mexico via Ciudad de M&eacute;xico (AICM)</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>Entered Mexico just 4 days after Japan entry. Extremely compressed Japan stay. Ref: QR.CDDA 1 DNX001. Mexico City airport entry.</td>
+          </tr>
+          <tr>
+            <td>29 DEC 2023</td>
+            <td>Mexico: secondary stamp/annotation (Archivo de Visas)</td>
+            <td><span class="badge-official">Official</span></td>
+            <td>"Archivo de Visas" (visa archive) notation. May indicate FMM processing, visa filing, or administrative annotation. One week after entry.</td>
+          </tr>
+          <tr class="dark-period">
+            <td>29 DEC 2023 &mdash; Recovery</td>
+            <td>Undocumented period: Mexico to border corridor recovery</td>
+            <td><span class="badge-dark">DARK PERIOD</span></td>
+            <td>No further stamps. Passport recovered in border enforcement context with environmental damage. Subject's movements from Mexico City to the border region are unrecorded. No U.S. re-entry stamp present &mdash; if subject crossed, it was not through a port of entry.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="analysis-box">
+        <h4>Analysis</h4>
+        <p>The timeline reveals two distinct operational signatures. <strong>Phase 1 (2022)</strong> presents as religious tourism: a Gulf circuit timed precisely to Hajj, followed by a brief Sri Lanka transit, all during PRC zero-COVID restrictions when outbound travel required special justification. This phase suggests either genuine religious pilgrimage (Chinese Hui Muslim performing Hajj) or a travel pattern designed to appear as such. <strong>Phase 2 (Oct&ndash;Dec 2023)</strong> is the critical intelligence concern: the subject entered the U.S. lawfully on B1/B2, departed within approximately 54 days, transited Japan for only 4 days, then flew to Mexico City &mdash; a sequence that makes no sense as tourism but is highly consistent with a subject who entered the U.S. legally, departed (voluntarily or involuntarily), and was attempting to return through an alternate pathway. The Japan stop may represent a waypoint to obscure the direct U.S.&ndash;Mexico routing that would trigger airline and Mexican immigration scrutiny. The final dark period from Mexico City to border recovery is the most operationally significant gap: it represents the window in which the subject likely transited south-to-north through Mexico toward the U.S. border, ultimately resulting in the passport's disposal or loss in the border region.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Geographic Risk Assessment -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <h2>Geographic Risk Assessment: Analysis of Key Nodes</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="geo-node">
+        <h4>People's Republic of China &mdash; Zhejiang/Guangdong (Origin)</h4>
+        <p>ZHANG's departure from Hangzhou (Zhejiang) and return via Guangzhou (Guangdong) anchors the subject to China's eastern coastal economic corridor. Zhejiang Province &mdash; home to the Wenzhou and Yiwu business diaspora communities &mdash; has historically been a significant source region for both regular and irregular Chinese emigration to the West. PRC nationals represent a rapidly growing cohort in U.S. irregular border encounters, with CBP reporting a dramatic increase from approximately 450 encounters in FY2021 to over 37,000 in FY2024. The subject's ability to obtain a B1/B2 visa suggests financial means and a documented background, distinguishing this case from the typical PRC irregular migrant who crosses without prior U.S. visa history.</p>
+        <ul>
+          <li>Zhejiang Province: Major source region for PRC overseas migration, both documented and undocumented; strong business diaspora networks in U.S., Europe, and Latin America</li>
+          <li>Guangdong Province: China's largest provincial economy; extensive transnational connections; Guangzhou serves as major international transit hub</li>
+          <li>Ability to exit China during zero-COVID (June 2022) indicates either official justification or access to exception pathways</li>
+        </ul>
+      </div>
+
+      <div class="geo-node">
+        <h4>Gulf States: Bahrain &amp; Saudi Arabia (Transit / Religious Circuit)</h4>
+        <p>The Bahrain&ndash;Saudi Arabia circuit timed to Hajj 2022 represents either genuine religious pilgrimage or a travel pattern designed to establish a particular identity narrative. Bahrain serves as a common staging point for Saudi Arabia due to the King Fahd Causeway connection and more relaxed visa policies. The Saudi entry on 12 Dhul Hijjah 1443 (Eid al-Adha) under a tourist visa is consistent with post-2019 Saudi policy allowing Hajj participation on tourist visas. China's Hui Muslim population (approximately 10&ndash;12 million) has a long tradition of Hajj participation, and the Chinese government historically organized Hajj delegations &mdash; though independent pilgrimage has become more common.</p>
+        <ul>
+          <li>Bahrain: Visa-on-arrival for many nationalities; serves as gateway to Saudi Arabia via King Fahd Causeway; relaxed transit policies</li>
+          <li>Saudi Arabia: Tourist visa Hajj participation permitted since 2019; "سياحية" annotation confirms tourist category; significant Chinese Hajj contingent annually</li>
+          <li>Gulf financial centers (Bahrain, UAE) also serve as hubs for transnational business networks with documented links to migration facilitation</li>
+        </ul>
+      </div>
+
+      <div class="geo-node">
+        <h4>Sri Lanka &mdash; Colombo / BIA (Transit Node)</h4>
+        <p>The 2-day Sri Lanka visit (05&ndash;07 SEP 2022) is analytically significant precisely because of its brevity. A 30-day ETA used for a 48-hour stay suggests Colombo functioned as a transit node rather than a destination. Sri Lanka's Bandaranaike International Airport serves as a secondary hub connecting Gulf routes to East and Southeast Asia, with lower scrutiny than primary hubs like Singapore or Bangkok. The visit occurred during Sri Lanka's severe economic crisis (2022), when immigration enforcement resources were degraded and informal facilitation networks reportedly expanded.</p>
+        <ul>
+          <li>Colombo (BIA): Secondary transit hub connecting Gulf to East Asia; direct flights to Guangzhou (CAN)</li>
+          <li>2022 economic crisis: Reduced immigration enforcement capacity; expanded informal networks</li>
+          <li>2-day stay pattern: Consistent with transit, courier activity, or brief meeting rather than tourism</li>
+        </ul>
+      </div>
+
+      <div class="geo-node">
+        <h4>Transit Corridor: U.S. &rarr; Japan &rarr; Mexico &rarr; U.S. Border</h4>
+        <p>The terminal travel sequence represents the most operationally concerning pattern. The subject entered the U.S. lawfully (25 OCT 2023), departed, transited Japan briefly (18&ndash;~22 DEC 2023), then entered Mexico City (22 DEC 2023). This routing is consistent with a "visa recycling" or "re-entry via back door" pattern observed among subjects who enter the U.S. legally, depart, and then seek irregular re-entry when their legal avenue is foreclosed. The Japan waypoint may serve to reset the travel trail or establish a plausible multi-destination tourism narrative.</p>
+        <ol class="numbered-list">
+          <li><strong>Direct air corridor (Mexico City &rarr; Northern border):</strong> Subjects fly from AICM to Tijuana, Mexicali, or northern cities, then connect with smuggling networks for border crossing. Cost: $5,000&ndash;$15,000 for PRC nationals depending on route complexity and guide quality.</li>
+          <li><strong>Overland corridor (Mexico City &rarr; Sonora/Baja California):</strong> Bus or private vehicle transit to staging areas in border cities. Chinese smuggling networks (snakeheads) maintain established infrastructure along this route with safe houses in Mexicali, Tijuana, and Nogales. Cost: $10,000&ndash;$50,000 for full-service packages from China to U.S. interior.</li>
+        </ol>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 4: Entity Analysis -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <h2>Entity Analysis: CBP Admission Record &amp; B1/B2 Visa Infrastructure</h2>
+    </div>
+    <div class="section-body">
+
+      <h3 class="subsection-title">What Is Known</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Subject Identity</strong></td><td>PING ZHANG &mdash; as printed on CBP processing label (Western name order: Given + Surname)</td></tr>
+          <tr><td><strong>Visa Category</strong></td><td>B1/B2 (Combined business/tourism nonimmigrant visa). Requires in-person interview at U.S. consulate/embassy in China, DS-160 application, and CLASS/TECS screening.</td></tr>
+          <tr><td><strong>CBP Processing</strong></td><td>Julian date 2023298 = 25 OCT 2023. Time: 08:15 (morning admission). Processing type: "PDS" (Primary Document Screening) / "Regular" (standard primary inspection lane, not expedited entry program). Sequence: 252.</td></tr>
+          <tr><td><strong>Reference Numbers</strong></td><td>Visa foil / admission reference: <code>5493 1728</code>. Left barcode: <code>85079805</code>. Right barcode: <code>AA00CDD79P</code>. These reference numbers can be queried against TECS, ADIS (Arrival and Departure Information System), and I-94 records.</td></tr>
+          <tr><td><strong>Admission Duration</strong></td><td>B1/B2 typically admitted for up to 6 months (180 days). If admitted 25 OCT 2023, authorized stay would extend to approximately 24 APR 2024. Subject appears to have departed before expiration (Japan entry 18 DEC 2023).</td></tr>
+          <tr><td><strong>Issuing Consulate</strong></td><td>Not determined from label. B1/B2 for PRC nationals could have been issued at U.S. Embassy Beijing, or consulates in Shanghai, Guangzhou, Shenyang, or Chengdu (Chengdu closed 2020). Guangzhou consulate most consistent with Guangdong/Zhejiang origin profile.</td></tr>
+          <tr><td><strong>I-94 Record</strong></td><td>Electronic I-94 should exist in CBP systems for 25 OCT 2023 admission. Will contain: declared U.S. address, admitted-until date, class of admission, and departure record if subject exited through an air/sea port.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">What Is Not Known (Intelligence Gaps)</h3>
+      <ul class="priority-actions">
+        <li><strong>Visa issuance details:</strong> When was the B1/B2 issued? Single or multiple entry? Has it been revoked or annotated? Was there a prior visa refusal history (221(g), 214(b))?</li>
+        <li><strong>U.S. departure record:</strong> Did the subject depart the U.S. through an air/sea POE with a recorded APIS departure? If so, when and to where? If no departure recorded, subject may have been in overstay status.</li>
+        <li><strong>Declared purpose and sponsor:</strong> What business or tourism purpose was declared on the DS-160? Was a U.S.-based sponsor, employer, or inviter listed? What U.S. address was provided?</li>
+        <li><strong>Bio data and identity verification:</strong> Without the bio page, DOB, sex, photo, and place of birth cannot be confirmed from the document itself. CBP records will contain this information from the 25 OCT processing.</li>
+        <li><strong>Prior U.S. travel history:</strong> Has the subject previously entered the U.S. on this or prior passports? Multiple B1/B2 entries could indicate a pattern of short stays or establish the subject's travel rhythm.</li>
+      </ul>
+
+      <h3 class="subsection-title">Indicators Requiring Further Investigation</h3>
+      <ol class="indicator-list">
+        <li><strong>B1/B2 holder in border recovery context:</strong> A subject with a valid U.S. nonimmigrant visa whose passport is recovered in a border corridor represents a high-priority anomaly. This combination suggests the legal entry pathway failed or was foreclosed, driving the subject toward irregular means. Possible triggers: visa revocation, secondary inspection refusal at POE, or criminal disqualification post-issuance.</li>
+        <li><strong>Japan-Mexico transit pattern:</strong> The 4-day Japan "visit" followed immediately by Mexico City entry has no plausible tourism logic. Japan may have functioned as a "clean" transit point to avoid direct U.S.&ndash;Mexico air routing that could trigger APIS alerts. Alternatively, the subject may have been denied boarding for a U.S.-bound flight in Japan and diverted to Mexico as an alternate approach vector.</li>
+        <li><strong>Zero-COVID exit anomaly:</strong> Departing China on 15 JUN 2022 &mdash; during the most restrictive phase of PRC zero-COVID border controls &mdash; required documented justification. The religious tourism explanation (Hajj) may have been the stated basis, but the ability to exit during this period warrants examination against PRC exit control databases and any available intelligence on exception categories.</li>
+        <li><strong>CBP reference number cross-match:</strong> The <code>5493 1728</code> reference and barcode identifiers <code>85079805</code> / <code>AA00CDD79P</code> should be queried against CBP TECS and ADIS to retrieve the complete admission record, including any secondary inspection referrals, lookout hits, or post-admission enforcement actions.</li>
+      </ol>
+
+      <h3 class="subsection-title">Recommended Priority Actions for Entity Investigation</h3>
+      <ul class="priority-actions">
+        <li><strong>Query</strong> CBP TECS and ADIS using passport number E84248574, name ZHANG PING, and reference numbers 5493 1728 / 85079805 / AA00CDD79P to retrieve full admission history, departure records, and any lookout flags</li>
+        <li><strong>Request</strong> I-94 record for 25 OCT 2023 admission to determine declared U.S. address, admitted-until date, and whether a departure was recorded</li>
+        <li><strong>Query</strong> Department of State CLASS system for visa issuance details, interview notes, DS-160 data, and any post-issuance revocation or prudential revocation actions</li>
+        <li><strong>Coordinate</strong> with HSI and FBI counterintelligence for PRC national with anomalous travel pattern and potential unauthorized re-entry attempt</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- Section 5: Threat Synthesis -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <h2>Threat Synthesis and National Security Implications</h2>
+    </div>
+    <div class="section-body">
+      <p>ZHANG, Ping represents a qualitatively different intelligence problem than typical irregular border crossers whose documents are recovered in the same corridor contexts. The subject is not an undocumented migrant without prior U.S. contact &mdash; this is an individual who was vetted by U.S. consular officers, approved for a B1/B2 visa, and lawfully admitted through CBP primary inspection, whose passport subsequently ended up in a border enforcement recovery collection. The combination of legitimate U.S. admission, extensive international travel across sensitive regions, and passport disposal in the border zone elevates this case beyond standard immigration enforcement into potential counterintelligence and national security equities.</p>
+
+      <h3 class="subsection-title">Primary Threat Vectors</h3>
+
+      <div class="threat-vector">
+        <h4>Vector 1: Visa System Exploitation and Irregular Re-Entry</h4>
+        <p>The most probable scenario is that ZHANG used the B1/B2 visa for initial lawful entry, then departed the U.S. and subsequently attempted to re-enter through the southern border when the legal pathway was unavailable. This pattern &mdash; legal entry followed by irregular re-entry &mdash; is an emerging concern that undermines the presumption that visa-vetted individuals pose lower risk. Triggers may include visa revocation based on derogatory information developed post-admission, denial of re-entry at a POE, or the need to enter without creating an admission record. The Japan detour suggests awareness of travel pattern analysis and an attempt to obscure the operational routing.</p>
+      </div>
+
+      <div class="threat-vector">
+        <h4>Vector 2: PRC National Security Screening Implications</h4>
+        <p>PRC nationals encountered at the U.S. southern border &mdash; whether through irregular crossing or document recovery &mdash; trigger SIA (Special Interest Alien) screening protocols due to the PRC's designation as a strategic competitor and the documented activities of PRC intelligence services in leveraging diaspora and emigrant communities. A PRC national with a B1/B2 visa, Gulf travel during Hajj, and an anomalous transit-and-disposal pattern intersects multiple screening equities: counterintelligence (CI) concerns regarding PRC intelligence collection; counter-proliferation concerns for individuals with technical backgrounds; and transnational criminal organization (TCO) concerns given the established PRC snakehead networks operating along the Mexico corridor. The absence of the bio page &mdash; which would contain the subject's photo, DOB, and potentially their occupation &mdash; is a critical gap that must be resolved through CBP records.</p>
+      </div>
+
+      <div class="threat-vector">
+        <h4>Vector 3: Hajj Travel Pattern and Dual-Network Access</h4>
+        <p>The Saudi Arabia entry precisely during Hajj 2022, under a tourist visa with "سياحية" handwritten annotation, suggests the subject is a practicing Muslim &mdash; likely ethnically Hui (回族), one of China's recognized Muslim minorities concentrated in northwestern and eastern provinces including Zhejiang. While Hajj participation is entirely lawful and constitutionally protected, the intelligence relevance is contextual: an individual who navigates both PRC exit controls during zero-COVID <em>and</em> Gulf religious travel networks <em>and</em> Western Hemisphere smuggling infrastructure demonstrates access to diverse facilitation networks spanning state, religious, and criminal domains. This multi-network access profile warrants enhanced scrutiny not because of the religious practice itself, but because of the operational versatility it reveals.</p>
+      </div>
+
+      <div class="analysis-box">
+        <h4>Assessment</h4>
+        <p>The critical unknown is whether ZHANG's B1/B2 visa remains valid and whether the subject was encountered or is still at large. If no U.S. departure was recorded after 25 OCT 2023, the subject may have overstayed, departed irregularly, and returned irregularly &mdash; creating a complex status situation. If a departure was recorded and the subject re-entered without inspection, this is a potential 8 U.S.C. &sect; 1325 violation with enhanced screening implications for a PRC SIA-category national. The CBP processing label provides an unambiguous investigative starting point: the U.S. government has this individual's fingerprints, photograph, and declared information from the 25 OCT 2023 admission, enabling rapid identity resolution once the bio data gap is closed. Priority one is accessing the CBP admission record and determining whether a BOLO, lookout, or enforcement action exists for this subject.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 6: Operational Directives -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <h2>Operational Directives: Mitigation and Exploitation</h2>
+    </div>
+    <div class="section-body">
+      <ol class="directive-list">
+        <li><strong>Query CBP TECS/ADIS immediately</strong> using passport number <code>E84248574</code>, name PING ZHANG, and CBP label reference numbers (<code>5493 1728</code>, <code>85079805</code>, <code>AA00CDD79P</code>) to retrieve: full admission history, I-94 record from 25 OCT 2023, declared U.S. address, departure record, and any lookout or enforcement flags. Julian date reference: 2023298.</li>
+        <li><strong>Request Department of State visa file</strong> for B1/B2 visa issued to ZHANG, Ping, passport E84248574: DS-160 application data (including declared occupation, employer, travel purpose, U.S. sponsor/inviter), consular interview notes, CLASS hits, and any post-issuance revocation or prudential revocation actions. Determine issuing post.</li>
+        <li><strong>Submit INTERPOL SLTD query</strong> for passport E84248574 to determine if the document has been reported lost or stolen by the bearer or by PRC authorities. Cross-reference with INTERPOL I-24/7 nominal data for ZHANG, Ping.</li>
+        <li><strong>Extract biometrics from document:</strong> Process passport for latent fingerprints (focus on interior visa pages and CBP sticker). Submit any recovered prints to IDENT/NGI. Cross-reference against CBP biometric records from 25 OCT 2023 admission to confirm document-holder identity match. DNA swab passport cover and interior pages.</li>
+        <li><strong>Coordinate with HSI Transnational Criminal Investigative Unit (TCIU)</strong> regarding PRC smuggling network (snakehead) intelligence for the Mexico City&ndash;U.S. border corridor. Cross-reference ZHANG's Mexico entry (22 DEC 2023, AICM, ref QR.CDDA 1 DNX001) against known snakehead-facilitated flight manifests and safe house networks.</li>
+        <li><strong>Initiate FBI/NCSC counterintelligence notification</strong> for PRC national with B1/B2 visa, anomalous travel pattern, and potential unauthorized re-entry. Request CI assessment of ZHANG profile against known PRC intelligence collection patterns. Cross-reference any occupation data from DS-160 against technology transfer and non-traditional collection threat matrices.</li>
+        <li><strong>Request Japan Immigration Bureau records</strong> via MLAT or DHS attach&eacute; (Tokyo) for ZHANG, Ping landing permission 18 DEC 2023, Narita, reference <code>LHH7935156</code>, control <code>2023474201</code>. Determine: declared purpose, hotel booking, return ticket, and departure date/destination from Japan.</li>
+        <li><strong>Request Mexico INM (Instituto Nacional de Migraci&oacute;n) records</strong> via DHS attach&eacute; (Mexico City) for ZHANG, Ping entry 22 DEC 2023, AICM, reference QR.CDDA 1 DNX001. Determine: FMM details, declared accommodation, subsequent domestic travel (airline manifests), and any exit record.</li>
+        <li><strong>Cross-reference with concurrent PRC passport recoveries</strong> in the same sector/timeframe. Determine if ZHANG is connected to other PRC nationals in the existing recovery database. Check for co-travel indicators with subjects in the "Border Photos/Docs Surgical Look/full complete/China" collection.</li>
+        <li><strong>Issue BOLO</strong> for ZHANG, Ping if not already in custody or accounted for. Include CBP photograph from 25 OCT 2023 admission, all known reference numbers, and SIA screening flag. Distribute to USBP sectors, CBP field offices, and HSI field offices in border region and at declared U.S. address location.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- End of Assessment -->
+  <div class="end-marker">END OF ASSESSMENT</div>
+
+  <!-- Sources -->
+  <div class="sources-section">
+    <h3>Sources Consulted</h3>
+    <ul>
+      <li>Primary Document: PRC Passport E84248574 (8 images &mdash; cover, statutory page, visa pages 08&ndash;09, 10&ndash;11, 16&ndash;19, 24, 46, and back cover with CBP label)</li>
+      <li>CBP Processing Label: Back cover adhesive sticker &mdash; PING ZHANG / 5493 1728 / E84248574 / PDS / B1/B2 / 08:15 / 252 / Regular / 2023298 / Barcodes: 85079805, AA00CDD79P</li>
+      <li>Saudi Arabia Hijri Calendar Conversion: 12 Dhul Hijjah 1443 AH = approximately 11 July 2022 (Eid al-Adha / Hajj conclusion)</li>
+      <li>CBP Nationwide Encounters: PRC nationals at U.S. southern border &mdash; FY2021: ~450; FY2023: ~24,000; FY2024: ~37,000+ (CBP public statistics)</li>
+      <li>Julian Date Conversion: 2023298 = 25 October 2023 (298th day of calendar year 2023)</li>
+      <li>PRC COVID-19 Border Restrictions: Zero-COVID outbound travel controls effective MAR 2020 through JAN 2023 (PRC State Council announcements)</li>
+      <li>Saudi Arabia Tourist Visa Hajj Policy: Kingdom began allowing Hajj participation on tourist e-visas in 2019 (Saudi Ministry of Hajj and Umrah)</li>
+      <li>Sri Lanka Immigration: ETA (Electronic Travel Authorization) system for short-term visitors; BIA = Bandaranaike International Airport, Colombo</li>
+      <li>Japan Immigration: Landing Permission for temporary visitor status (短期滞在) &mdash; 90-day maximum for PRC passport holders with appropriate visa</li>
+      <li>Mexico Immigration: Secretar&iacute;a de Gobernaci&oacute;n entry processing at AICM (Aeropuerto Internacional de la Ciudad de M&eacute;xico); FMM (Forma Migratoria M&uacute;ltiple) system</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  // ── Map ──
+  const map = L.map('travel-map', {
+    center: [28, 40], zoom: 3, minZoom: 2, maxZoom: 12,
+    zoomControl: true, attributionControl: false,
+    worldCopyJump: true
+  });
+
+  // Desaturated satellite + crisp labels
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 18, className: 'basemap-sat'
+  }).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+    maxZoom: 18, opacity: 0.65
+  }).addTo(map);
+
+  // Desaturate the satellite layer via CSS filter
+  var style = document.createElement('style');
+  style.textContent = '.basemap-sat { filter: saturate(0.35) brightness(0.55); }';
+  document.head.appendChild(style);
+
+  // ── Coordinates ──
+  const P = {
+    hangzhou:   [30.2291, 120.4348],
+    guangzhou:  [23.3924, 113.2988],
+    dubai:      [25.2532, 55.3657],
+    bahrain:    [26.2708, 50.6336],
+    mecca:      [21.4225, 39.8262],
+    colombo:    [7.1808, 79.8841],
+    narita:     [35.7720, 140.3929],
+    usPoe:      [33.9416, -118.4085],
+    cdmx:       [19.4326, -99.1332],
+    border:     [32.55, -116.75]
+  };
+
+  // ── Helpers ──
+  function mk(ll, cls, sz, pop) {
+    return L.marker(ll, {
+      icon: L.divIcon({
+        className: '',
+        html: '<div class="mk"><div class="mk-dot '+cls+'" style="width:'+sz+'px;height:'+sz+'px;"></div></div>',
+        iconSize: [sz+6, sz+6], iconAnchor: [(sz+6)/2, (sz+6)/2]
+      })
+    }).bindPopup(pop, { maxWidth: 260 });
+  }
+
+  function lbl(ll, text, cls, offset) {
+    return L.marker(ll, {
+      icon: L.divIcon({
+        className: 'city-label' + (cls ? ' ' + cls : ''),
+        html: text,
+        iconSize: [0, 0],
+        iconAnchor: offset || [-14, 6]
+      }),
+      interactive: false
+    });
+  }
+
+  // Curved line via intermediate point
+  function arc(a, b, opts, bulge) {
+    bulge = bulge || 0.15;
+    var mid = [(a[0]+b[0])/2, (a[1]+b[1])/2];
+    var dx = b[1]-a[1], dy = b[0]-a[0];
+    var ctrl = [mid[0] + dx*bulge, mid[1] - dy*bulge];
+    var pts = [];
+    for (var t = 0; t <= 1; t += 0.04) {
+      var u = 1-t;
+      pts.push([
+        u*u*a[0] + 2*u*t*ctrl[0] + t*t*b[0],
+        u*u*a[1] + 2*u*t*ctrl[1] + t*t*b[1]
+      ]);
+    }
+    return L.polyline(pts, opts);
+  }
+
+  // Arrow decorator on line
+  function addArrow(line, color) {
+    var pts = line.getLatLngs();
+    if (pts.length < 3) return;
+    var i = Math.floor(pts.length * 0.6);
+    var p1 = map.latLngToContainerPoint(pts[i-1]);
+    var p2 = map.latLngToContainerPoint(pts[i]);
+    // We skip runtime arrows for simplicity — thick lines + dots are clear enough
+  }
+
+  // ── PHASE 1: UAE Visit (2018) — Blue ──
+  var ph1 = [
+    arc(P.hangzhou, P.dubai, { color:'#58a6ff', weight:4, opacity:0.85 }, 0.18)
+  ];
+
+  // ── PHASE 2: Gulf–Hajj Circuit (2022) — Green ──
+  var ph2 = [
+    arc(P.hangzhou, P.bahrain, { color:'#3fb950', weight:4, opacity:0.85 }, 0.12),
+    L.polyline([P.bahrain, P.mecca], { color:'#3fb950', weight:4, opacity:0.85 }),
+    L.polyline([P.mecca, P.bahrain], { color:'#3fb950', weight:2.5, opacity:0.45, dashArray:'6 5' }),
+    arc(P.bahrain, P.colombo, { color:'#3fb950', weight:4, opacity:0.85 }, -0.15),
+    arc(P.colombo, P.guangzhou, { color:'#3fb950', weight:4, opacity:0.85 }, -0.12)
+  ];
+
+  // ── PHASE 3: Western Hemisphere (2023) — Purple ──
+  // High-latitude great-circle arcs routed over Eurasia/Atlantic (schematic)
+  // Each leg separated vertically so they don't overlap
+  var p3s = { color:'#bc8cff', weight:4, opacity:0.85, lineCap:'round', lineJoin:'round' };
+
+  // Leg A: Guangzhou → U.S. POE — high arc over central Asia & north Atlantic
+  var legA = L.polyline([
+    P.guangzhou, [34,108], [40,92], [47,72], [52,48], [55,22],
+    [55,-5], [52,-30], [47,-55], [42,-78], [38,-98], P.usPoe
+  ], p3s);
+
+  // Leg B: U.S. POE → Narita — even higher arc (Arctic-adjacent) to separate from A
+  var legB = L.polyline([
+    P.usPoe, [40,-110], [48,-95], [56,-70], [62,-40], [64,-5],
+    [63,30], [58,62], [50,92], [43,115], [38,130], P.narita
+  ], p3s);
+
+  // Leg C: Narita → CDMX — mid arc below A, distinct path
+  var legC = L.polyline([
+    P.narita, [37,126], [42,108], [46,85], [48,58], [48,30],
+    [46,2], [42,-25], [37,-52], [30,-76], [24,-92], P.cdmx
+  ], p3s);
+
+  var ph3 = [legA, legB, legC];
+
+  // ── PHASE 4: Dark — CDMX to Border (Red dashed) ──
+  var ph4 = [
+    L.polyline([P.cdmx, P.border], { color:'#da6456', weight:4.5, opacity:0.95, dashArray:'10 7' })
+  ];
+
+  // ── Markers ──
+  var markers = [
+    mk(P.hangzhou, 'origin', 20,
+      '<div class="pop-title" style="color:#3fb950;">HANGZHOU (HGH)</div>' +
+      '<div class="pop-date" style="color:#d29922;">15 JUN 2022 — EXIT CHINA</div>' +
+      '<div class="pop-detail">China Border Inspection, Flight 0221<br>Departed during PRC zero-COVID lockdown</div>'),
+    mk(P.guangzhou, 'origin', 18,
+      '<div class="pop-title" style="color:#3fb950;">GUANGZHOU / BAIYUN (CAN)</div>' +
+      '<div class="pop-date" style="color:#d29922;">07 SEP 2022 — ENTRY CHINA</div>' +
+      '<div class="pop-detail">Return from Sri Lanka<br>Different city than departure (Hangzhou)</div>'),
+    mk(P.dubai, 'transit', 16,
+      '<div class="pop-title" style="color:#58a6ff;">UNITED ARAB EMIRATES</div>' +
+      '<div class="pop-date" style="color:#d29922;">12 DEC 2018 — ENTRY</div>' +
+      '<div class="pop-detail">Stamp #18493<br>Earliest recorded international travel</div>'),
+    mk(P.bahrain, 'transit', 16,
+      '<div class="pop-title" style="color:#58a6ff;">BAHRAIN INT\'L AIRPORT</div>' +
+      '<div class="pop-date" style="color:#d29922;">16 JUN 2022 — ENTRY</div>' +
+      '<div class="pop-detail">Gateway to Saudi Arabia<br>Also: EXIT stamp ~Jul/Aug 2022</div>'),
+    mk(P.mecca, 'dest', 16,
+      '<div class="pop-title" style="color:#d29922;">SAUDI ARABIA — HAJJ ZONE</div>' +
+      '<div class="pop-date" style="color:#d29922;">~11 JUL 2022 — ENTRY</div>' +
+      '<div class="pop-detail">12 Dhul Hijjah 1443 AH (Eid al-Adha)<br>Tourist visa: "\u0633\u064A\u0627\u062D\u064A\u0629"<br>Ref: 4814713950</div>'),
+    mk(P.colombo, 'transit', 16,
+      '<div class="pop-title" style="color:#58a6ff;">SRI LANKA / BIA</div>' +
+      '<div class="pop-date" style="color:#d29922;">05–07 SEP 2022</div>' +
+      '<div class="pop-detail">30-day ETA — stayed only 2 days<br>Anomalously brief: transit stop profile</div>'),
+    mk(P.narita, 'dest', 16,
+      '<div class="pop-title" style="color:#d29922;">JAPAN / NARITA (NRT)</div>' +
+      '<div class="pop-date" style="color:#d29922;">18 DEC 2023 — ENTRY</div>' +
+      '<div class="pop-detail">Temporary Visitor, 90 days<br>Departed ~22 DEC (4-day stay)<br>Ref: LHH7935156</div>'),
+    mk(P.usPoe, 'cbp', 20,
+      '<div class="pop-title" style="color:#bc8cff;">U.S. CBP ADMISSION</div>' +
+      '<div class="pop-date" style="color:#d29922;">25 OCT 2023 — LAWFUL ENTRY</div>' +
+      '<div class="pop-detail">B1/B2 visa — PDS / Regular<br>Ref: 5493 1728 | Seq: 252<br>Primary inspection at 08:15</div>'),
+    mk(P.cdmx, 'dest', 16,
+      '<div class="pop-title" style="color:#d29922;">MEXICO CITY (AICM)</div>' +
+      '<div class="pop-date" style="color:#d29922;">22 DEC 2023 — ENTRY</div>' +
+      '<div class="pop-detail">Sec. de Gobernación<br>2nd annotation: 29-DIC-23<br>Last documented location</div>'),
+    mk(P.border, 'dark-term', 20,
+      '<div class="pop-title" style="color:#da6456;">BORDER RECOVERY ZONE</div>' +
+      '<div class="pop-date" style="color:#da6456;">DATE UNKNOWN</div>' +
+      '<div class="pop-detail">Passport recovered in border enforcement<br>context — San Diego County corridor<br>Heavy environmental damage on cover</div>')
+  ];
+
+  // ── Permanent City Labels ──
+  var labels = [
+    lbl(P.hangzhou, 'HANGZHOU', '', [-14, 14]),
+    lbl(P.guangzhou, 'GUANGZHOU', '', [-14, 14]),
+    lbl(P.dubai, 'DUBAI / UAE', '', [-14, 6]),
+    lbl(P.bahrain, 'BAHRAIN', '', [40, 6]),
+    lbl(P.mecca, 'MECCA', '', [-14, 14]),
+    lbl(P.colombo, 'COLOMBO', '', [-14, -10]),
+    lbl(P.narita, 'NARITA', '', [-14, 14]),
+    lbl(P.usPoe, 'U.S. POE', '', [-14, -10]),
+    lbl(P.cdmx, 'CDMX', '', [-14, 14]),
+    lbl(P.border, 'RECOVERY', '', [14, 2]),
+    // Context cities (muted)
+    lbl([34.0522, -118.2437], 'Los Angeles', 'muted', [-14, -8]),
+    lbl([40.7128, -74.0060], 'New York', 'muted', [-14, 6]),
+    lbl([39.9042, 116.4074], 'Beijing', 'muted', [-14, -8]),
+    lbl([31.2304, 121.4737], 'Shanghai', 'muted', [-14, 14]),
+    lbl([24.7136, 46.6753], 'Riyadh', 'muted', [-14, 6]),
+    lbl([35.6762, 51.4241], 'Tehran', 'muted', [-14, 6]),
+    lbl([28.6139, 77.2090], 'New Delhi', 'muted', [-14, 6]),
+    lbl([13.7563, 100.5018], 'Bangkok', 'muted', [-14, 6]),
+    lbl([1.3521, 103.8198], 'Singapore', 'muted', [-14, 6])
+  ];
+
+  // Phase annotation labels
+  var phaseLabels = [
+    lbl([28, 88], '<span style="background:rgba(88,166,255,0.2);color:#58a6ff;padding:2px 7px;border-radius:3px;">PHASE 1 · 2018</span>', 'phase-label', [0, 0]),
+    lbl([14, 65], '<span style="background:rgba(63,185,80,0.2);color:#3fb950;padding:2px 7px;border-radius:3px;">PHASE 2 · HAJJ 2022</span>', 'phase-label', [0, 0]),
+    lbl([60, -5], '<span style="background:rgba(188,140,255,0.2);color:#bc8cff;padding:2px 7px;border-radius:3px;">PHASE 3 · 2023</span>', 'phase-label', [0, 0]),
+    lbl([26, -108], '<span style="background:rgba(218,100,86,0.2);color:#da6456;padding:2px 7px;border-radius:3px;">DARK PERIOD</span>', 'phase-label', [0, 0])
+  ];
+
+  // ── Layer Groups ──
+  var g1 = L.layerGroup(ph1);
+  var g2 = L.layerGroup(ph2);
+  var g3 = L.layerGroup(ph3);
+  var g4 = L.layerGroup(ph4);
+  var gMarkers = L.layerGroup(markers);
+  var gLabels = L.layerGroup(labels);
+  var gPhLabels = L.layerGroup(phaseLabels);
+
+  [g1, g2, g3, g4, gMarkers, gLabels, gPhLabels].forEach(function(g){ g.addTo(map); });
+
+  // Fit to show all routes including high-latitude Phase 3 arcs
+  map.fitBounds(L.latLngBounds([[0,-120],[65,142]]).pad(0.05));
+
+  // ── Panel Toggle ──
+  window.togP = function(n) {
+    var b = document.getElementById(n+'-body');
+    var a = document.getElementById(n+'-arr');
+    b.classList.toggle('open');
+    a.classList.toggle('open');
+  };
+
+  // ── Phase Filter ──
+  var groups = [g1,g2,g3,g4];
+  window.showPh = function(ph) {
+    document.querySelectorAll('.ph-item').forEach(function(el){ el.classList.remove('active'); });
+
+    if (ph === 'all') {
+      document.getElementById('ph-all').classList.add('active');
+      groups.forEach(function(g){ map.addLayer(g); });
+      gPhLabels.addTo(map);
+      map.fitBounds(L.latLngBounds(Object.values(P)).pad(0.12));
+    } else {
+      document.getElementById('ph-'+ph).classList.add('active');
+      groups.forEach(function(g){ map.removeLayer(g); });
+      map.removeLayer(gPhLabels);
+      map.addLayer(groups[ph-1]);
+
+      var bounds;
+      if (ph===1) bounds = L.latLngBounds([P.hangzhou, P.dubai]).pad(0.4);
+      else if (ph===2) bounds = L.latLngBounds([P.hangzhou, P.bahrain, P.mecca, P.colombo, P.guangzhou]).pad(0.25);
+      else if (ph===3) bounds = L.latLngBounds([[15,-120],[65,142]]).pad(0.08);
+      else if (ph===4) bounds = L.latLngBounds([P.cdmx, P.border]).pad(0.5);
+      map.fitBounds(bounds);
+    }
+  };
+
+})();
+</script>
+
+</body>
+</html>
