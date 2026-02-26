@@ -163,21 +163,17 @@
     <!-- Main content: report viewer -->
     <main class="report-viewer">
       <div id="report-placeholder" class="report-placeholder">
-        <div class="globe-container">
-          <div class="globe">
-            <div class="globe-sphere">
-              <div class="globe-meridian"></div>
-              <div class="globe-meridian m2"></div>
-              <div class="globe-meridian m3"></div>
-              <div class="globe-equator e1"></div>
-              <div class="globe-equator e2"></div>
-              <div class="globe-equator e3"></div>
-            </div>
-            <div class="globe-ring"></div>
-            <div class="globe-glow"></div>
-            <div class="scan-line"></div>
+        <div class="globe-wrapper">
+          <div class="globe-hud-top">
+            <span class="hud-item">SIGINT FEED <span class="hud-blink">ACTIVE</span></span>
+            <span class="hud-item">NODES: 2,847</span>
+            <span class="hud-item">THREAT LEVEL: <span class="hud-amber">ELEVATED</span></span>
           </div>
-          <div class="globe-label">GLOBAL INTELLIGENCE NETWORK</div>
+          <canvas id="globe-canvas"></canvas>
+          <div class="globe-hud-bottom">
+            <span class="hud-item">GLOBAL INTELLIGENCE NETWORK</span>
+            <span class="hud-item hud-mono" id="hud-clock"></span>
+          </div>
         </div>
         <h2>Select a Report</h2>
         <p>Choose an intelligence report from the sidebar to view its contents.</p>
@@ -209,6 +205,20 @@
   <script src="js/auth.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/reports.js"></script>
-  <script src="js/dashboard.js?v=19"></script>
+  <script src="js/globe.js?v=1"></script>
+  <script>
+    // HUD clock
+    (function () {
+      var el = document.getElementById("hud-clock");
+      if (!el) return;
+      function tick() {
+        var d = new Date();
+        el.textContent = d.toISOString().replace("T", " ").substring(0, 19) + " UTC";
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
+  <script src="js/dashboard.js?v=20"></script>
 </body>
 </html>
