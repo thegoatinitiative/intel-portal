@@ -671,7 +671,7 @@
           iframe.style.height = h + "px";
         } catch (e) { /* cross-origin fallback stays at CSS default */ }
       });
-      reportBodyEl.prepend(iframe);
+      reportBodyEl.appendChild(iframe);
     }).catch(function () { /* no assessment available */ });
   }
 
