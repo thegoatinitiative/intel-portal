@@ -420,14 +420,14 @@ body {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 520px;
+  max-width: 640px;
   margin-bottom: 1.5rem;
 }
 
 #globe-canvas {
   display: block;
   width: 100%;
-  max-width: 500px;
+  max-width: 620px;
   aspect-ratio: 1;
 }
 
