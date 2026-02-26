@@ -664,12 +664,22 @@
       iframe.className = "intel-assessment-iframe";
       iframe.setAttribute("frameborder", "0");
       iframe.setAttribute("allowfullscreen", "true");
-      // Auto-resize iframe to fit content
+      // Auto-resize iframe to fit content, apply overrides, enable editing
       iframe.addEventListener("load", function () {
         try {
           var h = iframe.contentDocument.documentElement.scrollHeight;
           iframe.style.height = h + "px";
         } catch (e) { /* cross-origin fallback stays at CSS default */ }
+
+        // Apply saved field overrides and enable editing for admins
+        applyFieldOverrides(iframe, report);
+        if (isUserAdmin) enableFieldEditing(iframe, report);
+
+        // Re-measure after overrides may have changed content height
+        try {
+          var h2 = iframe.contentDocument.documentElement.scrollHeight;
+          iframe.style.height = h2 + "px";
+        } catch (e) { /* ignore */ }
       });
       reportBodyEl.appendChild(iframe);
     }).catch(function () { /* no assessment available */ });
@@ -1020,6 +1030,179 @@
   countryFilter.addEventListener("change", () => {
     renderReportList(searchInput.value, countryFilter.value);
   });
+
+  // ---- Field Override Functions (inline editing of assessment fields) ----
+
+  /**
+   * Index all td.field-label elements in the iframe and apply any saved overrides.
+   * Runs for ALL users so overrides are visible to everyone.
+   */
+  function applyFieldOverrides(iframe, report) {
+    try {
+      var iframeDoc = iframe.contentDocument;
+      if (!iframeDoc) return;
+      var labels = iframeDoc.querySelectorAll("td.field-label");
+      for (var i = 0; i < labels.length; i++) {
+        labels[i].setAttribute("data-field-idx", String(i));
+        var valueCell = labels[i].nextElementSibling;
+        if (valueCell && report.fieldOverrides && report.fieldOverrides[String(i)] != null) {
+          setSafeHTML(valueCell, report.fieldOverrides[String(i)]);
+        }
+      }
+    } catch (e) { /* cross-origin or missing doc */ }
+  }
+
+  /**
+   * Make value cells contenteditable for admins with visual cues and save/discard UI.
+   */
+  function enableFieldEditing(iframe, report) {
+    try {
+      var iframeDoc = iframe.contentDocument;
+      if (!iframeDoc) return;
+
+      // Inject edit-mode styles into iframe
+      var style = iframeDoc.createElement("style");
+      style.textContent =
+        "td[contenteditable='true'] { cursor: text; transition: border-color 0.15s, box-shadow 0.15s; border: 1px dashed transparent; border-radius: 3px; }" +
+        "td[contenteditable='true']:hover { border-color: #3a9d5c88; }" +
+        "td[contenteditable='true']:focus { outline: none; border-color: #3a9d5c; box-shadow: 0 0 0 2px rgba(58,157,92,0.25); background: rgba(58,157,92,0.06); }";
+      iframeDoc.head.appendChild(style);
+
+      var labels = iframeDoc.querySelectorAll("td.field-label");
+      var dirtyFields = {};
+
+      // Snapshot original values for change detection
+      var originals = {};
+      for (var i = 0; i < labels.length; i++) {
+        var valueCell = labels[i].nextElementSibling;
+        if (valueCell) {
+          originals[String(i)] = valueCell.innerHTML;
+          valueCell.setAttribute("contenteditable", "true");
+        }
+      }
+
+      // Create save bar in parent (above iframe)
+      var saveBar = document.createElement("div");
+      saveBar.className = "field-edit-save-bar";
+      saveBar.style.cssText =
+        "display:none; position:sticky; top:0; z-index:50; background:#1e2230; border:1px solid #2e3340; border-radius:8px;" +
+        "padding:10px 16px; margin-bottom:12px; align-items:center; justify-content:space-between; gap:12px; box-shadow:0 2px 8px rgba(0,0,0,0.3);";
+
+      var msgSpan = document.createElement("span");
+      msgSpan.style.cssText = "color:#e0e2e8; font-size:13px; font-weight:500;";
+      msgSpan.textContent = "You have unsaved field changes";
+
+      var btnGroup = document.createElement("div");
+      btnGroup.style.cssText = "display:flex; gap:8px;";
+
+      var discardBtn = document.createElement("button");
+      discardBtn.type = "button";
+      discardBtn.textContent = "Discard";
+      discardBtn.style.cssText =
+        "background:#2a2e38; color:#8b8fa4; border:1px solid #363b48; border-radius:5px; padding:6px 14px; cursor:pointer; font-size:12px; font-weight:500;";
+      discardBtn.addEventListener("mouseenter", function () { discardBtn.style.borderColor = "#d94452"; discardBtn.style.color = "#d94452"; });
+      discardBtn.addEventListener("mouseleave", function () { discardBtn.style.borderColor = "#363b48"; discardBtn.style.color = "#8b8fa4"; });
+
+      var saveBtn = document.createElement("button");
+      saveBtn.type = "button";
+      saveBtn.textContent = "Save Changes";
+      saveBtn.style.cssText =
+        "background:#3a9d5c; color:#fff; border:none; border-radius:5px; padding:6px 14px; cursor:pointer; font-size:12px; font-weight:600;";
+      saveBtn.addEventListener("mouseenter", function () { saveBtn.style.background = "#2f8a4e"; });
+      saveBtn.addEventListener("mouseleave", function () { saveBtn.style.background = "#3a9d5c"; });
+
+      btnGroup.appendChild(discardBtn);
+      btnGroup.appendChild(saveBtn);
+      saveBar.appendChild(msgSpan);
+      saveBar.appendChild(btnGroup);
+
+      // Insert save bar right before the iframe
+      iframe.parentNode.insertBefore(saveBar, iframe);
+
+      function checkDirty() {
+        var hasDirty = false;
+        for (var j = 0; j < labels.length; j++) {
+          var vc = labels[j].nextElementSibling;
+          if (vc && vc.innerHTML !== originals[String(j)]) {
+            dirtyFields[String(j)] = true;
+            hasDirty = true;
+          } else {
+            delete dirtyFields[String(j)];
+          }
+        }
+        saveBar.style.display = hasDirty ? "flex" : "none";
+      }
+
+      // Listen for input on all editable value cells
+      for (var k = 0; k < labels.length; k++) {
+        var vc = labels[k].nextElementSibling;
+        if (vc) {
+          vc.addEventListener("input", checkDirty);
+        }
+      }
+
+      // Discard: restore originals
+      discardBtn.addEventListener("click", function () {
+        for (var j = 0; j < labels.length; j++) {
+          var vc = labels[j].nextElementSibling;
+          if (vc) {
+            setSafeHTML(vc, originals[String(j)]);
+          }
+        }
+        dirtyFields = {};
+        saveBar.style.display = "none";
+      });
+
+      // Save: build overrides map, persist via StorageDB
+      saveBtn.addEventListener("click", function () {
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving…";
+
+        var overrides = report.fieldOverrides ? Object.assign({}, report.fieldOverrides) : {};
+        for (var j = 0; j < labels.length; j++) {
+          var vc = labels[j].nextElementSibling;
+          if (vc && dirtyFields[String(j)]) {
+            overrides[String(j)] = vc.innerHTML;
+          }
+        }
+        report.fieldOverrides = overrides;
+
+        StorageDB.saveReport(report).then(function () {
+          // Update originals to new values
+          for (var j = 0; j < labels.length; j++) {
+            var vc = labels[j].nextElementSibling;
+            if (vc) originals[String(j)] = vc.innerHTML;
+          }
+          dirtyFields = {};
+          saveBar.style.display = "none";
+          saveBtn.disabled = false;
+          saveBtn.textContent = "Save Changes";
+
+          // Brief success flash
+          saveBar.style.display = "flex";
+          msgSpan.textContent = "Changes saved successfully";
+          msgSpan.style.color = "#3a9d5c";
+          setTimeout(function () {
+            saveBar.style.display = "none";
+            msgSpan.textContent = "You have unsaved field changes";
+            msgSpan.style.color = "#e0e2e8";
+          }, 2000);
+
+          ActivityLog.log("field_overrides_saved", { reportId: report.id, fieldCount: Object.keys(overrides).length });
+        }).catch(function (err) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = "Save Changes";
+          msgSpan.textContent = "Save failed — please try again";
+          msgSpan.style.color = "#d94452";
+          setTimeout(function () {
+            msgSpan.textContent = "You have unsaved field changes";
+            msgSpan.style.color = "#e0e2e8";
+          }, 3000);
+        });
+      });
+
+    } catch (e) { /* cross-origin or missing doc */ }
+  }
 
   // ---- Init ----
   renderReportList("", "");
