@@ -148,7 +148,7 @@
 
   function resize() {
     var rect = canvas.parentElement.getBoundingClientRect();
-    SIZE = Math.min(rect.width, rect.height, 500);
+    SIZE = Math.min(rect.width, rect.height, 620);
     canvas.width = SIZE * DPR;
     canvas.height = SIZE * DPR;
     canvas.style.width = SIZE + "px";
