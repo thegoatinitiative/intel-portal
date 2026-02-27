@@ -1306,8 +1306,176 @@
     } catch (e) { /* cross-origin or missing doc */ }
   }
 
+  // ---- Nationality Breakdown: Radar Dossier ----
+
+  // SIA (Special Interest Alien) countries — adjective form to match report nationality field
+  var SIA_COUNTRIES = [
+    "Afghan", "Algerian", "Bahraini", "Bangladeshi", "Djiboutian", "Egyptian", "Emirati",
+    "Eritrean", "Indonesian", "Iranian", "Iraqi", "Jordanian", "Kazakh", "Kuwaiti", "Kyrgyz",
+    "Lebanese", "Libyan", "Malaysian", "Mauritanian", "Moroccan", "North Korean", "Omani",
+    "Pakistani", "Qatari", "Saudi", "Somali", "Sudanese", "Syrian", "Tajik", "Tunisian",
+    "Turkish", "Turkmen", "Uzbek", "Yemeni"
+  ];
+
+  var SIA_SET = {};
+  SIA_COUNTRIES.forEach(function (c) { SIA_SET[c.toLowerCase()] = true; });
+
+  function isSIA(name) {
+    return SIA_SET[(name || "").toLowerCase()] === true;
+  }
+
+  // Admin count overrides persist in localStorage
+  var NAT_OVERRIDES_KEY = "intel_nationality_overrides";
+
+  function loadNatOverrides() {
+    try {
+      var raw = localStorage.getItem(NAT_OVERRIDES_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) { return {}; }
+  }
+
+  function saveNatOverrides(overrides) {
+    try { localStorage.setItem(NAT_OVERRIDES_KEY, JSON.stringify(overrides)); } catch (e) {}
+  }
+
+  function renderNationalityBreakdown() {
+    var existing = document.querySelector(".nat-dossier");
+    if (existing) existing.remove();
+
+    // Count nationalities from visible reports
+    var autoCounts = {};
+    REPORTS.forEach(function (r) {
+      if (!currentUserIsAdmin && r.classification === "top-secret") return;
+      var nat = r.nationality || "Unknown";
+      autoCounts[nat] = (autoCounts[nat] || 0) + 1;
+    });
+
+    var overrides = loadNatOverrides();
+    var allKeys = Object.keys(autoCounts);
+    Object.keys(overrides).forEach(function (k) {
+      if (allKeys.indexOf(k) === -1) allKeys.push(k);
+    });
+
+    var entries = allKeys.map(function (k) {
+      var displayCount = overrides[k] != null ? overrides[k] : (autoCounts[k] || 0);
+      return { name: k, count: displayCount };
+    });
+    if (entries.length === 0) return;
+
+    entries.sort(function (a, b) { return b.count - a.count; });
+    var maxCount = Math.max.apply(null, entries.map(function (e) { return e.count; })) || 1;
+    var totalCount = entries.reduce(function (sum, e) { return sum + e.count; }, 0);
+
+    // Container
+    var container = document.createElement("div");
+    container.className = "nat-dossier";
+
+    // Header
+    var header = document.createElement("div");
+    header.className = "nat-dossier-header";
+    var titleEl = document.createElement("span");
+    titleEl.className = "nat-dossier-header-title";
+    titleEl.textContent = "\u258C Origin Analysis";
+    var tagEl = document.createElement("span");
+    tagEl.className = "nat-dossier-header-tag";
+    tagEl.textContent = "CLASSIFIED";
+    header.appendChild(titleEl);
+    header.appendChild(tagEl);
+    container.appendChild(header);
+
+    // Body with rows
+    var body = document.createElement("div");
+    body.className = "nat-dossier-body";
+
+    entries.forEach(function (entry, idx) {
+      var entrySIA = isSIA(entry.name);
+      var row = document.createElement("div");
+      row.className = "nat-dossier-row" + (entrySIA ? " nat-dossier-row-sia" : "");
+
+      var label = document.createElement("span");
+      label.className = "nat-dossier-label";
+      label.textContent = entry.name;
+
+      if (entrySIA) {
+        var badge = document.createElement("span");
+        badge.className = "nat-dossier-sia-badge";
+        badge.textContent = "SIA";
+        label.appendChild(document.createTextNode(" "));
+        label.appendChild(badge);
+      }
+
+      var track = document.createElement("div");
+      track.className = "nat-dossier-track";
+      var fill = document.createElement("div");
+      fill.className = "nat-dossier-fill";
+      fill.style.width = Math.round((entry.count / maxCount) * 100) + "%";
+      track.appendChild(fill);
+
+      var countEl = document.createElement("span");
+      countEl.className = "nat-dossier-count";
+      countEl.textContent = entry.count;
+
+      row.appendChild(label);
+      row.appendChild(track);
+      row.appendChild(countEl);
+      body.appendChild(row);
+
+      // Dashed separator (skip after last)
+      if (idx < entries.length - 1) {
+        var sep = document.createElement("hr");
+        sep.className = "nat-dossier-sep";
+        body.appendChild(sep);
+      }
+    });
+
+    container.appendChild(body);
+
+    // Footer
+    var footer = document.createElement("div");
+    footer.className = "nat-dossier-footer";
+
+    var subjEl = document.createElement("span");
+    subjEl.appendChild(document.createTextNode("Subjects: "));
+    var subjVal = document.createElement("span");
+    subjVal.className = "dossier-val";
+    subjVal.textContent = totalCount;
+    subjEl.appendChild(subjVal);
+    footer.appendChild(subjEl);
+
+    var regEl = document.createElement("span");
+    regEl.appendChild(document.createTextNode("Regions: "));
+    var regVal = document.createElement("span");
+    regVal.className = "dossier-val";
+    regVal.textContent = entries.length;
+    regEl.appendChild(regVal);
+    footer.appendChild(regEl);
+
+    var statusEl = document.createElement("span");
+    statusEl.className = "dossier-status";
+    var dot = document.createElement("span");
+    dot.className = "dossier-status-dot";
+    statusEl.appendChild(dot);
+    statusEl.appendChild(document.createTextNode(" UPDATED "));
+    var cursor = document.createElement("span");
+    cursor.className = "blink-cursor";
+    cursor.textContent = "\u25AE";
+    statusEl.appendChild(cursor);
+    footer.appendChild(statusEl);
+
+    container.appendChild(footer);
+
+    // Insert between .globe-wrapper and the <h2>
+    var h2 = reportPlaceholder.querySelector("h2");
+    if (h2) {
+      reportPlaceholder.insertBefore(container, h2);
+    } else {
+      reportPlaceholder.appendChild(container);
+    }
+  }
+
   // ---- Init ----
   // Wait for admin check so top-secret filtering is applied on first render
   await adminReady;
   renderReportList("", "");
+  renderNationalityBreakdown();
 })();

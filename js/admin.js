@@ -512,4 +512,94 @@
     });
   }
 
+  // ---- Nationality Overrides ----
+
+  var NAT_OVERRIDES_KEY = "intel_nationality_overrides";
+  var natForm = document.getElementById("nat-override-form");
+  var natTbody = document.getElementById("nat-tbody");
+  var natResetBtn = document.getElementById("nat-reset-btn");
+
+  function loadNatOverrides() {
+    try {
+      var raw = localStorage.getItem(NAT_OVERRIDES_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) { return {}; }
+  }
+
+  function saveNatOverrides(overrides) {
+    try { localStorage.setItem(NAT_OVERRIDES_KEY, JSON.stringify(overrides)); } catch (e) {}
+  }
+
+  function renderNatOverrides() {
+    clearTable(natTbody);
+    var overrides = loadNatOverrides();
+    var keys = Object.keys(overrides);
+    if (keys.length === 0) {
+      var tr = document.createElement("tr");
+      var td = document.createElement("td");
+      td.colSpan = 3;
+      td.style.textAlign = "center";
+      td.style.color = "var(--text-muted)";
+      td.textContent = "No overrides set.";
+      tr.appendChild(td);
+      natTbody.appendChild(tr);
+      return;
+    }
+    keys.sort().forEach(function (nat) {
+      var tr = document.createElement("tr");
+
+      var tdNat = document.createElement("td");
+      tdNat.textContent = nat;
+      tdNat.style.fontWeight = "600";
+
+      var tdCount = document.createElement("td");
+      tdCount.textContent = overrides[nat];
+      tdCount.style.fontFamily = "var(--font-mono)";
+
+      var tdAction = document.createElement("td");
+      var clearBtn = document.createElement("button");
+      clearBtn.className = "btn-delete";
+      clearBtn.textContent = "Clear";
+      clearBtn.style.cssText = "padding:0.3rem 0.8rem;font-size:0.65rem;";
+      clearBtn.addEventListener("click", function () {
+        var ov = loadNatOverrides();
+        delete ov[nat];
+        saveNatOverrides(ov);
+        renderNatOverrides();
+      });
+      tdAction.appendChild(clearBtn);
+
+      tr.appendChild(tdNat);
+      tr.appendChild(tdCount);
+      tr.appendChild(tdAction);
+      natTbody.appendChild(tr);
+    });
+  }
+
+  if (natForm) {
+    natForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var nameInput = document.getElementById("nat-name");
+      var countInput = document.getElementById("nat-count");
+      var nat = nameInput.value.trim();
+      var count = parseInt(countInput.value, 10);
+      if (!nat || isNaN(count) || count < 0) return;
+      var ov = loadNatOverrides();
+      ov[nat] = count;
+      saveNatOverrides(ov);
+      renderNatOverrides();
+      nameInput.value = "";
+      countInput.value = "";
+    });
+  }
+
+  if (natResetBtn) {
+    natResetBtn.addEventListener("click", function () {
+      localStorage.removeItem(NAT_OVERRIDES_KEY);
+      renderNatOverrides();
+    });
+  }
+
+  renderNatOverrides();
+
 })();
