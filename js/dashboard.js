@@ -488,7 +488,34 @@
       lbl.className = "meta-label";
       lbl.textContent = label;
 
-      if (label === "Classification") {
+      if (label === "Classification" && isUserAdmin) {
+        const select = document.createElement("select");
+        select.className = "classification-select";
+        var classOptions = [
+          { value: "top-secret", label: "TOP SECRET" },
+          { value: "secret", label: "SECRET" },
+          { value: "confidential", label: "CONFIDENTIAL" }
+        ];
+        classOptions.forEach(function (opt) {
+          var option = document.createElement("option");
+          option.value = opt.value;
+          option.textContent = opt.label;
+          if (opt.value === report.classification) option.selected = true;
+          select.appendChild(option);
+        });
+        select.className = "classification-select " + (classMap[report.classification] || "");
+        select.addEventListener("change", function () {
+          var newClass = select.value;
+          report.classification = newClass;
+          select.className = "classification-select " + (classMap[newClass] || "");
+          StorageDB.saveReport(report).then(function () {
+            renderReportList(searchInput.value, countryFilter.value);
+            ActivityLog.log("classification_changed", { reportId: report.id, classification: newClass });
+          }).catch(function (e) { console.error("Failed to update classification:", e); });
+        });
+        item.appendChild(lbl);
+        item.appendChild(select);
+      } else if (label === "Classification") {
         const badge = document.createElement("span");
         badge.className = "report-item-classification " + (classMap[report.classification] || "");
         badge.textContent = value;
