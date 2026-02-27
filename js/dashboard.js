@@ -12,7 +12,9 @@
   ActivityLog.startPageTimer("dashboard");
 
   // Show Admin tab and New Report button only for admins
-  isAdmin().then(function (admin) {
+  let currentUserIsAdmin = false;
+  const adminReady = isAdmin().then(function (admin) {
+    currentUserIsAdmin = admin;
     if (admin) {
       var adminTab = document.getElementById("admin-tab");
       if (adminTab) adminTab.hidden = false;
@@ -231,6 +233,7 @@
     reportListEl.replaceChildren();
 
     const filtered = REPORTS.filter((r) => {
+      if (!currentUserIsAdmin && r.classification === "top-secret") return false;
       if (countryVal && r.nationality.toLowerCase() !== countryVal) return false;
       if (!query) return true;
       return (
@@ -266,6 +269,7 @@
   async function openReport(id) {
     const reportMeta = REPORTS.find((r) => r.id === id);
     if (!reportMeta) return;
+    if (!currentUserIsAdmin && reportMeta.classification === "top-secret") return;
 
     activeReportId = id;
     ActivityLog.log("report_view", { reportId: id, subject: reportMeta.subjectName });
@@ -1157,5 +1161,7 @@
   }
 
   // ---- Init ----
+  // Wait for admin check so top-secret filtering is applied on first render
+  await adminReady;
   renderReportList("", "");
 })();
