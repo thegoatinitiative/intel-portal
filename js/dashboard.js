@@ -1308,22 +1308,6 @@
 
   // ---- Nationality Breakdown: Radar Dossier ----
 
-  // SIA (Special Interest Alien) countries — adjective form to match report nationality field
-  var SIA_COUNTRIES = [
-    "Afghan", "Algerian", "Bahraini", "Bangladeshi", "Djiboutian", "Egyptian", "Emirati",
-    "Eritrean", "Indonesian", "Iranian", "Iraqi", "Jordanian", "Kazakh", "Kuwaiti", "Kyrgyz",
-    "Lebanese", "Libyan", "Malaysian", "Mauritanian", "Moroccan", "North Korean", "Omani",
-    "Pakistani", "Qatari", "Saudi", "Somali", "Sudanese", "Syrian", "Tajik", "Tunisian",
-    "Turkish", "Turkmen", "Uzbek", "Yemeni"
-  ];
-
-  var SIA_SET = {};
-  SIA_COUNTRIES.forEach(function (c) { SIA_SET[c.toLowerCase()] = true; });
-
-  function isSIA(name) {
-    return SIA_SET[(name || "").toLowerCase()] === true;
-  }
-
   // Admin count overrides persist in localStorage
   var NAT_OVERRIDES_KEY = "intel_nationality_overrides";
 
@@ -1388,21 +1372,12 @@
     body.className = "nat-dossier-body";
 
     entries.forEach(function (entry, idx) {
-      var entrySIA = isSIA(entry.name);
       var row = document.createElement("div");
-      row.className = "nat-dossier-row" + (entrySIA ? " nat-dossier-row-sia" : "");
+      row.className = "nat-dossier-row";
 
       var label = document.createElement("span");
       label.className = "nat-dossier-label";
       label.textContent = entry.name;
-
-      if (entrySIA) {
-        var badge = document.createElement("span");
-        badge.className = "nat-dossier-sia-badge";
-        badge.textContent = "SIA";
-        label.appendChild(document.createTextNode(" "));
-        label.appendChild(badge);
-      }
 
       var track = document.createElement("div");
       track.className = "nat-dossier-track";
@@ -1413,7 +1388,40 @@
 
       var countEl = document.createElement("span");
       countEl.className = "nat-dossier-count";
-      countEl.textContent = entry.count;
+      if (currentUserIsAdmin) {
+        var countSpan = document.createElement("span");
+        countSpan.className = "nat-count-editable";
+        countSpan.textContent = entry.count;
+        countSpan.title = "Click to override count";
+        countSpan.addEventListener("click", (function (nat, span) {
+          return function () {
+            var input = document.createElement("input");
+            input.type = "number";
+            input.className = "nat-count-input";
+            input.value = span.textContent;
+            input.min = "0";
+            span.replaceWith(input);
+            input.focus();
+            input.select();
+            function commit() {
+              var val = parseInt(input.value, 10);
+              var ov = loadNatOverrides();
+              if (isNaN(val) || val < 0) { delete ov[nat]; }
+              else { ov[nat] = val; }
+              saveNatOverrides(ov);
+              renderNationalityBreakdown();
+            }
+            input.addEventListener("blur", commit);
+            input.addEventListener("keydown", function (e) {
+              if (e.key === "Enter") { e.preventDefault(); commit(); }
+              if (e.key === "Escape") { e.preventDefault(); renderNationalityBreakdown(); }
+            });
+          };
+        })(entry.name, countSpan));
+        countEl.appendChild(countSpan);
+      } else {
+        countEl.textContent = entry.count;
+      }
 
       row.appendChild(label);
       row.appendChild(track);
