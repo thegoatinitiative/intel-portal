@@ -1306,8 +1306,25 @@
     } catch (e) { /* cross-origin or missing doc */ }
   }
 
+  // ---- Threat Level HUD (derived from highest classification) ----
+  function updateThreatLevel() {
+    var el = document.getElementById("hud-threat");
+    if (!el) return;
+    var classRank = { "confidential": 1, "secret": 2, "top-secret": 3 };
+    var highest = 0;
+    REPORTS.forEach(function (r) {
+      var rank = classRank[r.classification] || 0;
+      if (rank > highest) highest = rank;
+    });
+    var labels = { 1: "GUARDED", 2: "ELEVATED", 3: "CRITICAL" };
+    el.textContent = labels[highest] || "NOMINAL";
+    // Color: green for guarded, amber for elevated, red-blink for critical
+    el.className = highest >= 3 ? "hud-danger" : highest >= 2 ? "hud-amber" : "hud-blink";
+  }
+
   // ---- Init ----
   // Wait for admin check so top-secret filtering is applied on first render
   await adminReady;
   renderReportList("", "");
+  updateThreatLevel();
 })();
