@@ -1974,7 +1974,8 @@ body {
 
 .admin-layout {
   display: flex;
-  height: calc(100vh - 70px);
+  min-height: calc(100vh - 70px);
+  height: auto;
   gap: 0;
 }
 
@@ -1985,6 +1986,7 @@ body {
   flex-direction: column;
   overflow: hidden;
   border-right: 1px solid var(--border);
+  max-height: calc(100vh - 70px);
 }
 
 .admin-panel:last-child {
