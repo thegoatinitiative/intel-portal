@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategic Intelligence Assessment: Subject SILK-4</title>
+<style>
+  :root {
+    /* Exact dashboard palette */
+    --bg-page: #0d1117;
+    --bg-card: #161b22;
+    --bg-header: #1c2333;
+    --bg-inset: #0d1117;
+    --border: #30363d;
+    --border-subtle: #21262d;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --text-muted: #656d76;
+    --green: #3fb950;
+    --green-emphasis: #238636;
+    --green-subtle: rgba(63, 185, 80, 0.10);
+    --green-border: rgba(63, 185, 80, 0.20);
+    --coral: #da6456;
+    --coral-emphasis: #e8655a;
+    --coral-subtle: rgba(218, 100, 86, 0.10);
+    --coral-border: rgba(218, 100, 86, 0.20);
+    --amber: #d29922;
+    --amber-subtle: rgba(210, 153, 34, 0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .classification-banner {
+    background: var(--coral-emphasis);
+    color: #fff;
+    text-align: center;
+    padding: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 32px 60px;
+  }
+
+  .report-header {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+
+  .report-header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .report-header .subject-line {
+    color: var(--green);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 18px;
+  }
+
+  .header-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0;
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+
+  .header-meta .meta-item {
+    padding: 0 12px;
+    border-right: 1px solid var(--border);
+  }
+
+  .header-meta .meta-item:first-child { padding-left: 0; }
+  .header-meta .meta-item:last-child { border-right: none; }
+
+  .header-meta .meta-label {
+    display: block;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+  }
+
+  .header-meta .meta-value {
+    color: var(--text-primary);
+    font-size: 13px;
+  }
+
+  .placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .badge-green {
+    display: inline-block;
+    background: var(--green-emphasis);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  .section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-number {
+    background: var(--green);
+    color: var(--bg-page);
+    font-weight: 700;
+    font-size: 12px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-header h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .section-body {
+    padding: 20px;
+  }
+
+  .subsection-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin: 20px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .subsection-title:first-child {
+    margin-top: 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 16px;
+    font-size: 13px;
+  }
+
+  thead th {
+    background: var(--bg-header);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  tbody td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-subtle);
+    vertical-align: top;
+    color: var(--text-primary);
+  }
+
+  tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.015);
+  }
+
+  td strong {
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  td code, p code {
+    background: rgba(63, 185, 80, 0.08);
+    color: var(--green);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+  }
+
+  .gap-row td {
+    background: var(--amber-subtle);
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  .dark-period td {
+    background: var(--coral-subtle);
+    color: var(--coral-emphasis);
+    font-weight: 600;
+  }
+
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+  }
+
+  .checklist li {
+    padding: 6px 10px;
+    margin: 3px 0;
+    border-radius: 4px;
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .checklist li .check-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    margin-top: 1px;
+  }
+
+  .checklist li.unchecked .check-icon {
+    border: 1.5px solid var(--border);
+    color: transparent;
+  }
+
+  .checklist li.checked .check-icon {
+    background: var(--green-emphasis);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .checklist li.checked {
+    background: var(--green-subtle);
+    color: var(--green);
+  }
+
+  .checklist li.unchecked {
+    color: var(--text-secondary);
+  }
+
+  p {
+    margin: 10px 0;
+    color: var(--text-primary);
+  }
+
+  .risk-box {
+    background: var(--coral-subtle);
+    border: 1px solid var(--coral-border);
+    border-left: 3px solid var(--coral);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+
+  .risk-box-title {
+    color: var(--coral-emphasis);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  .risk-box p {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 13px;
+  }
+
+  .analysis-box {
+    background: var(--green-subtle);
+    border: 1px solid var(--green-border);
+    border-left: 3px solid var(--green);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+
+  .analysis-box h4 {
+    color: var(--green);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  .geo-node {
+    margin: 14px 0;
+    padding: 16px 18px;
+    background: var(--bg-header);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .geo-node h4 {
+    color: var(--green);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .geo-node ul {
+    margin: 8px 0 0 18px;
+    color: var(--text-secondary);
+  }
+
+  .geo-node ul li {
+    margin: 5px 0;
+    font-size: 13px;
+  }
+
+  .threat-vector {
+    margin: 12px 0;
+    padding: 14px 18px;
+    background: var(--coral-subtle);
+    border: 1px solid var(--coral-border);
+    border-radius: 6px;
+  }
+
+  .threat-vector h4 {
+    color: var(--coral-emphasis);
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .directive-list {
+    list-style: none;
+    padding: 0;
+    counter-reset: directive;
+  }
+
+  .directive-list li {
+    counter-increment: directive;
+    padding: 12px 16px 12px 50px;
+    margin: 6px 0;
+    background: var(--bg-header);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    position: relative;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .directive-list li::before {
+    content: counter(directive);
+    position: absolute;
+    left: 16px;
+    top: 12px;
+    background: var(--green);
+    color: var(--bg-page);
+    font-weight: 700;
+    font-size: 11px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .directive-list li strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .numbered-list {
+    padding-left: 20px;
+    margin: 8px 0;
+  }
+
+  .numbered-list li {
+    margin: 6px 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .numbered-list li strong {
+    color: var(--text-primary);
+  }
+
+  .indicator-list {
+    list-style: none;
+    padding: 0;
+    counter-reset: indicator;
+  }
+
+  .indicator-list li {
+    counter-increment: indicator;
+    padding: 10px 14px 10px 40px;
+    margin: 5px 0;
+    background: var(--green-subtle);
+    border: 1px solid var(--green-border);
+    border-radius: 6px;
+    position: relative;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .indicator-list li::before {
+    content: counter(indicator) ".";
+    position: absolute;
+    left: 14px;
+    top: 10px;
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  .indicator-list li strong {
+    color: var(--green);
+  }
+
+  .priority-actions {
+    list-style: none;
+    padding: 0;
+  }
+
+  .priority-actions li {
+    padding: 8px 12px 8px 26px;
+    margin: 3px 0;
+    position: relative;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .priority-actions li::before {
+    content: "\25B8";
+    position: absolute;
+    left: 8px;
+    color: var(--green);
+    font-size: 12px;
+    top: 9px;
+  }
+
+  .priority-actions li strong {
+    color: var(--text-primary);
+  }
+
+  .end-marker {
+    text-align: center;
+    margin: 32px 0 16px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .sources-section {
+    margin-top: 24px;
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .sources-section h3 {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .sources-section ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sources-section li {
+    padding: 5px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .sources-section li:last-child {
+    border-bottom: none;
+  }
+
+  .sources-section a {
+    color: var(--green);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .sources-section a:hover {
+    color: #56d364;
+    text-decoration: underline;
+  }
+
+  @media print {
+    .classification-banner { position: static; }
+    body { background: white; color: #1c1c1c; font-size: 11pt; }
+    .section { border: 1px solid #ccc; break-inside: avoid; }
+    .section-header { background: #f0f0f0; }
+    .report-header { border-color: #ccc; }
+    table { font-size: 10pt; }
+    a { color: #238636; }
+    .badge-green { background: #238636; }
+  }
+</style>
+</head>
+<body>
+
+<div class="classification-banner">LES // FOUO</div>
+
+<div class="container">
+
+  <!-- Report Header -->
+  <div class="report-header">
+    <h1>Strategic Intelligence Assessment</h1>
+    <div class="subject-line">Subject SILK-4</div>
+    <div class="header-meta">
+      <div class="meta-item">
+        <span class="meta-label">Classification</span>
+        <span class="meta-value"><span class="badge-green">LES//FOUO</span></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Date of Assessment</span>
+        <span class="meta-value">27 February 2026</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prepared By</span>
+        <span class="meta-value">DOCEX / Analytical Unit</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Distribution</span>
+        <span class="meta-value">CBP Intel / HSI / JTTF / ICE ERO</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 0: Document Recovery and Subject Identification -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">0</div>
+      <h2>Document Recovery and Subject Identification</h2>
+    </div>
+    <div class="section-body">
+
+      <h3 class="subsection-title">Recovery Details</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Date of Recovery</strong></td><td>2026 (exact date pending field confirmation)</td></tr>
+          <tr><td><strong>Time of Recovery</strong></td><td>Unknown</td></tr>
+          <tr><td><strong>Recovery Location</strong></td><td>US-Mexico border zone (sector and coordinates pending)</td></tr>
+          <tr><td><strong>GPS Coordinates</strong></td><td>Pending field report</td></tr>
+          <tr><td><strong>Terrain/Environment</strong></td><td>Pending field report</td></tr>
+          <tr><td><strong>Recovered By</strong></td><td>Pending field report</td></tr>
+          <tr><td><strong>Chain of Custody ID</strong></td><td>Pending assignment</td></tr>
+          <tr><td><strong>Recovery Context</strong></td><td>Mexican humanitarian visitor card recovered in US border zone. Document in intact condition with minimal wear. Recovered approximately 20 months after document expiration, indicating prolonged period between visa validity and border encounter.</td></tr>
+          <tr><td><strong>Other Items Recovered</strong></td><td>Pending field report</td></tr>
+          <tr><td><strong>Document Condition</strong></td><td>Good condition. Card is intact with all printed fields legible. Minor surface wear and slight yellowing consistent with normal use over a 1&ndash;2 year period. Both QR codes on reverse are present but readability untested. Barcode on front is intact. Holographic security features visible. No evidence of water damage, tearing, or deliberate destruction.</td></tr>
+          <tr><td><strong>Photos Taken at Scene</strong></td><td>Yes &mdash; front and back scans on file (Bahkritdinova, Ziola 4753.pdf)</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Document Details</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Document Type</strong></td><td>Tarjeta de Visitante por Razones Humanitarias (TVRH) &mdash; Mexican Humanitarian Visitor Card</td></tr>
+          <tr><td><strong>Issuing Country</strong></td><td>Mexico (MEX) &mdash; Secretar&iacute;a de Gobernaci&oacute;n / Instituto Nacional de Migraci&oacute;n</td></tr>
+          <tr><td><strong>Document Number</strong></td><td>0000002804753 (front) / No. 13291159 (back, MRZ-linked)</td></tr>
+          <tr><td><strong>SEGOB-INM Reference</strong></td><td>SEGOB-INM-00371052</td></tr>
+          <tr><td><strong>Surname</strong></td><td>BAKHRITDINOVA</td></tr>
+          <tr><td><strong>Given Names</strong></td><td>Zilola</td></tr>
+          <tr><td><strong>Nationality</strong></td><td>Uzbeka (Uzbek) &mdash; UZB</td></tr>
+          <tr><td><strong>Date of Birth</strong></td><td>13 August 1989 (age 33 at issuance; age 36 at time of recovery)</td></tr>
+          <tr><td><strong>Sex</strong></td><td>Female (Mujer)</td></tr>
+          <tr><td><strong>Place of Birth</strong></td><td>Not listed on document</td></tr>
+          <tr><td><strong>Date of Issue</strong></td><td>07 June 2023</td></tr>
+          <tr><td><strong>Date of Expiry</strong></td><td>07 June 2024 (card face) &mdash; <span style="color: var(--amber);">see MRZ discrepancy below</span></td></tr>
+          <tr><td><strong>Issuing Authority</strong></td><td>INM &mdash; Subrepresentaci&oacute;n Local Talism&aacute;n (SRL TALISMAN), Tuxtla Chico, Chiapas</td></tr>
+          <tr><td><strong>CURP</strong></td><td><code>BAXZ890813MNEKXL04</code> &mdash; Decoded: <strong>BA</strong>(khritdinova) + <strong>X</strong>(no maternal surname) + <strong>Z</strong>(ilola) + <strong>890813</strong>(DOB) + <strong>M</strong>(ujer) + <strong>NE</strong>(Nacido en el Extranjero) + <strong>KXL</strong>(internal consonants) + <strong>04</strong>(homoclave). All fields consistent with subject identity. NE confirms foreign-born registration.</td></tr>
+          <tr><td><strong>Visa Category</strong></td><td>POR RAZONES HUMANITARIAS (For Humanitarian Reasons)</td></tr>
+          <tr><td><strong>Print Location</strong></td><td>SRL TALISMAN, 07/06/2023</td></tr>
+          <tr><td><strong>MRZ Line 1</strong></td><td><code>I&lt;MEX13291159&lt;7&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code></td></tr>
+          <tr><td><strong>MRZ Line 2</strong></td><td><code>8908135F2306072UZB&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;2</code></td></tr>
+          <tr><td><strong>MRZ Line 3</strong></td><td><code>BAKHRITDINOVA&lt;&lt;ZILOLA&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">MRZ Decode Analysis</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Document Type</strong></td><td><code>I</code> &mdash; Identity card (TD1 format, 3-line MRZ)</td></tr>
+          <tr><td><strong>Issuing State</strong></td><td><code>MEX</code> &mdash; Mexico</td></tr>
+          <tr><td><strong>Document Number</strong></td><td><code>13291159</code> check digit <code>7</code> &mdash; VALID, matches back-printed number</td></tr>
+          <tr><td><strong>Date of Birth</strong></td><td><code>890813</code> check digit <code>5</code> &mdash; 13 Aug 1989, MATCHES card face</td></tr>
+          <tr><td><strong>Sex</strong></td><td><code>F</code> &mdash; Female, MATCHES card face</td></tr>
+          <tr><td><strong>Expiry Date (MRZ)</strong></td><td><code>230607</code> check digit <code>2</code> &mdash; 07 Jun 2023 <span style="color: var(--coral-emphasis); font-weight: 600;">&mdash; ANOMALY: matches ISSUE date, not EXPIRY date (07 Jun 2024)</span></td></tr>
+          <tr><td><strong>Nationality</strong></td><td><code>UZB</code> &mdash; Uzbekistan, MATCHES card face</td></tr>
+          <tr><td><strong>Name</strong></td><td><code>BAKHRITDINOVA&lt;&lt;ZILOLA</code> &mdash; MATCHES card face</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Visible Stamps, Visas, and Annotations</h3>
+      <table>
+        <thead>
+          <tr><th>Side</th><th>Type</th><th>Authority</th><th>Date</th><th>Details</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Front</td>
+            <td>TVRH Card</td>
+            <td>INM &mdash; Mexico</td>
+            <td>07/06/2023</td>
+            <td>Humanitarian Visitor</td>
+            <td>1-year validity. Photograph, CURP, barcode present.</td>
+          </tr>
+          <tr>
+            <td>Back</td>
+            <td>Authority Signature</td>
+            <td>INM &mdash; SRL Talism&aacute;n</td>
+            <td>07/06/2023</td>
+            <td>N/A</td>
+            <td>Signed by INM official. Subject (titular) signature also present.</td>
+          </tr>
+          <tr>
+            <td>Back</td>
+            <td>QR Codes (x2)</td>
+            <td>INM / SEGOB</td>
+            <td>07/06/2023</td>
+            <td>N/A</td>
+            <td>Two large QR codes present. Readability pending digital scan. May contain encrypted biographic/biometric data.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Document Anomalies and Indicators</h3>
+      <ul class="checklist">
+        <li class="unchecked"><span class="check-icon"></span> Document shows signs of tampering or alteration</li>
+        <li class="unchecked"><span class="check-icon"></span> Photo appears substituted or inconsistent with document</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> MRZ data inconsistent with printed biographical data &mdash; MRZ expiry field encodes <code>230607</code> (issue date) rather than <code>240607</code> (printed expiry date). This may represent a systematic encoding practice for Mexican TVRHs or a production error. Requires comparison against known-good TVRH specimens to determine if this is a systemic pattern or document-specific anomaly.</li>
+        <li class="unchecked"><span class="check-icon"></span> Stamps inconsistent with known travel patterns</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Gap between last confirmed stamp and recovery location indicating undocumented transit &mdash; Document issued at Guatemala-Mexico border (Talism&aacute;n, Chiapas) on 07 Jun 2023. Recovered at US border zone ~2026. Entire northward transit through Mexico is undocumented on this card.</li>
+        <li class="unchecked"><span class="check-icon"></span> Document reported lost/stolen in INTERPOL SLTD database</li>
+        <li class="unchecked"><span class="check-icon"></span> Multiple documents recovered for same individual under different identities</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Document expired 20+ months prior to recovery. Subject retained expired TVRH through presumed US border crossing attempt, suggesting either (a) continued reliance on the document for identification purposes, or (b) inability to obtain replacement documentation.</li>
+      </ul>
+
+      <h3 class="subsection-title">Preliminary Subject Assessment</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Subject Designation</strong></td><td>SILK-4</td></tr>
+          <tr><td><strong>Assessed Threat Tier</strong></td><td>Tier 2 (High) &mdash; Uzbekistan designated as DHS Special Interest Country (SIC) effective 2024. Central Asian nationals transiting the Dari&eacute;n Gap&ndash;Mexico corridor have documented nexus to ISIS-K affiliated smuggling networks. Enhanced vetting mandatory per SIC protocols.</td></tr>
+          <tr><td><strong>Watchlist Hits</strong></td><td>PENDING &mdash; TSDB, TECS, NLETS, INTERPOL, NCIC, IDENT, NGI. Priority: cross-reference against DHS list of 400+ migrants linked to ISIS-affiliated smuggling network identified June 2024.</td></tr>
+          <tr><td><strong>Biometric Collection</strong></td><td>Fingerprints lifted: Pending | DNA swab: Pending | Facial capture: Yes (photograph on TVRH)</td></tr>
+          <tr><td><strong>Known Associates</strong></td><td>None identified from document. Smuggling network facilitators likely &mdash; transit from Uzbekistan to Guatemala-Mexico border requires organized assistance.</td></tr>
+          <tr><td><strong>Initial Analyst Notes</strong></td><td>Uzbek female, age 36, who obtained a Mexican humanitarian visa at the Talism&aacute;n border crossing (Guatemala&ndash;Mexico) in June 2023 during the peak TVRH mass-issuance period (94,829 cards issued that year). Document recovered at US border ~20 months after expiry. Subject's transit profile is consistent with the well-documented Central Asian extracontinental migration corridor: Uzbekistan &rarr; South America &rarr; Dari&eacute;n Gap &rarr; Central America &rarr; Mexico (TVRH at southern border) &rarr; northward transit to US border. Uzbekistan's 2024 addition to the SIC list, combined with multiple confirmed cases of Uzbek nationals with ISIS/ISIS-K ties apprehended after southern border transit (Attoev 2024, Bozorov 2025), mandates enhanced screening protocols.</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- Section 1: Tactical Infiltration and Evidence Evasion -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <h2>Tactical Infiltration and Evidence Evasion</h2>
+    </div>
+    <div class="section-body">
+      <p>The recovered TVRH is in notably good physical condition, with all printed fields fully legible, both QR codes intact, and security features visible. Unlike degraded or deliberately destroyed documents frequently recovered in border zones, this card shows only minor surface wear consistent with normal carry over approximately two years. The intact condition suggests the subject did not attempt to destroy or discard the document prior to encounter &mdash; a departure from the identity-scrubbing patterns observed in higher-threat-tier subjects.</p>
+      <p>The document was expired by approximately 20 months at the time of recovery (expired 07 June 2024, recovered ~February 2026). This extended gap between visa expiration and border encounter raises two primary scenarios: (1) the subject remained in Mexico in an undocumented overstay status for an extended period before attempting northward transit, or (2) the subject made an earlier crossing attempt and the document was recovered separately from the subject's person. The retention of the expired TVRH suggests continued reliance on the document as a primary identity credential &mdash; likely because no other valid identity document was available, which is consistent with extracontinental migrants who surrender their passport to smuggling facilitators or who entered Mexico without one.</p>
+      <p>The absence of deliberate destruction is analytically significant. Subjects with operational security awareness or connections to facilitation networks with counter-screening tradecraft typically dispose of identity documents before encounter. BAKHRITDINOVA's retention of the expired card may indicate lower sophistication, economic migration motivation, or intent to present herself to authorities rather than evade detection.</p>
+      <div class="risk-box">
+        <div class="risk-box-title">Strategic Risk Assessment</div>
+        <p>The intact document condition and retention of an expired credential suggest a subject without advanced counter-screening tradecraft. However, the SIC designation for Uzbekistan and the confirmed ISIS-affiliated smuggling network nexus with Uzbek migrants at the southwest border mandate that this assessment not be interpreted as an indicator of low threat. The Jovokhir Attoev case (2024) demonstrated that Uzbek nationals can pass initial screening with clean background checks only to be subsequently identified as ISIS-affiliated &mdash; in that case, nearly two years after entry. Absence of derogatory indicators at encounter does not equate to absence of threat.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Chronological Reconstruction -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <h2>Chronological Reconstruction: Mapping the Operational Signature</h2>
+    </div>
+    <div class="section-body">
+      <p>The TVRH provides a narrow documentary window: a single issuance event at the Guatemala&ndash;Mexico border on 07 June 2023. All movement before and after this date must be reconstructed from contextual analysis and known corridor patterns. The subject's operational footprint spans from Uzbekistan across at least two continents and eight or more countries, yet the only documented waypoint is the Talism&aacute;n border crossing.</p>
+
+      <h3 class="subsection-title">Operational Timeline</h3>
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Location/Action</th><th>Operational Status</th><th>Strategic Implication</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>13 Aug 1989</td>
+            <td>Born &mdash; Uzbekistan (location unknown)</td>
+            <td>Official</td>
+            <td>Biographical anchor. Place of birth not recorded on TVRH. Uzbek civil registry (ZAGS) should hold birth record.</td>
+          </tr>
+          <tr class="dark-period">
+            <td>1989 &ndash; ~May 2023</td>
+            <td>Life in Uzbekistan; departure and transit to Latin America</td>
+            <td>Dark Period</td>
+            <td>Entire pre-Mexico history unknown from this document. Standard Central Asian route: fly to Brazil/Ecuador/Colombia &rarr; overland through South America &rarr; Dari&eacute;n Gap &rarr; Central America transit &rarr; Guatemala. Estimated transit cost: $12,500&ndash;$15,000+ via organized smuggling network.</td>
+          </tr>
+          <tr>
+            <td>07 Jun 2023</td>
+            <td>Entered Mexico at Puente Talism&aacute;n (Guatemala&ndash;Mexico border), Tuxtla Chico, Chiapas. TVRH issued by INM SRL Talism&aacute;n.</td>
+            <td>Official</td>
+            <td>Subject presented at official border crossing and was processed by INM. Issued TVRH #0000002804753 with 1-year validity. CURP assigned. This was one of 94,829 humanitarian visas issued by INM in 2023. Subject entered Mexico with legal transit authorization.</td>
+          </tr>
+          <tr class="gap-row">
+            <td>Jun 2023 &ndash; Jun 2024</td>
+            <td>Period of TVRH validity &mdash; authorized presence in Mexico</td>
+            <td>Gap</td>
+            <td>No documented movement during visa validity period. Subject legally authorized to remain in Mexico and work. Unknown whether subject remained in Chiapas/Tapachula region, transited northward, or made an initial US border approach during this window.</td>
+          </tr>
+          <tr>
+            <td>07 Jun 2024</td>
+            <td>TVRH expired</td>
+            <td>Official</td>
+            <td>Subject's legal authorization to remain in Mexico lapsed. Any continued presence in Mexico after this date constitutes immigration violation under Mexican law.</td>
+          </tr>
+          <tr class="dark-period">
+            <td>Jun 2024 &ndash; ~Feb 2026</td>
+            <td>Undocumented period &mdash; transit to US border zone</td>
+            <td>Dark Period</td>
+            <td>~20-month gap between visa expiry and document recovery. Subject either remained in Mexico as an overstay or departed and returned. Arrived at US border zone by early 2026. This extended dark period is the primary intelligence gap.</td>
+          </tr>
+          <tr>
+            <td>~Feb 2026</td>
+            <td>Document recovered at US-Mexico border zone</td>
+            <td>Recovery</td>
+            <td>Expired TVRH recovered in intact condition. Circumstances of recovery (on-person encounter vs. discarded document) are critical for threat assessment.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="analysis-box">
+        <h4>Analysis</h4>
+        <p>The timeline reveals two critical dark periods totaling the vast majority of the subject's assessed journey. The pre-Mexico dark period encompasses the entire transit from Uzbekistan through South America, the Dari&eacute;n Gap, and Central America &mdash; a journey that typically takes 4&ndash;8 weeks and involves multiple countries, smuggling facilitators, and potential exposure to criminal and extremist networks along the route. The post-expiry dark period (~20 months) is unusually long compared to typical TVRH exploitation patterns where subjects transit Mexico within weeks to months. This extended period suggests either prolonged residence in Mexico (possibly working under the TVRH's employment authorization before it expired), involvement in a slower migration pipeline, or an extended period of planning before attempting US entry. The single documented waypoint at Talism&aacute;n &mdash; a confirmed extracontinental migrant processing hub 30 km from Tapachula &mdash; places the subject squarely within the established Dari&eacute;n Gap corridor infrastructure.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Geographic Risk Assessment -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <h2>Geographic Risk Assessment: Analysis of Key Nodes</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="geo-node">
+        <h4>Uzbekistan (Origin)</h4>
+        <p>Uzbekistan is a landlocked Central Asian republic with a population of approximately 36 million. Since 2024, it is designated as a DHS Special Interest Country (SIC), reflecting the assessed nexus between Uzbek nationals and terrorism-related threats at the US border. The country's relevance to this assessment spans three dimensions:</p>
+        <ul>
+          <li><strong>ISIS-K Recruitment Pipeline:</strong> The Islamic Movement of Uzbekistan (IMU) pledged allegiance to ISIS in 2015, integrating its Uzbek-language propaganda apparatus into ISIS-Khorasan Province (ISIS-K). Active Uzbek-language Telegram channels and social media networks disseminate extremist content targeting Uzbek nationals domestically and in diaspora.</li>
+          <li><strong>Precedent Cases:</strong> Sayfullo Saipov (2017 NYC bike path attack, 8 killed); Jovokhir Attoev (arrested 2024 in Baltimore after 2+ years in US, wanted by Uzbekistan for ISIS affiliation); Akhror Bozorov (arrested November 2025 in Kansas, wanted for terrorist propaganda distribution and recruitment).</li>
+          <li><strong>Document Reliability:</strong> Landinfo (Norway) assessment identifies systematic corruption in Uzbek document issuance, arbitrary enforcement of passport regulations, and limited transparency in the system's internal workings. Identity fraud with Uzbek documents is a documented and prosecuted phenomenon in the US.</li>
+          <li><strong>Migration Surge:</strong> IOM reports 13,624 Uzbek nationals arrested by US Border Patrol between October 2021 and October 2023 &mdash; a demographic that was virtually nonexistent at the southwest border before 2020.</li>
+        </ul>
+      </div>
+
+      <div class="geo-node">
+        <h4>Talism&aacute;n, Chiapas, Mexico (Entry &amp; Processing Node)</h4>
+        <p>The Talism&aacute;n international bridge connects El Carmen, Guatemala (San Marcos department) to Tuxtla Chico, Chiapas, Mexico. It is one of the most significant entry points on Mexico's southern border and hosts full INM infrastructure including the Subrepresentaci&oacute;n Local Talism&aacute;n (which printed the subject's TVRH) and the Talism&aacute;n Estaci&oacute;n Migratoria detention facility. Located approximately 30 km from Tapachula &mdash; described by M&eacute;decins Sans Fronti&egrave;res as a city of "forced waiting" and the epicenter of Mexico's migration crisis.</p>
+        <ul>
+          <li><strong>Extracontinental Processing Hub:</strong> While historically focused on Central American (primarily Guatemalan) migrants, the broader Chiapas border region has become a key intake point for extracontinental migrants from Africa and Asia who arrive via the Dari&eacute;n Gap corridor.</li>
+          <li><strong>TVRH Issuance Context:</strong> INM issued 94,829 TVRHs in 2023 (the year of subject's visa), collapsing to just 618 in 2024 &mdash; a 99.3% decrease indicating the Mexican government recognized mass exploitation of the program. Subject's TVRH was issued during peak exploitation period.</li>
+          <li><strong>Porosity:</strong> The crossing features both the official international bridge and documented unofficial crossings (including a zipline beneath the port of entry), illustrating the border's permeability.</li>
+        </ul>
+      </div>
+
+      <div class="geo-node">
+        <h4>Transit Corridor: Uzbekistan &rarr; South America &rarr; Dari&eacute;n Gap &rarr; Mexico &rarr; US Border</h4>
+        <p>The extracontinental migration corridor used by Central Asian nationals is a well-documented, multi-stage route facilitated by organized smuggling networks operating across two continents and eight or more countries. 520,000 migrants crossed the Dari&eacute;n Gap in 2023 (record), with African and Asian nationals growing from 8,767 in 2019 to over 52,000 in 2023.</p>
+        <ol class="numbered-list">
+          <li><strong>Air Stage (Uzbekistan &rarr; South America):</strong> Commercial flights to Brazil (S&atilde;o Paulo), Ecuador (Quito), or Colombia (Bogot&aacute;). Visa-free or visa-on-arrival access exploited. Estimated segment cost: $2,000&ndash;$4,000.</li>
+          <li><strong>Overland Stage (South America &rarr; Colombia):</strong> Bus/taxi transit through Brazil (Rio Branco, Acre) &rarr; Peru &rarr; Ecuador &rarr; Colombia. Facilitated by local smuggling nodes at each border. Estimated segment cost: $3,000&ndash;$5,000.</li>
+          <li><strong>Dari&eacute;n Gap Crossing (Colombia &rarr; Panama):</strong> 5&ndash;7 day jungle trek through one of the world's most dangerous migration corridors. Subject to robbery, sexual violence, and death. Estimated segment cost: $1,500&ndash;$3,000.</li>
+          <li><strong>Central America Transit (Panama &rarr; Guatemala):</strong> Managed migration through Panama, Costa Rica, Nicaragua, Honduras, Guatemala. Mix of bus transport and controlled corridor movement. Estimated segment cost: $2,000&ndash;$3,000.</li>
+          <li><strong>Mexico Entry &amp; Northward Transit:</strong> Entry at Talism&aacute;n or similar southern crossing. TVRH issuance provides legal cover for northward movement. Bus/transport to US border. Estimated segment cost: $1,000&ndash;$2,000.</li>
+        </ol>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 4: Entity Analysis -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <h2>Entity Analysis: INM Subrepresentaci&oacute;n Local Talism&aacute;n</h2>
+    </div>
+    <div class="section-body">
+
+      <h3 class="subsection-title">What Is Known</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Full Name</strong></td><td>Instituto Nacional de Migraci&oacute;n &mdash; Subrepresentaci&oacute;n Local Talism&aacute;n</td></tr>
+          <tr><td><strong>Location</strong></td><td>Entrada Carretera Federal 200, Km 000+000, Ejido Talism&aacute;n, Tuxtla Chico, Chiapas, Mexico</td></tr>
+          <tr><td><strong>Entity Type</strong></td><td>Mexican Federal Government Agency &mdash; local field office of INM under SEGOB</td></tr>
+          <tr><td><strong>Function</strong></td><td>Immigration processing, document issuance, detention operations at the Talism&aacute;n international border crossing (Mexico&ndash;Guatemala)</td></tr>
+          <tr><td><strong>TVRH Issuance</strong></td><td>Confirmed issuer of subject's TVRH (printed 07/06/2023). Part of the INM system that issued 94,829 humanitarian visas in 2023. The collapse to 618 issuances in 2024 suggests policy recognition of systemic exploitation.</td></tr>
+          <tr><td><strong>Infrastructure</strong></td><td>Includes Estaci&oacute;n Migratoria (detention center) processing adults, families, and unaccompanied minors. Operates 24 hours. Contact: (963) 631 4144/4145/4147.</td></tr>
+          <tr><td><strong>Known Issues</strong></td><td>Located in a region documented for human smuggling, corruption of immigration officials, and exploitation of the humanitarian visa program as a transit facilitation mechanism for extracontinental migrants.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">What Is Not Known (Intelligence Gaps)</h3>
+      <ul class="priority-actions">
+        <li>What humanitarian basis BAKHRITDINOVA claimed to qualify for the TVRH &mdash; asylum claim, trafficking victim status, or other category</li>
+        <li>Whether subject presented an Uzbek passport at Talism&aacute;n and its disposition (retained by INM, returned to subject, or surrendered to smuggling facilitator)</li>
+        <li>Whether subject was part of a group of extracontinental migrants processed simultaneously at Talism&aacute;n on 07 Jun 2023 &mdash; batch processing of Central Asian nationals at this location would indicate organized facilitation</li>
+        <li>Whether INM records at SRL Talism&aacute;n contain additional biographic data, interview notes, or biometric captures beyond what appears on the TVRH</li>
+        <li>The identity and network affiliation of any smuggling facilitator who guided subject from Guatemala into Mexico at this crossing point</li>
+      </ul>
+
+      <h3 class="subsection-title">Indicators Requiring Further Investigation</h3>
+      <ol class="indicator-list">
+        <li><strong>MRZ Expiry Date Anomaly:</strong> The MRZ encodes <code>230607</code> as the expiry date, which corresponds to the card's issuance date (07 Jun 2023), not the printed expiry date (07 Jun 2024). If this is not a known systemic pattern for Mexican TVRHs, it may indicate a production error, database encoding issue, or document irregularity that warrants comparison against other known-good TVRH specimens recovered in the same period.</li>
+        <li><strong>DHS ISIS-Affiliated Smuggling Network Cross-Reference:</strong> In June 2024, DHS identified 400+ migrants brought to the US by an ISIS-affiliated human smuggling network, with specific attention to Uzbek nationals who were assisted by a facilitator with ISIS ties. BAKHRITDINOVA's transit through the same corridor during the same period mandates cross-referencing against this network's known passenger manifests and facilitator contacts.</li>
+        <li><strong>Extended Post-Expiry Dark Period:</strong> The ~20-month gap between TVRH expiration (June 2024) and document recovery (~February 2026) is significantly longer than typical TVRH exploitation timelines. This extended period requires investigation to determine whether the subject was in Mexico, had already entered the US, or traveled to a third country during this window.</li>
+        <li><strong>QR Code Content:</strong> The two QR codes on the card reverse are potentially exploitable intelligence. Mexican immigration QR codes on TVRHs may contain encrypted biographic data, linked database records, or processing metadata that could reveal additional information about the subject's claimed identity and processing history.</li>
+      </ol>
+
+      <h3 class="subsection-title">Recommended Priority Actions for Entity Investigation</h3>
+      <ul class="priority-actions">
+        <li><strong>Request</strong> INM records from SRL Talism&aacute;n for all TVRH issuances on 07 Jun 2023 to identify batch processing of extracontinental (specifically Central Asian) nationals</li>
+        <li><strong>Query</strong> INM central database (SEGOB-INM-00371052) for subject's complete file including asylum claim basis, supporting documents presented, and any linked Uzbek passport data</li>
+        <li><strong>Scan</strong> QR codes on card reverse using INM-compatible reader to extract embedded data and verify against central database records</li>
+        <li><strong>Compare</strong> MRZ encoding against 5+ other TVRH specimens from the same issuance period to determine whether the expiry-date anomaly is systemic or document-specific</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- Section 5: Threat Synthesis -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <h2>Threat Synthesis and National Security Implications</h2>
+    </div>
+    <div class="section-body">
+      <p>BAKHRITDINOVA's profile intersects with one of the most rapidly evolving threat vectors on the US southwest border: the surge of Central Asian nationals transiting the extracontinental migration corridor, a demographic that did not exist at the border before 2020 and now numbers in the tens of thousands. The convergence of Uzbekistan's SIC designation, confirmed ISIS-K recruitment of Uzbek nationals, and documented ISIS-affiliated smuggling networks operating on this exact corridor elevates this case beyond routine immigration enforcement.</p>
+
+      <h3 class="subsection-title">Primary Threat Vectors</h3>
+
+      <div class="threat-vector">
+        <h4>Uzbek-ISIS/ISIS-K Nexus at the Southwest Border</h4>
+        <p>Multiple confirmed cases demonstrate an active nexus between Uzbek nationals and ISIS/ISIS-K at the US border: Jovokhir Attoev (arrested 2024, 2+ years post-entry, wanted for ISIS affiliation); Akhror Bozorov (arrested November 2025, terrorist propaganda distribution); and the DHS-identified ISIS-affiliated smuggling network that moved 400+ migrants including Uzbek nationals to the US. The Crocus City Hall attack (March 2024, 149 killed) by Central Asian ISIS-K operatives underscored that the threat from this region is not theoretical. While there is no specific derogatory information linking BAKHRITDINOVA to extremist activity, her demographic profile and transit corridor are identical to those of confirmed threat actors. Uzbekistan's addition to the SIC list in 2024 reflects this institutional assessment.</p>
+      </div>
+
+      <div class="threat-vector">
+        <h4>Mexican Humanitarian Visa as Transit Facilitation Instrument</h4>
+        <p>The TVRH program was exploited at industrial scale in 2023, with 94,829 cards issued &mdash; overwhelmingly to migrants intending to transit Mexico to the US border rather than remain in Mexico. The program's near-total shutdown in 2024 (618 issuances, a 99.3% decrease) confirms that Mexican authorities recognized the facilitation dynamic. BAKHRITDINOVA's TVRH, issued during the peak exploitation period at a known extracontinental migrant processing node, exemplifies this pattern. The TVRH provided legal cover for northward transit through Mexico, effectively converting an irregular migrant into a documented resident for the 12-month validity period. The humanitarian claim basis used by an Uzbek national at the Guatemala&ndash;Mexico border requires scrutiny &mdash; Uzbekistan is not experiencing armed conflict, and the specific humanitarian grounds for the visa are unknown.</p>
+      </div>
+
+      <div class="threat-vector">
+        <h4>Organized Smuggling Network Facilitation</h4>
+        <p>The journey from Uzbekistan to the Guatemala&ndash;Mexico border at Talism&aacute;n requires organized facilitation across multiple countries and continents. Known Central Asian smuggling networks operate through Brazil as a primary hub, with contacts in at least eight countries along the route. These networks charge $12,500&ndash;$15,000+ per person and create credible false documents. DHS has identified at least one such network with direct ISIS affiliation. The logistical complexity of BAKHRITDINOVA's transit &mdash; commercial flights, overland transport across South America, Dari&eacute;n Gap crossing, Central America transit, and Mexico entry &mdash; makes independent travel extremely unlikely. Identifying the specific network that facilitated her journey is a priority intelligence requirement.</p>
+      </div>
+
+      <div class="analysis-box">
+        <h4>Assessment</h4>
+        <p>BAKHRITDINOVA presents a Tier 2 (High) screening priority based on nationality (SIC-designated), transit corridor (documented ISIS-K nexus), and visa exploitation pattern (peak-period TVRH). The critical unknowns are: (1) her specific smuggling facilitator and whether that facilitator has any nexus to the ISIS-affiliated network identified by DHS; (2) the humanitarian claim basis for her TVRH; (3) her activities during the ~20-month post-expiry dark period; and (4) whether she has been encountered previously under the same or different identity. The intact document condition and apparent lack of counter-screening tradecraft are mildly mitigating but should not override the SIC-mandated enhanced vetting protocols. The Attoev and Bozorov cases demonstrate that clean initial screenings are insufficient &mdash; derogatory information from Uzbek authorities can surface months or years after entry.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 6: Operational Directives -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <h2>Operational Directives: Mitigation and Exploitation</h2>
+    </div>
+    <div class="section-body">
+      <ol class="directive-list">
+        <li><strong>Execute</strong> full SIC-enhanced vetting protocol: submit biographic data (BAKHRITDINOVA, Zilola; DOB 13/08/1989; UZB) and facial capture from TVRH photograph to TSDB, TECS, IDENT, NGI, NCIC, and INTERPOL SLTD. Flag for priority processing under Uzbekistan SIC designation.</li>
+        <li><strong>Cross-reference</strong> subject identity against the DHS list of 400+ migrants linked to the ISIS-affiliated human smuggling network identified in June 2024. Query HSI and JTTF for any intelligence holdings on this specific name, DOB, CURP, or TVRH document numbers.</li>
+        <li><strong>Request</strong> through CBP Attach&eacute; Mexico / bilateral channels the complete INM file for SEGOB-INM-00371052, including: asylum claim narrative, supporting documents presented at Talism&aacute;n, Uzbek passport data if captured, biometric records, interview notes, and processing officer identification.</li>
+        <li><strong>Query</strong> Uzbek authorities through INTERPOL Tashkent NCB for any criminal, counterterrorism, or immigration fraud records associated with BAKHRITDINOVA Zilola (DOB 13/08/1989). Request confirmation of identity against Uzbek civil registry (ZAGS) and passport database. Reference the Attoev pattern: Uzbekistan issued a wanted notice for that subject nearly a year before US authorities became aware.</li>
+        <li><strong>Scan</strong> both QR codes on the TVRH reverse using INM-compatible digital reader. Extract and analyze embedded data for additional biographic, biometric, or processing metadata. Compare SEGOB-INM reference number against INM digital records.</li>
+        <li><strong>Analyze</strong> MRZ expiry date anomaly by comparing against a sample of 5+ other recovered TVRHs from the June&ndash;July 2023 issuance period. Determine whether <code>230607</code> encoding (issue date rather than expiry date) is a systemic feature of Mexican TVRH MRZ production or a document-specific irregularity warranting forensic document examination.</li>
+        <li><strong>Query</strong> CURP database (<code>BAXZ890813MNEKXL04</code>) through Mexican government channels for any associated records: tax filings (SAT), employment records (IMSS), address history, or additional immigration events that would illuminate the subject's activities during TVRH validity and the post-expiry dark period.</li>
+        <li><strong>Coordinate</strong> with HSI Transnational Criminal Investigative Units (TCIU) to map the smuggling network that facilitated BAKHRITDINOVA's transit. Focus on: (a) flight records from Uzbekistan to South American entry point, (b) Panama migration records for Dari&eacute;n Gap transit, (c) Guatemala immigration records for entry prior to 07 Jun 2023, and (d) any Western Union or hawala transfers linked to subject or known facilitators.</li>
+        <li><strong>Flag</strong> subject identity in all relevant databases for future encounter notification. If subject is not in custody, issue BOLO with TVRH photograph. If in custody, conduct structured interview focusing on: route of travel, identity of facilitators, method of payment, other Uzbek nationals encountered en route, and basis of humanitarian claim in Mexico.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- End of Assessment -->
+  <div class="end-marker">END OF ASSESSMENT</div>
+
+  <!-- Sources -->
+  <div class="sources-section">
+    <h3>Sources Consulted</h3>
+    <ul>
+      <li>IOM Uzbekistan &mdash; Migration Data Gap Analysis (2024) &mdash; <a href="https://uzbekistan.iom.int/sites/g/files/tmzbdl2566/files/documents/2025-01/mtm-data-mapping_uzbekistan_final_04-11-24_2.pdf">IOM Report</a></li>
+      <li>NBC News &mdash; DHS Identifies 400+ Migrants Linked to ISIS Smuggling Network (June 2024) &mdash; <a href="https://www.nbcnews.com/investigations/dhs-identifies-400-migrants-brought-us-isis-linked-human-smuggling-rcna158777">NBC News</a></li>
+      <li>NBC News &mdash; Migrant with Alleged ISIS Ties Living in US Two Years (Attoev case, April 2024) &mdash; <a href="https://www.nbcnews.com/politics/immigration/migrant-alleged-isis-ties-living-us-two-years-officials-say-rcna150281">NBC News</a></li>
+      <li>DHS &mdash; ICE Arrests Uzbekistan Wanted Terrorist (Bozorov case, November 2025) &mdash; <a href="https://www.dhs.gov/news/2025/11/17/ice-arrests-uzbekistan-criminal-illegal-alien-and-wanted-terrorist-driving-18">DHS.gov</a></li>
+      <li>NBC News &mdash; 8 Suspected Terrorists with ISIS Ties Arrested (Tajik nationals, June 2024) &mdash; <a href="https://www.nbcnews.com/news/us-news/8-suspected-terrorists-possible-isis-ties-arrested-new-york-l-philadel-rcna156635">NBC News</a></li>
+      <li>DOJ &mdash; Sayfullo Saipov Sentencing (2017 NYC Attack) &mdash; <a href="https://www.justice.gov/archives/opa/pr/judge-imposes-eight-consecutive-life-sentences-plus-260-years-prison-isis-inspired-2017">DOJ.gov</a></li>
+      <li>GNET Research &mdash; IMU's Enduring Influence on IS-Khurasan (2023) &mdash; <a href="https://gnet-research.org/2023/03/03/the-islamic-movement-of-uzbekistans-enduring-influence-on-is-khurasan/">GNET</a></li>
+      <li>El Imparcial &mdash; TVRH Issuance Statistics 2023 vs 2024 (99.3% Decline) &mdash; <a href="https://www.elimparcial.com/mexico/2025/12/22/entrega-de-tarjetas-humanitarias-del-instituto-nacional-de-migracion-cae-drasticamente-en-2024-solo-618-frente-a-casi-95-mil-en-2023-organizaciones-advierten-barreras-al-asilo-y-mayor-riesgo-para-migrantes/">El Imparcial</a></li>
+      <li>Migration Policy Institute &mdash; Dari&eacute;n Gap Migration Crossroads &mdash; <a href="https://www.migrationpolicy.org/article/darien-gap-migration-crossroads">MPI</a></li>
+      <li>Landinfo (Norway) &mdash; Uzbekistan ID Documents and Passports (2013) &mdash; <a href="https://landinfo.no/wp-content/uploads/2018/04/Uzbekistan-ID-documents-and-passports-18022013.pdf">Landinfo</a></li>
+      <li>Global Detention Project &mdash; Talism&aacute;n Estaci&oacute;n Migratoria &mdash; <a href="https://www.globaldetentionproject.org/countries/americas/mexico/detention-centres/44/talisman-estacion-migratoria">GDP</a></li>
+      <li>M&eacute;decins Sans Fronti&egrave;res &mdash; Tapachula: Dead End for Migrants &mdash; <a href="https://www.doctorswithoutborders.org/latest/tapachula-once-transit-hub-now-dead-end-border-town">MSF</a></li>
+      <li>House Judiciary Committee &mdash; Border Crisis: 1.7 Million Potential National Security Threats (October 2024) &mdash; <a href="https://judiciary.house.gov/sites/evo-subsites/republicans-judiciary.house.gov/files/evo-media-document/2024-10-03%20The%20Biden-Harris%20Border%20Crisis%20-%20At%20Least%201.7%20Million%20Potential%20National%20Security%20Threats.pdf">House Judiciary</a></li>
+      <li>InSight Crime &mdash; Human Smuggling from Asia to Latin America &mdash; <a href="https://insightcrime.org/news/brief/human-smuggling-from-asia-to-latin-america-on-rise/">InSight Crime</a></li>
+      <li>ICE &mdash; Uzbek National Sentenced for Immigration &amp; Passport Fraud Conspiracy &mdash; <a href="https://www.ice.gov/news/releases/uzbek-national-sentenced-immigration-passport-fraud-conspiracy">ICE.gov</a></li>
+      <li>CBP &mdash; Southwest Land Border Encounters Statistics &mdash; <a href="https://www.cbp.gov/newsroom/stats/southwest-land-border-encounters">CBP.gov</a></li>
+      <li>Wikipedia &mdash; Crocus City Hall Attack (March 2024) &mdash; <a href="https://en.wikipedia.org/wiki/Crocus_City_Hall_attack">Wikipedia</a></li>
+      <li>Physical Document &mdash; TVRH Card (front and back scans), file: Bahkritdinova, Ziola 4753.pdf</li>
+    </ul>
+  </div>
+
+</div>
+
+</body>
+</html>

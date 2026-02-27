@@ -151,6 +151,41 @@
     });
   }
 
+  // ---- Seed RPT-2026-0015 (BAKHRITDINOVA, Zilola) ----
+  if (!REPORTS.find(function (r) { return r.id === "RPT-2026-0015"; })) {
+    var seedReport4 = {
+      id: "RPT-2026-0015",
+      passportNumber: "0000002804753",
+      subjectName: "BAKHRITDINOVA, Zilola",
+      nationality: "Uzbek",
+      date: "2026-02-27",
+      classification: "secret",
+      summary: "Uzbek National — Expired Mexican Humanitarian Visa (TVRH) Recovered at U.S. Border Zone, SIC Vetting Required (Subject SILK-4)",
+      content: "",
+      attachments: []
+    };
+    REPORTS.push(seedReport4);
+    StorageDB.saveReport(seedReport4).then(function () {
+      return fetch("attachments/RPT-2026-0015_Bakhritdinova_Zilola.pdf");
+    }).then(function (resp) {
+      if (!resp.ok) throw new Error("PDF not found locally");
+      return resp.blob();
+    }).then(function (blob) {
+      var pdfFile = new File([blob], "Bakhritdinova_Zilola.pdf", { type: "application/pdf" });
+      seedReport4.attachments = [{
+        name: "Bakhritdinova_Zilola.pdf",
+        type: "application/pdf",
+        size: pdfFile.size,
+        file: pdfFile
+      }];
+      return StorageDB.saveReport(seedReport4);
+    }).then(function () {
+      console.log("Seeded RPT-2026-0015 with PDF attachment.");
+    }).catch(function (e) {
+      console.error("Failed to seed RPT-2026-0015 attachment:", e);
+    });
+  }
+
   // ---- Check which reports have intel assessments ----
   var reportsWithAssessment = {};
   await Promise.all(REPORTS.map(function (r) {
