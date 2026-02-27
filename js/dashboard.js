@@ -12,7 +12,9 @@
   ActivityLog.startPageTimer("dashboard");
 
   // Show Admin tab and New Report button only for admins
-  isAdmin().then(function (admin) {
+  let currentUserIsAdmin = false;
+  const adminReady = isAdmin().then(function (admin) {
+    currentUserIsAdmin = admin;
     if (admin) {
       var adminTab = document.getElementById("admin-tab");
       if (adminTab) adminTab.hidden = false;
@@ -112,6 +114,42 @@
       StorageDB.saveReport(seedReport2).catch(function (e) { console.error("Failed to seed RPT-2026-0013:", e); });
     }
   })();
+
+  // ---- Seed RPT-2026-0014 (ASSEIR, Mohamud Mohamed) ----
+  if (!REPORTS.find(function (r) { return r.id === "RPT-2026-0014"; })) {
+    var seedReport3 = {
+      id: "RPT-2026-0014",
+      passportNumber: "SEGOB-INM-00100135",
+      subjectName: "ASSEIR, Mohamud Mohamed",
+      nationality: "Somali",
+      date: "2026-02-27",
+      classification: "top-secret",
+      summary: "Somali SIA National — Mexican Humanitarian Visa (TVRH) Recovered at U.S. Border Zone, Expired 2+ Years (Subject HORN-9)",
+      content: "",
+      attachments: []
+    };
+    REPORTS.push(seedReport3);
+    // Save report first, then upload the PDF attachment from local file
+    StorageDB.saveReport(seedReport3).then(function () {
+      return fetch("attachments/RPT-2026-0014_Asseir_Mohamud_Mohamed.pdf");
+    }).then(function (resp) {
+      if (!resp.ok) throw new Error("PDF not found locally");
+      return resp.blob();
+    }).then(function (blob) {
+      var pdfFile = new File([blob], "Asseir_Mohamud_Mohamed.pdf", { type: "application/pdf" });
+      seedReport3.attachments = [{
+        name: "Asseir_Mohamud_Mohamed.pdf",
+        type: "application/pdf",
+        size: pdfFile.size,
+        file: pdfFile
+      }];
+      return StorageDB.saveReport(seedReport3);
+    }).then(function () {
+      console.log("Seeded RPT-2026-0014 with PDF attachment.");
+    }).catch(function (e) {
+      console.error("Failed to seed RPT-2026-0014 attachment:", e);
+    });
+  }
 
   // ---- Check which reports have intel assessments ----
   var reportsWithAssessment = {};
@@ -279,6 +317,7 @@
     reportListEl.replaceChildren();
 
     const filtered = REPORTS.filter((r) => {
+      if (!currentUserIsAdmin && r.classification === "top-secret") return false;
       if (countryVal && r.nationality.toLowerCase() !== countryVal) return false;
       if (!query) return true;
       return (
@@ -314,6 +353,7 @@
   async function openReport(id) {
     const reportMeta = REPORTS.find((r) => r.id === id);
     if (!reportMeta) return;
+    if (!currentUserIsAdmin && reportMeta.classification === "top-secret") return;
 
     activeReportId = id;
     ActivityLog.log("report_view", { reportId: id, subject: reportMeta.subjectName });
@@ -1205,5 +1245,7 @@
   }
 
   // ---- Init ----
+  // Wait for admin check so top-secret filtering is applied on first render
+  await adminReady;
   renderReportList("", "");
 })();

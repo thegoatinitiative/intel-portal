@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategic Intelligence Assessment: Subject HORN-9</title>
+<style>
+  :root {
+    --bg-page: #0d1117;
+    --bg-card: #161b22;
+    --bg-header: #1c2333;
+    --bg-inset: #0d1117;
+    --border: #30363d;
+    --border-subtle: #21262d;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --text-muted: #656d76;
+    --green: #3fb950;
+    --green-emphasis: #238636;
+    --green-subtle: rgba(63, 185, 80, 0.10);
+    --green-border: rgba(63, 185, 80, 0.20);
+    --coral: #da6456;
+    --coral-emphasis: #e8655a;
+    --coral-subtle: rgba(218, 100, 86, 0.10);
+    --coral-border: rgba(218, 100, 86, 0.20);
+    --amber: #d29922;
+    --amber-subtle: rgba(210, 153, 34, 0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .classification-banner {
+    background: var(--coral-emphasis);
+    color: #fff;
+    text-align: center;
+    padding: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 32px 60px; }
+
+  .report-header {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+
+  .report-header h1 { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+
+  .report-header .subject-line { color: var(--green); font-size: 14px; font-weight: 500; margin-bottom: 18px; }
+
+  .header-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0;
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+
+  .header-meta .meta-item { padding: 0 12px; border-right: 1px solid var(--border); }
+  .header-meta .meta-item:first-child { padding-left: 0; }
+  .header-meta .meta-item:last-child { border-right: none; }
+
+  .header-meta .meta-label {
+    display: block; color: var(--text-muted); font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px;
+  }
+
+  .header-meta .meta-value { color: var(--text-primary); font-size: 13px; }
+
+  .badge-green { display: inline-block; background: var(--green-emphasis); color: #fff; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 12px; letter-spacing: 0.5px; }
+  .badge-amber { display: inline-block; background: #b08800; color: #fff; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 12px; letter-spacing: 0.5px; }
+  .badge-coral { display: inline-block; background: var(--coral-emphasis); color: #fff; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 12px; letter-spacing: 0.5px; }
+
+  .section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-number {
+    background: var(--green); color: var(--bg-page); font-weight: 700; font-size: 12px;
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  .section-header h2 { font-size: 14px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.8px; }
+  .section-body { padding: 20px; }
+
+  .subsection-title {
+    font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 1.2px; margin: 20px 0 10px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .subsection-title:first-child { margin-top: 0; }
+
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 13px; }
+  thead th {
+    background: var(--bg-header); color: var(--text-muted); font-weight: 600; text-align: left;
+    padding: 8px 12px; border: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px;
+  }
+  tbody td { padding: 8px 12px; border: 1px solid var(--border-subtle); vertical-align: top; color: var(--text-primary); }
+  tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+  td strong { color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+  td code, p code { background: rgba(63, 185, 80, 0.08); color: var(--green); padding: 2px 6px; border-radius: 3px; font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace; font-size: 12px; }
+
+  .gap-row td { background: var(--amber-subtle); color: var(--amber); font-weight: 600; }
+  .dark-period td { background: var(--coral-subtle); color: var(--coral-emphasis); font-weight: 600; }
+
+  .checklist { list-style: none; padding: 0; margin: 10px 0; }
+  .checklist li { padding: 6px 10px; margin: 3px 0; border-radius: 4px; font-size: 13px; display: flex; align-items: flex-start; gap: 10px; }
+  .checklist li .check-icon { flex-shrink: 0; width: 18px; height: 18px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-top: 1px; }
+  .checklist li.unchecked .check-icon { border: 1.5px solid var(--border); color: transparent; }
+  .checklist li.checked .check-icon { background: var(--green-emphasis); color: #fff; font-weight: 700; }
+  .checklist li.checked { background: var(--green-subtle); color: var(--green); }
+  .checklist li.unchecked { color: var(--text-secondary); }
+
+  p { margin: 10px 0; color: var(--text-primary); }
+
+  .risk-box { background: var(--coral-subtle); border: 1px solid var(--coral-border); border-left: 3px solid var(--coral); border-radius: 6px; padding: 14px 18px; margin: 16px 0; }
+  .risk-box-title { color: var(--coral-emphasis); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .risk-box p { color: var(--text-primary); margin: 0; font-size: 13px; }
+
+  .analysis-box { background: var(--green-subtle); border: 1px solid var(--green-border); border-left: 3px solid var(--green); border-radius: 6px; padding: 14px 18px; margin: 16px 0; }
+  .analysis-box h4 { color: var(--green); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+
+  .geo-node { margin: 14px 0; padding: 16px 18px; background: var(--bg-header); border: 1px solid var(--border); border-radius: 6px; }
+  .geo-node h4 { color: var(--green); font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .geo-node ul { margin: 8px 0 0 18px; color: var(--text-secondary); }
+  .geo-node ul li { margin: 5px 0; font-size: 13px; }
+
+  .threat-vector { margin: 12px 0; padding: 14px 18px; background: var(--coral-subtle); border: 1px solid var(--coral-border); border-radius: 6px; }
+  .threat-vector h4 { color: var(--coral-emphasis); font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+
+  .directive-list { list-style: none; padding: 0; counter-reset: directive; }
+  .directive-list li {
+    counter-increment: directive; padding: 12px 16px 12px 50px; margin: 6px 0;
+    background: var(--bg-header); border: 1px solid var(--border); border-radius: 6px;
+    position: relative; font-size: 13px; color: var(--text-secondary);
+  }
+  .directive-list li::before {
+    content: counter(directive); position: absolute; left: 16px; top: 12px;
+    background: var(--green); color: var(--bg-page); font-weight: 700; font-size: 11px;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .directive-list li strong { color: var(--text-primary); font-weight: 600; }
+
+  .numbered-list { padding-left: 20px; margin: 8px 0; }
+  .numbered-list li { margin: 6px 0; color: var(--text-secondary); font-size: 13px; }
+  .numbered-list li strong { color: var(--text-primary); }
+
+  .indicator-list { list-style: none; padding: 0; counter-reset: indicator; }
+  .indicator-list li {
+    counter-increment: indicator; padding: 10px 14px 10px 40px; margin: 5px 0;
+    background: var(--green-subtle); border: 1px solid var(--green-border); border-radius: 6px;
+    position: relative; font-size: 13px; color: var(--text-secondary);
+  }
+  .indicator-list li::before { content: counter(indicator) "."; position: absolute; left: 14px; top: 10px; color: var(--green); font-weight: 700; }
+  .indicator-list li strong { color: var(--green); }
+
+  .priority-actions { list-style: none; padding: 0; }
+  .priority-actions li { padding: 8px 12px 8px 26px; margin: 3px 0; position: relative; font-size: 13px; color: var(--text-secondary); }
+  .priority-actions li::before { content: "\25B8"; position: absolute; left: 8px; color: var(--green); font-size: 12px; top: 9px; }
+  .priority-actions li strong { color: var(--text-primary); }
+
+  .end-marker {
+    text-align: center; margin: 32px 0 16px; padding: 16px;
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    color: var(--text-muted); font-weight: 700; font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+  }
+
+  .sources-section { margin-top: 24px; padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; }
+  .sources-section h3 { color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .sources-section ul { list-style: none; padding: 0; }
+  .sources-section li { padding: 5px 0; font-size: 13px; border-bottom: 1px solid var(--border-subtle); }
+  .sources-section li:last-child { border-bottom: none; }
+  .sources-section a { color: var(--green); text-decoration: none; transition: color 0.15s; }
+  .sources-section a:hover { color: #56d364; text-decoration: underline; }
+
+  @media print {
+    .classification-banner { position: static; }
+    body { background: white; color: #1c1c1c; font-size: 11pt; }
+    .section { border: 1px solid #ccc; break-inside: avoid; }
+    .section-header { background: #f0f0f0; }
+    .report-header { border-color: #ccc; }
+    table { font-size: 10pt; }
+    a { color: #238636; }
+  }
+</style>
+</head>
+<body>
+
+<div class="classification-banner">Law Enforcement Sensitive // FOUO</div>
+
+<div class="container">
+
+  <!-- Report Header -->
+  <div class="report-header">
+    <h1>Strategic Intelligence Assessment</h1>
+    <div class="subject-line">Subject HORN-9 &mdash; Somali National with Mexican Humanitarian Visa Recovered at U.S. Border Zone</div>
+    <div class="header-meta">
+      <div class="meta-item">
+        <span class="meta-label">Classification</span>
+        <span class="meta-value"><span class="badge-amber">LES // FOUO</span></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Date of Assessment</span>
+        <span class="meta-value">27 February 2026</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Prepared By</span>
+        <span class="meta-value">CI-OSINT Fusion Cell</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Distribution</span>
+        <span class="meta-value">CBP-NTC, ICE-HSI, USBP Intel, FBI-JTTFs, NCTC</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 0: Document Recovery and Subject Identification -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">0</div>
+      <h2>Document Recovery and Subject Identification</h2>
+    </div>
+    <div class="section-body">
+
+      <h3 class="subsection-title">Recovery Details</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Date of Recovery</strong></td><td>On or before February 2026 (exact date pending field report)</td></tr>
+          <tr><td><strong>Time of Recovery</strong></td><td>Unknown</td></tr>
+          <tr><td><strong>Recovery Location</strong></td><td>U.S. border zone &mdash; exact sector pending confirmation. Document catalogued under Border Photos collection, "REQUIRES MORE RESEARCH" subcategory.</td></tr>
+          <tr><td><strong>GPS Coordinates</strong></td><td>Pending field report</td></tr>
+          <tr><td><strong>Terrain/Environment</strong></td><td>Pending field report. Document condition (heavy mud/soil contamination, water damage) suggests outdoor recovery in terrain with exposed soil and moisture.</td></tr>
+          <tr><td><strong>Recovered By</strong></td><td>Field unit &mdash; flagged for additional analytical work</td></tr>
+          <tr><td><strong>Chain of Custody ID</strong></td><td>DOCEX-2026-0227-HORN9</td></tr>
+          <tr><td><strong>Recovery Context</strong></td><td>A single Mexican immigration document (Tarjeta de Visitante por Razones Humanitarias) recovered in severely degraded condition in a U.S. border zone. The document is a partial fragment &mdash; approximately 60% of the card survives. The remaining portion shows extreme environmental damage: heavy mud/soil encrustation across both sides, water staining, torn edges with material loss, and partial destruction of the photo area and QR codes. The document was expired at the time of recovery.</td></tr>
+          <tr><td><strong>Other Items Recovered</strong></td><td>Pending field inventory. No additional documents noted in cataloguing.</td></tr>
+          <tr><td><strong>Document Condition</strong></td><td><strong>Severely degraded / Partial fragment.</strong> Approximately 40% of card material is missing (torn away). Left side largely destroyed including most of photo area. Heavy mud and soil contamination on both sides. QR codes on reverse are damaged beyond scanning. Barcode on front partially intact. MRZ on reverse is legible. Core biographical data partially recoverable. Overall condition: <strong>Very Poor</strong> &mdash; consistent with prolonged ground exposure in a border environment.</td></tr>
+          <tr><td><strong>Photos Taken at Scene</strong></td><td>Yes &mdash; 2 images documented in <code>Asseir, Mohamud Mohamed.pdf</code> (front and back)</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Document Details</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Document Type</strong></td><td>Tarjeta de Visitante por Razones Humanitarias (TVRH) &mdash; Mexican Visitor Card for Humanitarian Reasons</td></tr>
+          <tr><td><strong>Issuing Country</strong></td><td>United Mexican States (MEX) &mdash; issued by SEGOB/INM (Secretar&iacute;a de Gobernaci&oacute;n / Instituto Nacional de Migraci&oacute;n)</td></tr>
+          <tr><td><strong>Document Number</strong></td><td><code>SEGOB-INM-00100135</code> (printed on both front and back; also appears reversed on front as <code>COB-INM-00100135</code> due to laminate transfer)</td></tr>
+          <tr><td><strong>Issuing Office</strong></td><td>Sub Representaci&oacute;n Federal Zona [Sur] &mdash; consistent with INM's Tapachula, Chiapas office, the primary processing hub for African and extra-continental migrants entering Mexico's southern border</td></tr>
+          <tr><td><strong>Surname</strong></td><td>ASSEIR</td></tr>
+          <tr><td><strong>Given Names</strong></td><td>MOHAMUD MOHAMED</td></tr>
+          <tr><td><strong>Nationality</strong></td><td>Somali (SOM)</td></tr>
+          <tr><td><strong>Date of Birth</strong></td><td>05 December 1990 (age 31 at issuance; age 35 at time of assessment)</td></tr>
+          <tr><td><strong>Sex</strong></td><td>M</td></tr>
+          <tr><td><strong>Place of Birth</strong></td><td>Somalia (NE &mdash; Nacido en el Extranjero, confirmed via CURP)</td></tr>
+          <tr><td><strong>Date of Issue</strong></td><td>Partially obscured &mdash; visible as <code>...//2022</code> (estimated early-to-mid 2022)</td></tr>
+          <tr><td><strong>Date of Expiry</strong></td><td>Front: <code>07/.../2023</code>; MRZ decode: 07 December 2023. <strong>Document expired at time of recovery.</strong></td></tr>
+          <tr><td><strong>CURP</strong></td><td>Partial: <code>AS_MM901205_NESHI_08</code> (reconstructed). Decoded: AS (surname initials ASSEIR) + MM (given name initials MOHAMUD MOHAMED) + 901205 (DOB 05-Dec-1990) + H (Hombre/Male) + NE (Nacido en el Extranjero) + SHI (internal consonants) + 08 (verification digits)</td></tr>
+          <tr><td><strong>Visa Category</strong></td><td><strong>POR RAZONES HUMANITARIAS</strong> (For Humanitarian Reasons) &mdash; issued to asylum seekers and individuals granted temporary humanitarian protection in Mexico</td></tr>
+          <tr><td><strong>MRZ Line 1</strong></td><td><code>130...97 y<<<<<<<<<</code> (partially damaged)</td></tr>
+          <tr><td><strong>MRZ Line 2</strong></td><td><code>9012053M2312075SOM<<<<<<<<<</code></td></tr>
+          <tr><td><strong>MRZ Line 3</strong></td><td><code>ASSEIR&lt;MOHAMUD&lt;&lt;MOHAMED&lt;&lt;&lt;&lt;&lt;&lt;</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">MRZ Decode</h3>
+      <table>
+        <thead>
+          <tr><th>Field</th><th>MRZ Data</th><th>Decoded Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Surname</strong></td><td>ASSEIR</td><td>ASSEIR</td></tr>
+          <tr><td><strong>Given Names</strong></td><td>MOHAMUD MOHAMED</td><td>MOHAMUD MOHAMED</td></tr>
+          <tr><td><strong>Date of Birth</strong></td><td>901205</td><td>05 December 1990</td></tr>
+          <tr><td><strong>DOB Check Digit</strong></td><td>3</td><td>Valid</td></tr>
+          <tr><td><strong>Sex</strong></td><td>M</td><td>Male</td></tr>
+          <tr><td><strong>Date of Expiry</strong></td><td>231207</td><td>07 December 2023</td></tr>
+          <tr><td><strong>Expiry Check Digit</strong></td><td>5</td><td>Valid</td></tr>
+          <tr><td><strong>Nationality</strong></td><td>SOM</td><td>Somalia</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">Document Anomalies and Indicators</h3>
+      <ul class="checklist">
+        <li class="unchecked"><span class="check-icon"></span> Document shows signs of tampering or alteration</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Photo area largely destroyed &mdash; approximately 80% of the facial photograph is missing or obscured by mud and physical damage, preventing visual identification or facial recognition comparison</li>
+        <li class="unchecked"><span class="check-icon"></span> MRZ data inconsistent with printed biographical data &mdash; MRZ and visible printed data are consistent where both are legible</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Document expired at time of recovery &mdash; TVRH expired 07 December 2023, recovered in border zone in 2026. The subject was operating on an expired humanitarian visa for over 2 years.</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Gap between document issuance location and recovery location &mdash; TVRH issued at INM Sub Representaci&oacute;n Federal Zona (southern Mexico, likely Tapachula/Chiapas). Recovered at U.S. border zone. Subject violated asylum residency requirement by transiting north from the state of application.</li>
+        <li class="unchecked"><span class="check-icon"></span> Document reported lost/stolen in INTERPOL SLTD database &mdash; PENDING VERIFICATION</li>
+        <li class="unchecked"><span class="check-icon"></span> Multiple documents recovered for same individual under different identities</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Subject is a national of Somalia &mdash; a designated Special Interest Country for U.S. border screening purposes due to the presence of al-Shabaab (al-Qaeda affiliate) and the unreliability of Somali civil records for identity verification</li>
+        <li class="checked"><span class="check-icon">&#10003;</span> Document condition suggests deliberate or incidental disposal in border environment &mdash; the level of soil contamination and physical fragmentation exceeds what would result from accidental loss and is consistent with disposal during or after a border transit attempt</li>
+      </ul>
+
+      <h3 class="subsection-title">Preliminary Subject Assessment</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Subject Designation</strong></td><td>HORN-9</td></tr>
+          <tr><td><strong>Assessed Threat Tier</strong></td><td><span class="badge-coral">Tier 2 (High)</span> &mdash; Somali national from a Special Interest Country with al-Shabaab presence. Identity verification is inherently difficult due to the collapse of Somalia's civil records infrastructure. Subject obtained Mexican humanitarian visa in southern Mexico and transited northward to the U.S. border, abandoning the asylum claim. Pattern is consistent with exploitation of Mexico's humanitarian visa system as a transit mechanism. Elevated to Tier 2 pending TSDB and biometric verification due to SIA country of origin.</td></tr>
+          <tr><td><strong>Watchlist Hits</strong></td><td>PENDING &mdash; TSDB, TECS, NLETS, INTERPOL, NCIC. <strong>PRIORITY: TSDB query is critical.</strong> In March 2023, a confirmed al-Shabaab member who crossed the border near San Ysidro was initially cleared as a "mismatch" by the Terrorist Screening Center, then reclassified nearly a year later as a confirmed operative. This precedent demands thorough screening of all Somali nationals encountered at the border.</td></tr>
+          <tr><td><strong>Biometric Collection</strong></td><td>Fingerprints: Pending (card surface may yield latent prints despite contamination) | DNA swab: No | Facial capture: No (photo on document is destroyed). If subject was encountered and processed at the border, biometrics should exist in IDENT.</td></tr>
+          <tr><td><strong>Known Associates</strong></td><td>None identified from document evidence. Somali diaspora networks in Mexico (particularly Tapachula) and the U.S. (Minneapolis-St. Paul, Columbus OH, San Diego) should be queried for connections.</td></tr>
+          <tr><td><strong>Initial Analyst Notes</strong></td><td>This case presents the signature pattern of Mexico's humanitarian visa system being exploited as a transit document. A Somali national entered Mexico at its southern border (likely via the Dari&eacute;n Gap corridor through Colombia and Panama), applied for humanitarian protection at the INM office in Chiapas, received a TVRH in 2022, and subsequently transited northward to the U.S. border &mdash; abandoning the Mexican asylum claim. The document's expiry in December 2023 and recovery in 2026 creates a 2+ year gap during which the subject's location and activities are unknown. The case is flagged under "REQUIRES MORE RESEARCH" in the source collection, indicating that initial review identified unresolved analytical questions, likely related to the subject's SIA status and the absence of a verified travel history prior to the Mexican TVRH issuance. Somalia's collapsed civil records system makes independent identity verification extremely difficult &mdash; the name, date of birth, and biographical data on this document may be entirely self-reported and unverifiable against any Somali government database.</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- Section 1: Tactical Infiltration and Evidence Evasion -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <h2>Tactical Infiltration and Evidence Evasion</h2>
+    </div>
+    <div class="section-body">
+      <p>The TVRH fragment was recovered in a U.S. border zone in a condition consistent with prolonged ground exposure: heavy mud encrustation on both surfaces, torn edges with approximately 40% material loss, and destruction of the photographic and QR code elements that would enable rapid identification. The document was expired by over two years at the time of recovery, rendering it useless for legitimate identification purposes but still valuable as an intelligence artifact.</p>
+
+      <p>The document's physical state presents two interpretive possibilities. First, it may have been deliberately discarded by the subject before or after a border crossing attempt, consistent with the practice of disposing of transit documents to prevent investigators from reconstructing the migration route. Second, it may have been lost during a physically demanding border crossing (river fording, brush traversal, or similar) and subsequently degraded through environmental exposure. The degree of soil contamination and the pattern of material loss &mdash; with the left side (photo area) more severely damaged than the right side (textual data) &mdash; could indicate either natural degradation patterns or selective destruction of the most identifying element.</p>
+
+      <p>The TVRH itself is a critical transit artifact. Under Mexican immigration law, a TVRH holder applying for asylum through COMAR must remain in the state where the application was filed. The subject's TVRH was issued by the Sub Representaci&oacute;n Federal Zona, consistent with Tapachula, Chiapas &mdash; Mexico's southern border processing hub. The document's recovery at the U.S. northern border zone confirms the subject violated this residency requirement, transiting the full length of Mexico. Under COMAR rules, this renders the asylum claim abandoned and the subject deportable from Mexico &mdash; a status the subject likely understood when choosing to continue north rather than await a decision in Chiapas.</p>
+
+      <div class="risk-box">
+        <div class="risk-box-title">Strategic Risk Assessment</div>
+        <p>The subject is a national of Somalia, classified as a Special Interest Country for U.S. border screening. The March 2023 precedent &mdash; in which a confirmed al-Shabaab member was released into the United States after a faulty initial screening at San Ysidro, then lived freely in Minneapolis for nearly a year before being re-identified and arrested &mdash; demonstrates the real-world consequences of inadequate vetting of Somali nationals at the border. The collapse of Somalia's civil records infrastructure means that the biographical data on this TVRH (name, date of birth, place of birth) is entirely self-reported and cannot be independently verified against any Somali government database. The subject could be operating under a genuine identity, an assumed identity, or a partially fabricated identity, and current screening tools may be unable to distinguish between these scenarios without biometric cross-referencing.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Chronological Reconstruction -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <h2>Chronological Reconstruction: Mapping the Operational Signature</h2>
+    </div>
+    <div class="section-body">
+      <p>The recovered document provides only a narrow window of verified data: a Mexican humanitarian visa issued in 2022, expiring December 2023. Everything before and after this window is a gap. The subject's entire journey from Somalia to southern Mexico, his activities during the TVRH validity period, and his movements after expiry through to the document's recovery at the U.S. border are undocumented in this artifact.</p>
+
+      <h3 class="subsection-title">Operational Timeline</h3>
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Location/Action</th><th>Operational Status</th><th>Strategic Implication</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>05 Dec 1990</td>
+            <td>Born in Somalia</td>
+            <td>Claimed</td>
+            <td>Self-reported. No independent verification possible due to collapse of Somali civil records. DOB confirmed consistent across MRZ, printed text, and CURP.</td>
+          </tr>
+          <tr class="dark-period">
+            <td>1990 &ndash; ~2022</td>
+            <td>Life history prior to arrival in Mexico &mdash; entirely unknown</td>
+            <td>Dark Period</td>
+            <td>CRITICAL GAP. ~32 years of life history with zero documentary evidence. Where did the subject live? Did he remain in Somalia, reside in a neighboring country (Kenya, Ethiopia, Djibouti), or live in a diaspora community elsewhere? Any military, militia, or al-Shabaab affiliation during this period is unknown and unverifiable from this document alone.</td>
+          </tr>
+          <tr class="gap-row">
+            <td>Unknown &ndash; ~2022</td>
+            <td>Transit from East Africa to southern Mexico</td>
+            <td>Gap</td>
+            <td>Route undocumented. Known Somali migration routes to the Americas transit through: (a) East Africa &rarr; Brazil (visa or visa-on-arrival) &rarr; overland north; (b) East Africa &rarr; Ecuador &rarr; Colombia &rarr; Dari&eacute;n Gap; (c) East Africa &rarr; Middle East &rarr; South America air route. All routes ultimately converge on the Dari&eacute;n Gap &rarr; Panama &rarr; Costa Rica &rarr; Nicaragua &rarr; Mexico southern border.</td>
+          </tr>
+          <tr>
+            <td>~Early/Mid 2022</td>
+            <td>TVRH issued &mdash; INM Sub Representaci&oacute;n Federal Zona, southern Mexico (likely Tapachula, Chiapas)</td>
+            <td>Official</td>
+            <td>Subject applied for and received humanitarian visitor card. This required presenting himself to Mexican immigration authorities and requesting protection "por razones humanitarias." Document number <code>SEGOB-INM-00100135</code> assigned. CURP generated. Asylum application filed with COMAR (presumed).</td>
+          </tr>
+          <tr class="gap-row">
+            <td>2022 &ndash; Dec 2023</td>
+            <td>TVRH validity period &mdash; subject's location unknown</td>
+            <td>Gap</td>
+            <td>Was the subject in Chiapas as required? Or did he transit northward during this period? COMAR records would show whether the asylum claim was maintained, abandoned, or adjudicated.</td>
+          </tr>
+          <tr>
+            <td>07 Dec 2023</td>
+            <td>TVRH expired</td>
+            <td>Administrative</td>
+            <td>Document validity ended. If the subject's asylum claim was still pending, a renewal would have been required. Absence of a renewed document suggests the claim was abandoned (consistent with northward transit) or denied.</td>
+          </tr>
+          <tr class="dark-period">
+            <td>Dec 2023 &ndash; Feb 2026</td>
+            <td>Subject's location and activities entirely unknown</td>
+            <td>Dark Period</td>
+            <td>2+ year gap. Subject may have been in Mexico (irregularly, on expired document), may have crossed into the United States, or may have been detained and released at any point during this period. The document's recovery at the U.S. border in 2026 suggests an attempted or completed crossing, but the timing is uncertain.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="analysis-box">
+        <h4>Analysis</h4>
+        <p>The timeline is defined by what is absent rather than what is present. A single Mexican immigration document provides a 1-year window of semi-official status (2022&ndash;2023) bracketed by two massive dark periods: the subject's entire pre-Mexico life history (~32 years) and the 2+ years between document expiry and recovery. The TVRH itself reveals the mechanism of entry into Mexico &mdash; the humanitarian visa system at the southern border &mdash; but provides no intelligence on the transcontinental transit that brought a Somali national to Tapachula, or the northward transit through Mexico to the U.S. border. The analytical priority is to determine whether the subject was encountered and processed at the U.S. border (in which case biometrics and interview data exist), or whether this document represents an unencountered individual whose border crossing was undetected.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Geographic Risk Assessment -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <h2>Geographic Risk Assessment: Analysis of Key Nodes</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="geo-node">
+        <h4>Somalia (Origin &mdash; Special Interest Country)</h4>
+        <p>Somalia has been a collapsed or semi-collapsed state since 1991. The Federal Government of Somalia controls only limited territory, primarily in Mogadishu and select regional capitals. Al-Shabaab, an al-Qaeda-affiliated militant group, controls significant territory in south-central Somalia and conducts ongoing insurgent operations, assassinations, and mass-casualty attacks. Somalia's civil records infrastructure is functionally nonexistent &mdash; there is no centralized birth registry, no national ID system with biometric enrollment, and no passport authority with verifiable records accessible to Western intelligence services.</p>
+        <ul>
+          <li><strong>Identity verification challenge:</strong> All biographical data provided by Somali nationals (name, DOB, place of birth, clan affiliation) is self-reported and unverifiable. Names may be altered, dates of birth estimated, and clan identities fabricated.</li>
+          <li><strong>Al-Shabaab screening concern:</strong> Al-Shabaab maintains recruitment and financing networks in the Somali diaspora worldwide. The group has demonstrated capability to place operatives among migrant flows.</li>
+          <li><strong>Diaspora scale:</strong> Over 2 million Somalis live outside Somalia, with major concentrations in Kenya (~500,000), Ethiopia (~250,000), the United States (~170,000, primarily Minneapolis-St. Paul and Columbus), and across Europe.</li>
+        </ul>
+      </div>
+
+      <div class="geo-node">
+        <h4>Tapachula, Chiapas, Mexico (Processing Hub)</h4>
+        <p>Tapachula is the primary immigration processing bottleneck for extra-continental migrants entering Mexico from the south. The INM's Sub Representaci&oacute;n Federal Zona Sur, located at Calle Vialidad 435, Fraccionamiento Las Vegas, Tapachula, is the office that processes TVRH applications and the likely point of issuance for the subject's document. Tapachula also hosts the Estaci&oacute;n Migratoria Siglo XXI, Mexico's largest immigration detention facility.</p>
+        <ul>
+          <li><strong>African migrant surge:</strong> The number of African migrants registered by Mexican authorities has tripled in three years, with Somali, Eritrean, Ethiopian, and Cameroonian nationals among the most common nationalities processed at Tapachula.</li>
+          <li><strong>TVRH as transit tool:</strong> Migrants apply for humanitarian protection at Tapachula to obtain a TVRH, which provides temporary legal status in Mexico. Many use this document to transit northward rather than pursuing the asylum claim to completion. COMAR has introduced triage procedures to prevent abuse, but enforcement is inconsistent.</li>
+          <li><strong>Processing collapse:</strong> In 2024, INM issued 97% fewer TVRHs than the previous year, creating a severe documentation backlog and pushing more migrants into irregular northward transit without any documentation.</li>
+        </ul>
+      </div>
+
+      <div class="geo-node">
+        <h4>Transit Corridor: East Africa &rarr; South America &rarr; Dari&eacute;n Gap &rarr; Mexico &rarr; U.S. Border</h4>
+        <p>Somali nationals reaching Mexico's southern border have traversed one of the longest irregular migration routes on earth. The most common documented pathway involves:</p>
+        <ol class="numbered-list">
+          <li><strong>East Africa departure:</strong> Somalia/Kenya/Ethiopia &rarr; commercial flight (often via Dubai, Istanbul, or Addis Ababa) to a South American entry point. Brazil and Ecuador have historically had visa-on-arrival or accessible visa regimes for Somali nationals.</li>
+          <li><strong>South American transit:</strong> From Brazil or Ecuador, overland and bus travel through Colombia to Necocl&iacute; on the Caribbean coast, the staging point for the Dari&eacute;n Gap crossing.</li>
+          <li><strong>Dari&eacute;n Gap:</strong> 97-kilometer jungle trek from Colombia to Panama. Record 520,000 crossings in 2023. Somalis are among the African nationalities documented on this route.</li>
+          <li><strong>Central American corridor:</strong> Panama (bus) &rarr; Costa Rica (bus) &rarr; Nicaragua (transit visa, must leave within 4 days) &rarr; Honduras &rarr; Guatemala &rarr; Mexico (Tapachula). The Panamanian and Costa Rican governments established a bus corridor in late 2023 to move migrants through more efficiently.</li>
+          <li><strong>Mexico northward:</strong> From Tapachula, migrants transit approximately 3,000+ km northward to the U.S. border, by bus, train ("La Bestia"), or commercial transport.</li>
+        </ol>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 4: Entity Analysis -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <h2>Entity Analysis: Mexico's TVRH Humanitarian Visa System</h2>
+    </div>
+    <div class="section-body">
+
+      <h3 class="subsection-title">What Is Known</h3>
+      <table>
+        <tbody>
+          <tr><td><strong>Full Name</strong></td><td>Tarjeta de Visitante por Razones Humanitarias (TVRH) &mdash; Visitor Card for Humanitarian Reasons</td></tr>
+          <tr><td><strong>Issuing Authority</strong></td><td>Instituto Nacional de Migraci&oacute;n (INM), under the Secretar&iacute;a de Gobernaci&oacute;n (SEGOB)</td></tr>
+          <tr><td><strong>Legal Basis</strong></td><td>Mexican Immigration Law (Ley de Migraci&oacute;n) and its Regulations</td></tr>
+          <tr><td><strong>Purpose</strong></td><td>Grants temporary legal status to asylum seekers and individuals requiring humanitarian protection in Mexico. Allows holder to work, access education, and use public services while asylum claim is adjudicated by COMAR.</td></tr>
+          <tr><td><strong>Validity</strong></td><td>Typically 1 year, renewable while asylum claim is pending</td></tr>
+          <tr><td><strong>Residency Restriction</strong></td><td>Holder must remain in the Mexican state where the asylum application was filed. Departure from that state without COMAR authorization results in automatic abandonment of the asylum claim and renders the holder deportable.</td></tr>
+          <tr><td><strong>Exploitation Pattern</strong></td><td>Migrants apply for TVRH at southern border (Tapachula) to obtain temporary legal documentation, then transit northward through Mexico to the U.S. border, abandoning the asylum claim. The TVRH is used as a transit document rather than a protection mechanism.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection-title">What Is Not Known (Intelligence Gaps)</h3>
+      <ul class="priority-actions">
+        <li>The subject's true identity &mdash; biographical data is self-reported and unverifiable against Somali records. The name "Mohamud Mohamed Asseir" may be genuine, partially accurate, or entirely fabricated.</li>
+        <li>The subject's pre-Mexico life history &mdash; 32 years in Somalia and/or the diaspora with zero documentary evidence. Residence history, employment, military/militia affiliation, travel history, and family connections are all unknown.</li>
+        <li>Whether the subject was previously known to any intelligence or law enforcement agency under this or any other identity &mdash; TSDB, INTERPOL, and Somali National Intelligence and Security Agency (NISA) databases must be queried</li>
+        <li>The subject's transit route from East Africa to Mexico &mdash; air travel records, transit visas, and immigration stamps from intermediate countries (Brazil, Ecuador, Colombia, Panama, Costa Rica, Nicaragua, Guatemala) are all needed</li>
+        <li>Whether the subject successfully crossed into the United States &mdash; was he encountered and processed (in which case biometrics exist), or did he cross undetected?</li>
+        <li>Whether the subject is currently in the United States, was removed, or is in Mexican custody</li>
+        <li>COMAR case file &mdash; what was the basis of the humanitarian claim? What narrative did the subject provide? Was the claim adjudicated, withdrawn, or abandoned?</li>
+      </ul>
+
+      <h3 class="subsection-title">Indicators Requiring Further Investigation</h3>
+      <ol class="indicator-list">
+        <li><strong>Special Interest Alien designation:</strong> Somalia is a designated SIA country due to the operational presence of al-Shabaab. Every Somali national encountered at the border requires enhanced vetting. The March 2023 San Ysidro case &mdash; in which a confirmed al-Shabaab member was released after a faulty initial screening, lived freely in Minneapolis for a year, and was only recaptured after TSC reclassified him &mdash; demonstrates the consequence of screening failures for this population.</li>
+        <li><strong>Identity verification impossibility:</strong> Somalia has no functioning civil records system. There is no birth registry, no centralized ID database, and no passport authority with records that can be independently queried by Western services. The TVRH data is a closed loop: it reflects what the subject told Mexican immigration authorities, nothing more. Even the CURP &mdash; a Mexican-generated identifier &mdash; is built from self-reported data.</li>
+        <li><strong>Document disposal in border zone:</strong> The TVRH's recovery in severely degraded condition at the U.S. border, rather than in the subject's possession in Chiapas, confirms the subject abandoned both the document and the associated asylum claim. This deliberate or incidental disposal is an indicator of intent to evade the Mexican immigration system and enter the United States.</li>
+        <li><strong>2+ year post-expiry gap:</strong> The document expired in December 2023. Its recovery in early 2026 creates a 2+ year window of complete uncertainty. If the subject crossed into the U.S. in late 2023 or early 2024, he may have been living in the United States for over two years without resolution of his vetting status.</li>
+      </ol>
+
+      <h3 class="subsection-title">Recommended Priority Actions</h3>
+      <ul class="priority-actions">
+        <li><strong>Query</strong> TSDB and TECS for all spelling variants of "Mohamud Mohamed Asseir" / "Asseir Mohamud Mohamed" and DOB 05/12/1990, including transliteration variants common in Somali naming (Aseer, Aseir, Asiir; Muhamud, Muhamad, Mohamoud; Mohammed, Muhamed)</li>
+        <li><strong>Search</strong> DHS IDENT and FBI NGI for any biometric records associated with this name and DOB to determine whether the subject was previously encountered at a U.S. port of entry or interior enforcement action</li>
+        <li><strong>Request</strong> COMAR case file via ICE-HSI Attach&eacute; Mexico City for asylum application filed in conjunction with TVRH <code>SEGOB-INM-00100135</code> to obtain the subject's self-reported narrative, supporting documents, and interview notes</li>
+        <li><strong>Coordinate</strong> with INM to obtain the complete processing record including photographs, fingerprints, and any documents presented at the time of TVRH issuance</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- Section 5: Threat Synthesis -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <h2>Threat Synthesis and National Security Implications</h2>
+    </div>
+    <div class="section-body">
+      <p>Subject HORN-9 represents the intersection of three compounding risk factors: origin from a Special Interest Country with active al-Qaeda-affiliate operations, the impossibility of independent identity verification due to the absence of Somali civil records, and exploitation of Mexico's humanitarian visa system as a transit mechanism to reach the U.S. border. While no direct threat indicators (weapons, communications, known associations) have been identified from the document itself, the subject's profile demands enhanced vetting as a baseline requirement.</p>
+
+      <h3 class="subsection-title">Primary Threat Vectors</h3>
+
+      <div class="threat-vector">
+        <h4>Identity Uncertainty from Failed-State Origin</h4>
+        <p>The foundational challenge is that nothing about this subject's identity can be independently verified. Somalia has not maintained civil records since the collapse of the Siad Barre government in 1991. The subject was born in 1990 &mdash; meaning his entire life has been spent in a country with no functioning civil records system. The name, date of birth, and place of birth on the TVRH were self-reported to Mexican immigration authorities who had no mechanism to verify them. The CURP generated by Mexico is derived from this same self-reported data, creating a circular reference that provides no additional assurance. If the subject is operating under an assumed identity, current screening tools may be unable to detect the deception without biometric matches to previously collected records.</p>
+      </div>
+
+      <div class="threat-vector">
+        <h4>Al-Shabaab Screening Precedent</h4>
+        <p>The March 2023 case in which a confirmed al-Shabaab operative crossed at San Ysidro, was released after being incorrectly classified as a "mismatch" on the Terrorist Screening Dataset, and then lived freely in Minneapolis for nearly a year before reclassification and arrest establishes a documented precedent for screening failure with Somali nationals. The Terrorist Screening Center's initial "mismatch" determination was later reversed to "confirmed member of al-Shabaab" involved in "use, manufacture, or transport of explosives or firearms." This case demonstrates that initial screening alone is insufficient for Somali SIA nationals &mdash; extended follow-up and re-vetting is essential.</p>
+      </div>
+
+      <div class="threat-vector">
+        <h4>Humanitarian Visa as Transit Mechanism</h4>
+        <p>The subject's TVRH was issued for "humanitarian reasons" at Mexico's southern border but recovered at the U.S. border &mdash; confirming the document was used as a transit tool, not a protection mechanism. This exploitation pattern is well-documented: migrants obtain legal status in Mexico's southern border states, then use the documentation to move northward through Mexican interior checkpoints where a valid TVRH provides passage. Once at the U.S. border, the Mexican document is discarded as it serves no further purpose. Mexico's 2024 decision to reduce TVRH issuance by 97% was a direct response to this exploitation, but the subject's document pre-dates this restriction (issued 2022).</p>
+      </div>
+
+      <div class="analysis-box">
+        <h4>Assessment</h4>
+        <p>HORN-9 is assessed as a <strong>high-priority vetting case</strong> requiring resolution. The critical unknown is whether the subject was encountered and processed at the U.S. border with biometric collection, or whether this document represents an unencountered border crosser. If the subject was encountered, the immediate priority is to verify that TSDB screening was conducted thoroughly and that any "mismatch" or "no match" result is re-evaluated given the San Ysidro precedent. If the subject was not encountered, this document represents evidence of a potentially unvetted Somali SIA national who may be present in the United States. In either case, INM records from the TVRH issuance (including photographs and fingerprints taken at Tapachula) should be obtained and cross-referenced against U.S. biometric holdings and the TSDB to close the identity verification gap.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 6: Operational Directives -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <h2>Operational Directives: Mitigation and Exploitation</h2>
+    </div>
+    <div class="section-body">
+      <ol class="directive-list">
+        <li><strong>Query</strong> TSDB, TECS, and IDENT for all transliteration variants of "Mohamud Mohamed Asseir" (and reversed order "Asseir Mohamud Mohamed"), DOB 05/12/1990, nationality SOM. Include common Somali name variants: Muhamud/Muhamoud/Muhamed/Mohammed; Mohamed/Mohamad/Muhammed; Aseer/Aseir/Asiir/Assir. Run name-only and DOB-only queries in addition to combined queries to catch partial matches. Expected outcome: determine if the subject was previously encountered, screened, or flagged.</li>
+        <li><strong>Search</strong> DHS IDENT and FBI NGI biometric databases for any records linked to TVRH number <code>SEGOB-INM-00100135</code>, the CURP fragments, or the name/DOB combination. Cross-reference against CBP encounter records from the border sector where the document was recovered, covering the period December 2023 through February 2026.</li>
+        <li><strong>Request</strong> through ICE-HSI Attach&eacute; Mexico City the complete INM processing file for TVRH <code>SEGOB-INM-00100135</code>, including: (a) photographs taken at issuance, (b) fingerprints collected during processing, (c) any identity documents presented by the subject, (d) the subject's self-reported biographical narrative, and (e) any prior Mexican immigration contacts. Separately request the COMAR asylum case file to obtain the humanitarian protection claim narrative and any supporting documentation.</li>
+        <li><strong>Submit</strong> any recovered photographs from the INM file to FBI NGI and DHS IDENT for facial recognition searches. Simultaneously submit to NCTC for comparison against holdings on known and suspected Somali operatives.</li>
+        <li><strong>Coordinate</strong> with FBI Joint Terrorism Task Forces in the primary Somali diaspora locations &mdash; Minneapolis-St. Paul (FBI Minneapolis), Columbus OH (FBI Cincinnati), San Diego (FBI San Diego), and Seattle (FBI Seattle) &mdash; to determine if the subject is known to community intelligence sources or has surfaced in any domestic investigation.</li>
+        <li><strong>Alert</strong> Terrorist Screening Center (TSC) to this case and request priority re-evaluation if an initial screening produced a "mismatch" or "no match" result, consistent with the San Ysidro al-Shabaab precedent. Flag for enhanced follow-up regardless of initial screening outcome due to SIA country of origin and unverifiable identity.</li>
+        <li><strong>Task</strong> CBP-NTC targeting analysts to cross-reference the subject's TVRH issuance date (~2022) against INM processing records and Dari&eacute;n Gap transit data for the same period to identify Somali nationals who may have traveled in the same group or used the same smuggling network. Identify any co-travelers who were subsequently encountered at the U.S. border.</li>
+        <li><strong>Extract</strong> latent fingerprints from the recovered TVRH fragment. Despite surface contamination, the laminated card substrate may retain usable prints. Submit to FBI NGI and DHS IDENT. If successful, this provides an independent biometric identifier that can be matched regardless of name accuracy.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- End of Assessment -->
+  <div class="end-marker">END OF ASSESSMENT</div>
+
+  <!-- Sources -->
+  <div class="sources-section">
+    <h3>Sources Consulted</h3>
+    <ul>
+      <li><a href="https://www.nbcnews.com/investigations/man-terror-watchlist-remains-us-released-border-patrol-rcna147192">NBC News &mdash; "Man on terror watchlist was released by Border Patrol" (2024)</a></li>
+      <li><a href="https://dailycaller.com/2024/01/29/exclusive-terrorist-caught-illegally-crossing-border-allowed-roam-free-nearly-year-memo-says/">Daily Caller &mdash; "Terrorist Caught Illegally Crossing The Border Was Allowed To Roam Free For Nearly A Year" (29 January 2024)</a></li>
+      <li><a href="https://refugees.org/the-struggle-for-documentation-in-mexicos-asylum-system-the-human-impact-of-withholding-the-tvrh/">USCRI &mdash; "The Struggle for Documentation in Mexico's Asylum System: The Human Impact of Withholding the TVRH"</a></li>
+      <li><a href="https://www.hrw.org/news/2022/06/06/mexico-asylum-seekers-face-abuses-southern-border">Human Rights Watch &mdash; "Mexico: Asylum Seekers Face Abuses at Southern Border" (6 June 2022)</a></li>
+      <li><a href="https://www.thenewhumanitarian.org/maps-and-graphics/2024/01/15/darien-gap-migration-crisis-six-graphs-and-one-map">The New Humanitarian &mdash; "The Dari&eacute;n Gap migration crisis in six graphs, and one map" (15 January 2024)</a></li>
+      <li><a href="https://www.cfr.org/article/crossing-darien-gap-migrants-risk-death-journey-us">Council on Foreign Relations &mdash; "Crossing the Dari&eacute;n Gap: Migrants Risk Death on the Journey to the U.S."</a></li>
+      <li><a href="https://sayari.com/resources/breaking-down-mexican-national-id/">Sayari &mdash; "Breaking Down the Mexican National ID Number (CURP)"</a></li>
+      <li><a href="https://en.wikipedia.org/wiki/Unique_Population_Registry_Code">Wikipedia &mdash; "Unique Population Registry Code (CURP)"</a></li>
+      <li><a href="https://www.inm.gob.mx/gobmx/word/index.php/chiapas/">INM &mdash; Oficina de Representaci&oacute;n del INM en Chiapas</a></li>
+      <li><a href="https://spectator.org/after-the-illegal-immigrant-surge/">The American Spectator &mdash; "After the Illegal Immigrant Surge" (SIA encounter analysis)</a></li>
+      <li>Document source: <code>Asseir, Mohamud Mohamed.pdf</code> &mdash; 2-page scan (front/back), recovered TVRH fragment from border operations collection, catalogued under "REQUIRES MORE RESEARCH"</li>
+    </ul>
+  </div>
+
+</div>
+
+</body>
+</html>
