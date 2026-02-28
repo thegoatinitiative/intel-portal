@@ -774,19 +774,31 @@
           if (iframeDoc) {
             var mobileStyle = iframeDoc.createElement("style");
             mobileStyle.textContent =
+              "html, body { max-width: 100vw !important; overflow-x: hidden !important; }" +
               "@media (max-width: 768px) {" +
-              "  .container { padding: 12px 10px 40px !important; max-width: 100% !important; }" +
-              "  .report-header { padding: 14px 12px !important; }" +
-              "  .report-header h1 { font-size: 16px !important; }" +
+              "  .container { padding: 8px 8px 30px !important; max-width: 100% !important; width: 100% !important; }" +
+              "  .report-header { padding: 12px 10px !important; }" +
+              "  .report-header h1 { font-size: 15px !important; line-height: 1.3 !important; }" +
               "  .header-meta { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }" +
               "  .header-meta .meta-item { border-right: none !important; padding: 0 !important; }" +
-              "  section { padding: 14px 12px !important; }" +
-              "  section h2 { font-size: 14px !important; }" +
-              "  table { display: block !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; font-size: 12px !important; }" +
-              "  td, th { padding: 6px 8px !important; }" +
-              "  .field-label { min-width: 100px !important; white-space: normal !important; }" +
-              "  .classification-banner { font-size: 10px !important; letter-spacing: 1px !important; padding: 5px !important; }" +
-              "  body { font-size: 13px !important; }" +
+              "  .section { margin-bottom: 12px !important; }" +
+              "  .section-header { padding: 10px 10px !important; gap: 6px !important; }" +
+              "  .section-header h2 { font-size: 12px !important; letter-spacing: 0.3px !important; }" +
+              "  .section-body { padding: 10px !important; }" +
+              "  .section-number { width: 20px !important; height: 20px !important; font-size: 10px !important; }" +
+              "  table { display: block !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; font-size: 11px !important; white-space: nowrap !important; }" +
+              "  thead th { padding: 5px 6px !important; font-size: 9px !important; }" +
+              "  tbody td { padding: 5px 6px !important; font-size: 11px !important; }" +
+              "  td strong { font-size: 9px !important; }" +
+              "  .subsection-title { font-size: 9px !important; margin: 12px 0 6px !important; }" +
+              "  .classification-banner { font-size: 9px !important; letter-spacing: 1px !important; padding: 4px !important; }" +
+              "  .risk-box, .analysis-box, .geo-node { padding: 10px 10px !important; margin: 10px 0 !important; }" +
+              "  .risk-box-title, .analysis-box h4 { font-size: 9px !important; }" +
+              "  .risk-box p, .analysis-box p, p { font-size: 12px !important; }" +
+              "  .checklist li { font-size: 11px !important; padding: 4px 6px !important; gap: 6px !important; }" +
+              "  .geo-node h4 { font-size: 12px !important; }" +
+              "  .geo-node ul li { font-size: 11px !important; }" +
+              "  body { font-size: 12px !important; }" +
               "}";
             iframeDoc.head.appendChild(mobileStyle);
           }
