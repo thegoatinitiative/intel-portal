@@ -527,6 +527,7 @@ button, a, input, select, textarea, .report-item {
   max-width: 1000px;
   margin: 0 auto;
   padding: 1.5rem 2.5rem 3rem;
+  overflow-x: hidden;
 }
 
 /* Back button hidden on desktop */
