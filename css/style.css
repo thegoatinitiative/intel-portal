@@ -40,6 +40,12 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Prevent double-tap zoom on interactive elements */
+button, a, input, select, textarea, .report-item {
+  touch-action: manipulation;
 }
 
 /* ---- LOGIN PAGE ---- */
@@ -1385,6 +1391,28 @@ body {
     display: none;
   }
 
+  /* Globe HUD — stack vertically, smaller text */
+  .globe-wrapper {
+    margin-bottom: 1rem;
+  }
+
+  .globe-hud-top,
+  .globe-hud-bottom {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.35rem 0.5rem;
+    justify-content: center;
+  }
+
+  .hud-item {
+    font-size: 0.45rem;
+    letter-spacing: 0.1em;
+  }
+
+  #globe-canvas {
+    max-width: 280px;
+  }
+
   /* Dashboard layout — full-screen toggle on mobile */
   .dashboard-layout {
     flex-direction: column;
@@ -1449,6 +1477,12 @@ body {
   .search-input {
     padding: 0.55rem 0.75rem;
     font-size: 0.9rem;
+  }
+
+  /* Country filter dropdown */
+  .search-input + .search-input {
+    margin-top: 0.35rem;
+    font-size: 0.8rem;
   }
 
   /* Report list items — bigger tap targets */
@@ -1542,6 +1576,11 @@ body {
     font-size: 0.8rem;
   }
 
+  .meta-value.mono {
+    font-size: 0.75rem;
+    word-break: break-all;
+  }
+
   /* Report body sections */
   .report-body-section {
     padding: 1rem;
@@ -1567,6 +1606,12 @@ body {
     line-height: 1.65;
   }
 
+  .report-body-section table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   /* Documents */
   .document-embed {
     border-radius: 8px;
@@ -1587,12 +1632,28 @@ body {
     white-space: nowrap;
   }
 
+  .document-embed-size {
+    display: none;
+  }
+
   .document-embed-body canvas {
     max-width: 100% !important;
   }
 
   .documents-section-header {
     font-size: 0.6rem;
+  }
+
+  /* Intel Assessment iframe */
+  .intel-assessment-iframe {
+    min-height: 500px;
+  }
+
+  /* Field edit save bar */
+  .field-edit-save-bar {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 12px;
   }
 
   /* Map */
@@ -1676,22 +1737,38 @@ body {
     font-size: 0.8rem;
   }
 
+  .drop-icon {
+    font-size: 1.5rem;
+  }
+
   /* Confirm dialog */
   .confirm-box {
     padding: 1.5rem;
     margin: 0.5rem;
   }
 
+  .confirm-box h3 {
+    font-size: 1rem;
+  }
+
+  .confirm-box p {
+    font-size: 0.8rem;
+  }
+
   /* Admin */
   .admin-layout {
     flex-direction: column;
-    height: calc(100vh - 68px);
+    height: auto;
+    min-height: calc(100vh - 68px);
+    overflow-y: auto;
   }
 
   .admin-panel {
     min-width: unset;
     border-right: none;
     border-bottom: 1px solid var(--border);
+    max-height: none;
+    overflow: visible;
   }
 
   .admin-panel-header {
@@ -1713,10 +1790,29 @@ body {
     gap: 0.5rem;
   }
 
+  .admin-filters .form-group {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 100px;
+  }
+
+  .admin-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .admin-table th,
   .admin-table td {
     padding: 0.5rem 0.75rem;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
+  }
+
+  .admin-table tbody {
+    max-height: none;
+  }
+
+  .admin-activity-feed {
+    max-height: 50vh;
   }
 
   .admin-activity-item {
@@ -1725,10 +1821,31 @@ body {
     flex-wrap: wrap;
   }
 
+  .admin-action-badge {
+    font-size: 0.5rem;
+    min-width: 60px;
+    padding: 0.15rem 0.4rem;
+  }
+
+  .admin-activity-user {
+    font-size: 0.7rem;
+    min-width: 60px;
+  }
+
   .admin-activity-details {
     white-space: normal;
     min-width: 100%;
     order: 4;
+    font-size: 0.7rem;
+  }
+
+  .admin-activity-ip {
+    display: none;
+  }
+
+  .admin-activity-time {
+    font-size: 0.6rem;
+    margin-left: auto;
   }
 }
 
@@ -1745,6 +1862,28 @@ body {
   .report-header-actions .btn-delete {
     flex: 1;
     text-align: center;
+  }
+
+  /* Tiny screens — hide globe entirely */
+  #globe-canvas {
+    max-width: 200px;
+  }
+
+  .globe-hud-top,
+  .globe-hud-bottom {
+    gap: 0.25rem;
+  }
+
+  .hud-item {
+    font-size: 0.4rem;
+  }
+
+  .report-placeholder h2 {
+    font-size: 0.95rem;
+  }
+
+  .report-placeholder p {
+    font-size: 0.75rem;
   }
 }
 
