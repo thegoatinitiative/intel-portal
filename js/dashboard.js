@@ -769,7 +769,29 @@
       // Auto-resize iframe to fit content, apply overrides, enable editing
       iframe.addEventListener("load", function () {
         try {
-          var h = iframe.contentDocument.documentElement.scrollHeight;
+          // Inject mobile-responsive overrides into iframe content
+          var iframeDoc = iframe.contentDocument;
+          if (iframeDoc) {
+            var mobileStyle = iframeDoc.createElement("style");
+            mobileStyle.textContent =
+              "@media (max-width: 768px) {" +
+              "  .container { padding: 12px 10px 40px !important; max-width: 100% !important; }" +
+              "  .report-header { padding: 14px 12px !important; }" +
+              "  .report-header h1 { font-size: 16px !important; }" +
+              "  .header-meta { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }" +
+              "  .header-meta .meta-item { border-right: none !important; padding: 0 !important; }" +
+              "  section { padding: 14px 12px !important; }" +
+              "  section h2 { font-size: 14px !important; }" +
+              "  table { display: block !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; font-size: 12px !important; }" +
+              "  td, th { padding: 6px 8px !important; }" +
+              "  .field-label { min-width: 100px !important; white-space: normal !important; }" +
+              "  .classification-banner { font-size: 10px !important; letter-spacing: 1px !important; padding: 5px !important; }" +
+              "  body { font-size: 13px !important; }" +
+              "}";
+            iframeDoc.head.appendChild(mobileStyle);
+          }
+
+          var h = iframeDoc.documentElement.scrollHeight;
           iframe.style.height = h + "px";
         } catch (e) { /* cross-origin fallback stays at CSS default */ }
 
