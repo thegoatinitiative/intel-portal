@@ -821,6 +821,8 @@ button, a, input, select, textarea, .report-item {
   border: none;
   border-radius: 8px;
   margin-bottom: 20px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 /* ---- BUTTONS ---- */
