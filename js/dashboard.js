@@ -771,55 +771,71 @@
         try {
           // Inject mobile-responsive overrides into iframe content
           var iframeDoc = iframe.contentDocument;
-          if (iframeDoc) {
+          var isMobileView = window.innerWidth <= 800;
+          if (iframeDoc && isMobileView) {
             var mobileStyle = iframeDoc.createElement("style");
             mobileStyle.textContent =
-              "html, body { max-width: 100vw !important; overflow-x: hidden !important; word-wrap: break-word !important; }" +
-              "@media (max-width: 800px) {" +
+              "html, body { max-width: 100% !important; overflow-x: hidden !important; word-wrap: break-word !important; }" +
               /* Both template containers */
-              "  .container, .report-container { padding: 8px !important; max-width: 100% !important; }" +
-              /* Header cards — both templates */
-              "  .report-header, .report-header-card { padding: 12px !important; }" +
-              "  .report-header h1, .report-header-card h1 { font-size: 16px !important; line-height: 1.3 !important; }" +
+              ".container, .report-container { padding: 8px !important; max-width: 100% !important; }" +
+              /* Header cards */
+              ".report-header, .report-header-card { padding: 12px !important; }" +
+              ".report-header h1, .report-header-card h1 { font-size: 16px !important; line-height: 1.3 !important; }" +
               /* Meta grids — force 1 column */
-              "  .header-meta, .header-meta-grid { grid-template-columns: 1fr !important; gap: 8px !important; }" +
-              "  .header-meta .meta-item { border-right: none !important; padding: 4px 0 !important; }" +
-              "  .header-meta-grid .meta-item { padding-left: 10px !important; }" +
-              /* Section cards — template 1 (.section) */
-              "  .section { margin-bottom: 12px !important; }" +
-              "  .section-header { padding: 8px 10px !important; gap: 6px !important; }" +
-              "  .section-header h2 { font-size: 11px !important; letter-spacing: 0.3px !important; }" +
-              "  .section-body { padding: 10px !important; }" +
-              "  .section-number { width: 20px !important; height: 20px !important; font-size: 10px !important; }" +
-              /* Section cards — template 2 (.section-card) */
-              "  .section-card { margin-bottom: 12px !important; }" +
-              "  .section-card-header { padding: 10px 12px !important; gap: 8px !important; }" +
-              "  .section-card-title { font-size: 11px !important; }" +
-              "  .section-card-body { padding: 10px !important; }" +
-              "  .section-num-badge { min-width: 22px !important; height: 22px !important; font-size: 11px !important; }" +
-              /* Key-value tables — stack label/value vertically */
-              "  table { width: 100% !important; display: table !important; table-layout: fixed !important; }" +
-              "  td.field-label { width: auto !important; white-space: normal !important; display: block !important; font-size: 10px !important; padding: 6px 8px 2px !important; }" +
-              "  td.field-label + td { display: block !important; padding: 2px 8px 8px !important; font-size: 12px !important; word-wrap: break-word !important; }" +
-              "  tbody tr { display: block !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; }" +
-              /* Multi-column data tables (with thead) — horizontal scroll */
-              "  table:has(thead) { display: block !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; table-layout: auto !important; }" +
-              "  table:has(thead) tr { display: table-row !important; }" +
-              "  table:has(thead) td, table:has(thead) th { display: table-cell !important; white-space: nowrap !important; padding: 5px 6px !important; font-size: 11px !important; }" +
-              "  thead th { font-size: 9px !important; padding: 5px 6px !important; }" +
-              /* Subsections & misc */
-              "  .subsection-title, h3.sub-header { font-size: 9px !important; margin: 12px 0 6px !important; }" +
-              "  .classification-banner { font-size: 9px !important; letter-spacing: 1px !important; padding: 4px !important; }" +
-              "  .risk-box, .analysis-box, .geo-node { padding: 10px !important; margin: 10px 0 !important; }" +
-              "  .risk-box-title, .analysis-box h4 { font-size: 9px !important; }" +
-              "  p { font-size: 12px !important; }" +
-              "  .checklist li { font-size: 11px !important; padding: 4px 6px !important; }" +
-              "  body { font-size: 12px !important; }" +
-              "}";
+              ".header-meta, .header-meta-grid { grid-template-columns: 1fr !important; gap: 8px !important; }" +
+              ".header-meta .meta-item { border-right: none !important; padding: 4px 0 !important; }" +
+              ".header-meta-grid .meta-item { padding-left: 10px !important; }" +
+              /* Section cards — template 1 */
+              ".section { margin-bottom: 12px !important; }" +
+              ".section-header { padding: 8px 10px !important; gap: 6px !important; }" +
+              ".section-header h2 { font-size: 11px !important; }" +
+              ".section-body { padding: 10px !important; }" +
+              ".section-number { width: 20px !important; height: 20px !important; font-size: 10px !important; }" +
+              /* Section cards — template 2 */
+              ".section-card { margin-bottom: 12px !important; }" +
+              ".section-card-header { padding: 10px 12px !important; gap: 8px !important; }" +
+              ".section-card-title { font-size: 11px !important; }" +
+              ".section-card-body { padding: 10px !important; }" +
+              ".section-num-badge { min-width: 22px !important; height: 22px !important; font-size: 11px !important; }" +
+              /* Key-value tables — stack label above value */
+              "table { width: 100% !important; table-layout: fixed !important; }" +
+              "tbody tr { display: block !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; }" +
+              "td.field-label { display: block !important; width: 100% !important; white-space: normal !important; font-size: 10px !important; padding: 6px 8px 2px !important; border-bottom: none !important; }" +
+              "td.field-label + td { display: block !important; width: 100% !important; padding: 2px 8px 8px !important; font-size: 12px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }" +
+              /* Misc */
+              ".subsection-title, h3.sub-header { font-size: 9px !important; margin: 12px 0 6px !important; }" +
+              ".classification-banner { font-size: 9px !important; letter-spacing: 1px !important; padding: 4px !important; }" +
+              ".risk-box, .analysis-box, .geo-node { padding: 10px !important; margin: 10px 0 !important; }" +
+              "p { font-size: 12px !important; }" +
+              ".checklist li { font-size: 11px !important; padding: 4px 6px !important; }" +
+              "thead th { font-size: 9px !important; padding: 5px 6px !important; }" +
+              "body { font-size: 12px !important; }";
             iframeDoc.head.appendChild(mobileStyle);
+
+            // For multi-column tables with thead, wrap in scrollable div
+            var theadTables = iframeDoc.querySelectorAll("table:not(:empty)");
+            for (var t = 0; t < theadTables.length; t++) {
+              if (theadTables[t].querySelector("thead")) {
+                // Undo the block display for data tables — keep as table, wrap for scroll
+                theadTables[t].style.cssText = "display: table !important; table-layout: auto !important; width: auto !important; min-width: 100% !important;";
+                var trs = theadTables[t].querySelectorAll("tbody tr");
+                for (var r = 0; r < trs.length; r++) trs[r].style.display = "table-row";
+                var tds = theadTables[t].querySelectorAll("td, th");
+                for (var c = 0; c < tds.length; c++) {
+                  tds[c].style.display = "table-cell";
+                  tds[c].style.whiteSpace = "nowrap";
+                  tds[c].style.fontSize = "11px";
+                  tds[c].style.padding = "5px 6px";
+                }
+                var wrapper = iframeDoc.createElement("div");
+                wrapper.style.cssText = "overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 8px 0 16px;";
+                theadTables[t].parentNode.insertBefore(wrapper, theadTables[t]);
+                wrapper.appendChild(theadTables[t]);
+              }
+            }
           }
 
-          var h = iframeDoc.documentElement.scrollHeight;
+          var h = (iframeDoc || iframe.contentDocument).documentElement.scrollHeight;
           iframe.style.height = h + "px";
         } catch (e) { /* cross-origin fallback stays at CSS default */ }
 
