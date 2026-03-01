@@ -774,30 +774,46 @@
           if (iframeDoc) {
             var mobileStyle = iframeDoc.createElement("style");
             mobileStyle.textContent =
-              "html, body { max-width: 100vw !important; overflow-x: hidden !important; }" +
-              "@media (max-width: 768px) {" +
-              "  .container { padding: 8px 8px 30px !important; max-width: 100% !important; width: 100% !important; }" +
-              "  .report-header { padding: 12px 10px !important; }" +
-              "  .report-header h1 { font-size: 15px !important; line-height: 1.3 !important; }" +
-              "  .header-meta { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }" +
-              "  .header-meta .meta-item { border-right: none !important; padding: 0 !important; }" +
+              "html, body { max-width: 100vw !important; overflow-x: hidden !important; word-wrap: break-word !important; }" +
+              "@media (max-width: 800px) {" +
+              /* Both template containers */
+              "  .container, .report-container { padding: 8px !important; max-width: 100% !important; }" +
+              /* Header cards — both templates */
+              "  .report-header, .report-header-card { padding: 12px !important; }" +
+              "  .report-header h1, .report-header-card h1 { font-size: 16px !important; line-height: 1.3 !important; }" +
+              /* Meta grids — force 1 column */
+              "  .header-meta, .header-meta-grid { grid-template-columns: 1fr !important; gap: 8px !important; }" +
+              "  .header-meta .meta-item { border-right: none !important; padding: 4px 0 !important; }" +
+              "  .header-meta-grid .meta-item { padding-left: 10px !important; }" +
+              /* Section cards — template 1 (.section) */
               "  .section { margin-bottom: 12px !important; }" +
-              "  .section-header { padding: 10px 10px !important; gap: 6px !important; }" +
-              "  .section-header h2 { font-size: 12px !important; letter-spacing: 0.3px !important; }" +
+              "  .section-header { padding: 8px 10px !important; gap: 6px !important; }" +
+              "  .section-header h2 { font-size: 11px !important; letter-spacing: 0.3px !important; }" +
               "  .section-body { padding: 10px !important; }" +
               "  .section-number { width: 20px !important; height: 20px !important; font-size: 10px !important; }" +
-              "  table { display: block !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; font-size: 11px !important; white-space: nowrap !important; }" +
-              "  thead th { padding: 5px 6px !important; font-size: 9px !important; }" +
-              "  tbody td { padding: 5px 6px !important; font-size: 11px !important; }" +
-              "  td strong { font-size: 9px !important; }" +
-              "  .subsection-title { font-size: 9px !important; margin: 12px 0 6px !important; }" +
+              /* Section cards — template 2 (.section-card) */
+              "  .section-card { margin-bottom: 12px !important; }" +
+              "  .section-card-header { padding: 10px 12px !important; gap: 8px !important; }" +
+              "  .section-card-title { font-size: 11px !important; }" +
+              "  .section-card-body { padding: 10px !important; }" +
+              "  .section-num-badge { min-width: 22px !important; height: 22px !important; font-size: 11px !important; }" +
+              /* Key-value tables — stack label/value vertically */
+              "  table { width: 100% !important; display: table !important; table-layout: fixed !important; }" +
+              "  td.field-label { width: auto !important; white-space: normal !important; display: block !important; font-size: 10px !important; padding: 6px 8px 2px !important; }" +
+              "  td.field-label + td { display: block !important; padding: 2px 8px 8px !important; font-size: 12px !important; word-wrap: break-word !important; }" +
+              "  tbody tr { display: block !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; }" +
+              /* Multi-column data tables (with thead) — horizontal scroll */
+              "  table:has(thead) { display: block !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; table-layout: auto !important; }" +
+              "  table:has(thead) tr { display: table-row !important; }" +
+              "  table:has(thead) td, table:has(thead) th { display: table-cell !important; white-space: nowrap !important; padding: 5px 6px !important; font-size: 11px !important; }" +
+              "  thead th { font-size: 9px !important; padding: 5px 6px !important; }" +
+              /* Subsections & misc */
+              "  .subsection-title, h3.sub-header { font-size: 9px !important; margin: 12px 0 6px !important; }" +
               "  .classification-banner { font-size: 9px !important; letter-spacing: 1px !important; padding: 4px !important; }" +
-              "  .risk-box, .analysis-box, .geo-node { padding: 10px 10px !important; margin: 10px 0 !important; }" +
+              "  .risk-box, .analysis-box, .geo-node { padding: 10px !important; margin: 10px 0 !important; }" +
               "  .risk-box-title, .analysis-box h4 { font-size: 9px !important; }" +
-              "  .risk-box p, .analysis-box p, p { font-size: 12px !important; }" +
-              "  .checklist li { font-size: 11px !important; padding: 4px 6px !important; gap: 6px !important; }" +
-              "  .geo-node h4 { font-size: 12px !important; }" +
-              "  .geo-node ul li { font-size: 11px !important; }" +
+              "  p { font-size: 12px !important; }" +
+              "  .checklist li { font-size: 11px !important; padding: 4px 6px !important; }" +
               "  body { font-size: 12px !important; }" +
               "}";
             iframeDoc.head.appendChild(mobileStyle);
