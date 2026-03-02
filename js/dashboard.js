@@ -807,7 +807,26 @@
               ".classification-banner { font-size: 9px !important; letter-spacing: 1px !important; padding: 4px !important; }" +
               ".risk-box, .analysis-box, .geo-node { padding: 10px !important; margin: 10px 0 !important; }" +
               "p { font-size: 12px !important; }" +
-              ".checklist li { font-size: 11px !important; padding: 4px 6px !important; }" +
+              /* Checklist items — prevent flex overflow */
+              ".checklist li { font-size: 11px !important; padding: 6px 8px !important; display: flex !important; flex-wrap: wrap !important; gap: 4px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }" +
+              ".checklist li span:not(.check-icon) { flex: 1 1 0 !important; min-width: 0 !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }" +
+              ".check-icon { flex-shrink: 0 !important; width: 16px !important; }" +
+              /* Callout boxes */
+              ".callout { padding: 10px 12px !important; margin: 8px 0 !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }" +
+              ".callout-label { font-size: 9px !important; }" +
+              /* Red flag & directive cards */
+              ".red-flag-card, .directive-card { padding: 10px 12px !important; margin: 6px 0 !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }" +
+              ".red-flag-num { width: 18px !important; height: 18px !important; font-size: 10px !important; }" +
+              /* MRZ and coords blocks — allow scroll on long monospace */
+              ".mrz-block { padding: 8px 10px !important; font-size: 10px !important; letter-spacing: 0.5px !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }" +
+              ".coords-block { padding: 6px 10px !important; font-size: 10px !important; overflow-x: auto !important; }" +
+              /* Sources card */
+              ".sources-card { padding: 12px !important; }" +
+              ".sources-card a { font-size: 11px !important; word-break: break-all !important; }" +
+              /* General text overflow */
+              "strong { word-wrap: break-word !important; overflow-wrap: break-word !important; }" +
+              "ul, ol { padding-left: 16px !important; margin-left: 0 !important; }" +
+              "li { word-wrap: break-word !important; overflow-wrap: break-word !important; }" +
               "thead th { font-size: 9px !important; padding: 5px 6px !important; }" +
               "body { font-size: 12px !important; }";
             iframeDoc.head.appendChild(mobileStyle);
