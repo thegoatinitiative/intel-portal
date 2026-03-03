@@ -1772,6 +1772,13 @@ button, a, input, select, textarea, .report-item {
     border-bottom: 1px solid var(--border);
     max-height: none;
     overflow: visible;
+    flex: none;
+  }
+
+  /* Activity feed panel — take remaining space */
+  .admin-panel:last-child {
+    flex: 1;
+    min-height: 60vh;
   }
 
   .admin-panel-header {
@@ -1918,9 +1925,12 @@ button, a, input, select, textarea, .report-item {
     font-size: 0.75rem;
   }
 
-  /* Activity feed */
+  /* Activity feed — generous height for scrolling */
   .admin-activity-feed {
     max-height: none;
+    min-height: 50vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .admin-activity-item {
@@ -2013,8 +2023,10 @@ button, a, input, select, textarea, .report-item {
   border-right: 1px solid var(--border);
 }
 
+/* Give activity feed panel more space */
 .admin-panel:last-child {
   border-right: none;
+  flex: 1.5;
 }
 
 .admin-panel-header {
