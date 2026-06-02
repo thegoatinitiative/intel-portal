@@ -234,32 +234,32 @@
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   }
 
-  // ---- PDF Renderer (uses PDF.js to render each page as a canvas) ----
+  // ---- PDF Renderer ----
+  // Tries PDF.js canvas rendering first (requires CORS on Storage bucket).
+  // Falls back to native browser <object> embed which bypasses CORS.
 
   async function renderPDFPages(source, container) {
-    // source can be a storageUrl (https://...) or a legacy data URL
     const loading = document.createElement("div");
     loading.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);font-size:0.9rem;";
     loading.textContent = "Rendering PDF pages...";
     container.appendChild(loading);
 
     try {
-      // Wait for PDF.js to load
       if (window.pdfjsReady) await window.pdfjsReady;
       if (!window.pdfjsLib) throw new Error("PDF.js not available");
 
       var pdfData;
       if (source.startsWith("data:")) {
-        // Legacy data URL — decode base64
         var base64 = source.split(",")[1];
         if (!base64) throw new Error("Invalid data URL");
         var raw = atob(base64);
         pdfData = new Uint8Array(raw.length);
         for (var i = 0; i < raw.length; i++) pdfData[i] = raw.charCodeAt(i);
       } else {
-        // Storage URL — fetch as ArrayBuffer
+        // Allow HTTP caching (no "no-store") so re-opening the same PDF in a
+        // session doesn't re-download the full file and burn Storage egress.
         var resp = await fetch(source);
-        if (!resp.ok) throw new Error("Failed to fetch PDF (" + resp.status + ")");
+        if (!resp.ok) throw new Error("fetch " + resp.status);
         pdfData = new Uint8Array(await resp.arrayBuffer());
       }
 
@@ -280,10 +280,8 @@
 
         const ctx = canvas.getContext("2d");
         await page.render({ canvasContext: ctx, viewport }).promise;
-
         container.appendChild(canvas);
 
-        // Page separator
         if (num < maxPages) {
           const sep = document.createElement("div");
           sep.style.cssText = "height:2px;background:var(--border);";
@@ -298,7 +296,24 @@
         container.appendChild(note);
       }
     } catch (e) {
-      loading.textContent = "Unable to render PDF: " + e.message;
+      // Fetch failed (CORS / expired token) — fall back to native browser embed
+      container.removeChild(loading);
+      var obj = document.createElement("object");
+      obj.data = source;
+      obj.type = "application/pdf";
+      obj.style.cssText = "width:100%;height:80vh;border:none;border-radius:4px;background:var(--surface);";
+      var fallbackMsg = document.createElement("div");
+      fallbackMsg.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);";
+      fallbackMsg.textContent = "Unable to display PDF inline.";
+      var fallbackLink = document.createElement("a");
+      fallbackLink.href = source;
+      fallbackLink.target = "_blank";
+      fallbackLink.rel = "noopener";
+      fallbackLink.style.cssText = "color:var(--accent);margin-left:0.5rem;";
+      fallbackLink.textContent = "Open in new tab";
+      fallbackMsg.appendChild(fallbackLink);
+      obj.appendChild(fallbackMsg);
+      container.appendChild(obj);
     }
   }
 
@@ -625,14 +640,25 @@
         downloadBtn.textContent = "Download";
         downloadBtn.style.cssText = "margin-left:auto;padding:0.25rem 0.7rem;font-size:0.65rem;flex-shrink:0;";
         downloadBtn.addEventListener("click", function () {
-          var dlSrc = att.storageUrl || att.dataUrl;
-          if (!dlSrc) return;
-          var a = document.createElement("a");
-          a.href = dlSrc;
-          a.download = att.name;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
+          // Get a fresh download URL from storagePath to avoid expired tokens
+          var downloadPromise;
+          if (att.storagePath) {
+            downloadPromise = fbStorage.ref(att.storagePath).getDownloadURL();
+          } else {
+            downloadPromise = Promise.resolve(att.storageUrl || att.dataUrl);
+          }
+          downloadPromise.then(function (dlSrc) {
+            if (!dlSrc) return;
+            var a = document.createElement("a");
+            a.href = dlSrc;
+            a.download = att.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }).catch(function (err) {
+            console.error("Download failed:", err);
+            alert("Unable to download file. The file may have been deleted.");
+          });
         });
 
         embedHeader.appendChild(icon);
@@ -648,51 +674,77 @@
         const body = document.createElement("div");
         body.className = "document-embed-body";
 
-        var src = att.storageUrl || att.dataUrl;
-        if (!src) {
-          const msg = document.createElement("div");
-          msg.style.cssText = "padding:1.5rem;text-align:center;color:var(--text-muted);font-size:0.85rem;";
-          msg.textContent = "Attachment data not available.";
-          body.appendChild(msg);
-        } else if (att.type === "application/pdf") {
-          renderPDFPages(src, body);
-        } else if (att.type && att.type.startsWith("image/")) {
-          const img = document.createElement("img");
-          img.src = src;
-          img.alt = att.name;
-          body.appendChild(img);
-        } else if (
-          (att.type && att.type.startsWith("text/")) ||
-          att.name.endsWith(".md") ||
-          att.name.endsWith(".csv")
-        ) {
-          if (att.textContent) {
-            const pre = document.createElement("pre");
-            pre.textContent = att.textContent;
-            body.appendChild(pre);
-          } else {
-            // Fetch text content from Storage URL
-            fetch(src).then(function (r) { return r.text(); }).then(function (text) {
-              const pre = document.createElement("pre");
-              pre.textContent = text;
-              body.appendChild(pre);
-            }).catch(function () {
-              const pre = document.createElement("pre");
-              pre.textContent = "(Unable to read file)";
-              body.appendChild(pre);
-            });
-          }
+        // Resolve a fresh download URL from storagePath to avoid expired tokens (412 errors)
+        var srcPromise;
+        if (att.storagePath) {
+          srcPromise = fbStorage.ref(att.storagePath).getDownloadURL().catch(function () {
+            return att.storageUrl || att.dataUrl || null;
+          });
         } else {
-          const dl = document.createElement("div");
-          dl.style.cssText = "padding:1.5rem;text-align:center;";
-          const link = document.createElement("a");
-          link.href = src;
-          link.download = att.name;
-          link.textContent = "Download " + att.name;
-          link.style.cssText = "color:var(--accent);font-weight:600;text-decoration:none;";
-          dl.appendChild(link);
-          body.appendChild(dl);
+          srcPromise = Promise.resolve(att.storageUrl || att.dataUrl || null);
         }
+
+        (function (body, att, srcPromise) {
+          srcPromise.then(function (src) {
+            if (!src) {
+              const msg = document.createElement("div");
+              msg.style.cssText = "padding:1.5rem;text-align:center;color:var(--text-muted);font-size:0.85rem;";
+              msg.textContent = "Attachment data not available.";
+              body.appendChild(msg);
+            } else if (att.type === "application/pdf") {
+              // Lazy-load: don't fetch the PDF until the user asks for it.
+              // Auto-rendering every PDF on report open re-downloads the full
+              // file on each view and can exhaust the Storage egress quota.
+              var lazyWrap = document.createElement("div");
+              lazyWrap.style.cssText = "padding:1.5rem;text-align:center;";
+              var loadBtn = document.createElement("button");
+              loadBtn.className = "btn-action";
+              loadBtn.style.cssText = "padding:0.4rem 1rem;font-size:0.75rem;";
+              loadBtn.textContent = "Load preview (" + formatFileSize(att.size) + ")";
+              loadBtn.addEventListener("click", function () {
+                body.removeChild(lazyWrap);
+                renderPDFPages(src, body);
+              });
+              lazyWrap.appendChild(loadBtn);
+              body.appendChild(lazyWrap);
+            } else if (att.type && att.type.startsWith("image/")) {
+              const img = document.createElement("img");
+              img.src = src;
+              img.alt = att.name;
+              body.appendChild(img);
+            } else if (
+              (att.type && att.type.startsWith("text/")) ||
+              att.name.endsWith(".md") ||
+              att.name.endsWith(".csv")
+            ) {
+              if (att.textContent) {
+                const pre = document.createElement("pre");
+                pre.textContent = att.textContent;
+                body.appendChild(pre);
+              } else {
+                fetch(src).then(function (r) { return r.text(); }).then(function (text) {
+                  const pre = document.createElement("pre");
+                  pre.textContent = text;
+                  body.appendChild(pre);
+                }).catch(function () {
+                  const pre = document.createElement("pre");
+                  pre.textContent = "(Unable to read file)";
+                  body.appendChild(pre);
+                });
+              }
+            } else {
+              const dl = document.createElement("div");
+              dl.style.cssText = "padding:1.5rem;text-align:center;";
+              const link = document.createElement("a");
+              link.href = src;
+              link.download = att.name;
+              link.textContent = "Download " + att.name;
+              link.style.cssText = "color:var(--accent);font-weight:600;text-decoration:none;";
+              dl.appendChild(link);
+              body.appendChild(dl);
+            }
+          });
+        })(body, att, srcPromise);
 
         embed.appendChild(body);
         docsSection.appendChild(embed);
