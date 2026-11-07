@@ -30,28 +30,11 @@ git push -u origin main
 
 ### 3. Log In
 
-Default credentials:
-
-| Username  | Password          |
-|-----------|-------------------|
-| `admin`   | `classified2024`  |
-| `analyst` | `intel$ecure`     |
+Accounts are Firebase email/password users. Create them in the Firebase console or the admin screen. Do not put passwords in this repository.
 
 ## Customizing Credentials
 
-Credentials are stored as SHA-256 hashes of `username:password` in `js/auth.js`.
-
-To generate a new hash:
-
-```bash
-# macOS / Linux
-echo -n "myuser:mypassword" | shasum -a 256
-
-# Or using Python
-python3 -c "import hashlib; print(hashlib.sha256(b'myuser:mypassword').hexdigest())"
-```
-
-Then replace or add hashes in the `VALID_CREDENTIALS` array in `js/auth.js`.
+Authentication is Firebase Auth. A username `name` signs in as `name@intelportal.app`. Roles live in the Firestore `users` collection.
 
 ## Adding Reports
 
