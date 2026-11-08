@@ -205,12 +205,6 @@
     const li = document.createElement("li");
     li.className = "report-item" + (report.id === activeReportId ? " active" : "");
 
-    const classMap = {
-      "top-secret": "classification-top-secret",
-      secret: "classification-secret",
-      confidential: "classification-confidential",
-    };
-
     const passport = document.createElement("div");
     passport.className = "report-item-passport";
     passport.textContent = report.passportNumber;
@@ -223,14 +217,9 @@
     date.className = "report-item-date";
     date.textContent = report.date + " \u2014 " + report.nationality;
 
-    const cls = document.createElement("span");
-    cls.className = "report-item-classification " + (classMap[report.classification] || "");
-    cls.textContent = report.classification.replace("-", " ");
-
     li.appendChild(passport);
     li.appendChild(name);
     li.appendChild(date);
-    li.appendChild(cls);
 
     if (report.attachments && report.attachments.length > 0) {
       const badge = document.createElement("div");
@@ -309,12 +298,6 @@
 
     const viewer = document.querySelector(".report-viewer");
     viewer.scrollTop = 0;
-
-    const classMap = {
-      "top-secret": "classification-top-secret",
-      secret: "classification-secret",
-      confidential: "classification-confidential",
-    };
 
     // Destroy previous Leaflet map to prevent "already initialized" crash
     if (activeMap) {
@@ -407,7 +390,6 @@
       ["Passport No.", report.passportNumber, true],
       ["Nationality", report.nationality, false],
       ["Report Date", report.date, false],
-      ["Classification", report.classification.replace("-", " ").toUpperCase(), false],
       ["Summary", report.summary, false],
     ];
 
@@ -420,46 +402,11 @@
       lbl.className = "meta-label";
       lbl.textContent = label;
 
-      if (label === "Classification" && isUserAdmin) {
-        const select = document.createElement("select");
-        select.className = "classification-select";
-        var classOptions = [
-          { value: "top-secret", label: "TOP SECRET" },
-          { value: "secret", label: "SECRET" },
-          { value: "confidential", label: "CONFIDENTIAL" }
-        ];
-        classOptions.forEach(function (opt) {
-          var option = document.createElement("option");
-          option.value = opt.value;
-          option.textContent = opt.label;
-          if (opt.value === report.classification) option.selected = true;
-          select.appendChild(option);
-        });
-        select.className = "classification-select " + (classMap[report.classification] || "");
-        select.addEventListener("change", function () {
-          var newClass = select.value;
-          report.classification = newClass;
-          select.className = "classification-select " + (classMap[newClass] || "");
-          StorageDB.saveReport(report).then(function () {
-            renderReportList(searchInput.value, countryFilter.value);
-            ActivityLog.log("classification_changed", { reportId: report.id, classification: newClass });
-          }).catch(function (e) { console.error("Failed to update classification:", e); });
-        });
-        item.appendChild(lbl);
-        item.appendChild(select);
-      } else if (label === "Classification") {
-        const badge = document.createElement("span");
-        badge.className = "report-item-classification " + (classMap[report.classification] || "");
-        badge.textContent = value;
-        item.appendChild(lbl);
-        item.appendChild(badge);
-      } else {
-        const val = document.createElement("span");
-        val.className = isMono ? "meta-value mono" : "meta-value";
-        val.textContent = value;
-        item.appendChild(lbl);
-        item.appendChild(val);
-      }
+      const val = document.createElement("span");
+      val.className = isMono ? "meta-value mono" : "meta-value";
+      val.textContent = value;
+      item.appendChild(lbl);
+      item.appendChild(val);
 
       grid.appendChild(item);
     });
@@ -806,6 +753,16 @@
     }).catch(function () { /* no assessment available */ });
   }
 
+  function stripClassificationMarks(html) {
+    var doc = new DOMParser().parseFromString(html, "text/html");
+    doc.querySelectorAll(".classification-banner").forEach(function (el) { el.remove(); });
+    doc.querySelectorAll(".meta-item").forEach(function (el) {
+      var label = el.querySelector(".label, .meta-label");
+      if (label && label.textContent.trim().toLowerCase() === "classification") el.remove();
+    });
+    return "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+  }
+
   function loadAssessment(id) {
     var localUrl = "reports/" + id + ".html";
     return fetch(localUrl, { method: "HEAD" }).then(function (resp) {
@@ -826,7 +783,7 @@
     }).then(function (response) {
       if (!response || !response.ok) return null;
       return response.text().then(function (html) {
-        return html ? { html: html } : null;
+        return html ? { html: stripClassificationMarks(html) } : null;
       });
     }).catch(function () {
       return null;
@@ -875,7 +832,6 @@
     document.getElementById("rpt-name").value = report.subjectName || "";
     document.getElementById("rpt-nationality").value = report.nationality || "";
     document.getElementById("rpt-date").value = report.date || "";
-    document.getElementById("rpt-classification").value = report.classification || "secret";
     document.getElementById("rpt-summary").value = report.summary || "";
     document.getElementById("rpt-content").value = report.content || "";
     document.getElementById("rpt-location").value = report.locationName || "";
@@ -1069,7 +1025,6 @@
     const name = document.getElementById("rpt-name").value.trim();
     const nationality = document.getElementById("rpt-nationality").value.trim();
     const date = document.getElementById("rpt-date").value;
-    const classification = document.getElementById("rpt-classification").value;
     const summary = document.getElementById("rpt-summary").value.trim();
     const content = document.getElementById("rpt-content").value;
     const locationName = document.getElementById("rpt-location").value.trim();
@@ -1089,7 +1044,6 @@
         existing.subjectName = name;
         existing.nationality = nationality;
         existing.date = date;
-        existing.classification = classification;
         existing.summary = summary;
         existing.locationName = locationName || null;
         existing.lat = lat;
@@ -1124,7 +1078,7 @@
 
       const report = {
         id, passportNumber: passport.toUpperCase(), subjectName: name,
-        nationality, date, classification, summary,
+        nationality, date, classification: "confidential", summary,
         locationName: locationName || null,
         lat: lat,
         lng: lng,
