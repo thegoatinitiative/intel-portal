@@ -692,11 +692,11 @@
     }
 
     // ---- Inline Intel Assessment (iframe for full JS/CSS support) ----
-    var assessmentUrl = "reports/" + report.id + ".html";
-    fetch(assessmentUrl, { method: "HEAD" }).then(function (resp) {
-      if (!resp.ok) return;
+    loadAssessment(report.id).then(function (assessment) {
+      if (!assessment) return;
       var iframe = document.createElement("iframe");
-      iframe.src = assessmentUrl;
+      if (assessment.html) iframe.srcdoc = assessment.html;
+      else iframe.src = assessment.url;
       iframe.className = "intel-assessment-iframe";
       iframe.setAttribute("frameborder", "0");
       iframe.setAttribute("allowfullscreen", "true");
@@ -804,6 +804,33 @@
       });
       reportBodyEl.appendChild(iframe);
     }).catch(function () { /* no assessment available */ });
+  }
+
+  function loadAssessment(id) {
+    var localUrl = "reports/" + id + ".html";
+    return fetch(localUrl, { method: "HEAD" }).then(function (resp) {
+      if (resp.ok) return { url: localUrl };
+      return loadPrivateAssessment(id);
+    }).catch(function () {
+      return loadPrivateAssessment(id);
+    });
+  }
+
+  function loadPrivateAssessment(id) {
+    var user = fbAuth.currentUser;
+    if (!user || typeof TGI_ACCESS_ORIGIN !== "string") return Promise.resolve(null);
+    return user.getIdToken().then(function (token) {
+      return fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/assessment/" + encodeURIComponent(id), {
+        headers: { Authorization: "Bearer " + token },
+      });
+    }).then(function (response) {
+      if (!response || !response.ok) return null;
+      return response.text().then(function (html) {
+        return html ? { html: html } : null;
+      });
+    }).catch(function () {
+      return null;
+    });
   }
 
   // ---- Export Report as PDF ----
