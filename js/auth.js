@@ -232,8 +232,7 @@ function fetchAccessStatus(user) {
         body &&
         (body.status === "approved" ||
           body.status === "pending" ||
-          body.status === "denied" ||
-          body.status === "legacy")
+          body.status === "denied")
       ) {
         return body.status;
       }
@@ -263,8 +262,8 @@ function requireDetailedAccess() {
     return confirmAdmin(user).then(function (admin) {
       if (admin) return user;
       return fetchAccessStatus(user).then(function (status) {
-        if (status === "approved" || status === "legacy") return user;
-        showAccessWall(status);
+        if (status === "approved") return user;
+        showAccessWall(status === "pending" ? "pending" : status === "error" ? "error" : "denied");
         return null;
       });
     });
