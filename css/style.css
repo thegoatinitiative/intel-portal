@@ -168,6 +168,24 @@ button, a, input, select, textarea, .report-item {
   letter-spacing: 0.03em;
 }
 
+.form-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
+  text-align: center;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+  padding: 0;
+}
+
 /* ---- TOPBAR ---- */
 
 .topbar {

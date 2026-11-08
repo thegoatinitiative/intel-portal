@@ -5,6 +5,8 @@
 
 const AUTH_KEY = "intel_portal_session";
 const EMAIL_DOMAIN = "@intelportal.app";
+const TGI_ACCESS_ORIGIN = "https://www.thegoatinitiative.org";
+var signupInProgress = false;
 
 function getSession() {
   try {
@@ -94,6 +96,163 @@ function isAdmin() {
   });
 }
 
+function showAccessWall(status) {
+  document.body.className = "login-body";
+  document.body.style.minHeight = "100vh";
+  document.body.textContent = "";
+
+  var box = document.createElement("div");
+  box.className = "login-container";
+  var header = document.createElement("div");
+  header.className = "login-header";
+  var title = document.createElement("h1");
+  var subtitle = document.createElement("p");
+  subtitle.className = "subtitle";
+  if (status === "denied") {
+    title.textContent = "ACCESS DENIED";
+    subtitle.textContent = "This account was not approved. Detailed files stay closed.";
+  } else if (status === "error") {
+    title.textContent = "APPROVAL CHECK FAILED";
+    subtitle.textContent = "The approval check did not answer. Detailed files stay closed until it does.";
+  } else {
+    title.textContent = "WAITING FOR APPROVAL";
+    subtitle.textContent = "Detailed files open after this account is approved.";
+  }
+  header.appendChild(title);
+  header.appendChild(subtitle);
+  box.appendChild(header);
+
+  var note = document.createElement("p");
+  note.className = "form-note";
+  note.hidden = true;
+  box.appendChild(note);
+
+  if (status === "pending") {
+    var again = document.createElement("button");
+    again.type = "button";
+    again.className = "btn-login";
+    again.textContent = "Check again";
+    again.addEventListener("click", function () {
+      window.location.reload();
+    });
+    box.appendChild(again);
+
+    var resend = document.createElement("button");
+    resend.type = "button";
+    resend.className = "link-button";
+    resend.style.display = "block";
+    resend.style.margin = "1rem auto 0";
+    resend.textContent = "Send the request again";
+    resend.addEventListener("click", function () {
+      var user = fbAuth.currentUser;
+      if (!user) return;
+      resend.disabled = true;
+      user.getIdToken(true).then(function (token) {
+        return fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken: token }),
+        });
+      }).then(function (response) {
+        return response.json().then(function (body) {
+          note.hidden = false;
+          if (!response.ok) note.textContent = "The email did not send. Try again in a minute.";
+          else if (body && body.mailed) note.textContent = "Sent again. The approval email is on its way.";
+          else note.textContent = "The request is already waiting.";
+        });
+      }).catch(function () {
+        note.hidden = false;
+        note.textContent = "The email did not send. Try again in a minute.";
+      }).then(function () {
+        resend.disabled = false;
+      });
+    });
+    box.appendChild(resend);
+  } else {
+    var retry = document.createElement("button");
+    retry.type = "button";
+    retry.className = "btn-login";
+    retry.textContent = status === "error" ? "Try again" : "Back to sign in";
+    retry.addEventListener("click", function () {
+      if (status === "error") {
+        window.location.reload();
+        return;
+      }
+      fbAuth.signOut().then(function () {
+        clearSession();
+        window.location.href = "index.html";
+      });
+    });
+    box.appendChild(retry);
+  }
+
+  var signOut = document.createElement("button");
+  signOut.type = "button";
+  signOut.className = "link-button";
+  signOut.style.display = "block";
+  signOut.style.margin = "1rem auto 0";
+  signOut.textContent = "Sign out";
+  signOut.addEventListener("click", function () {
+    fbAuth.signOut().then(function () {
+      clearSession();
+      window.location.href = "index.html";
+    });
+  });
+  box.appendChild(signOut);
+  document.body.appendChild(box);
+}
+
+function fetchAccessStatus(user) {
+  return user.getIdToken(true).then(function (token) {
+    return fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/status", {
+      headers: { Authorization: "Bearer " + token },
+    });
+  }).then(function (response) {
+    if (!response.ok) return "error";
+    return response.json().then(function (body) {
+      if (
+        body &&
+        (body.status === "approved" ||
+          body.status === "pending" ||
+          body.status === "denied" ||
+          body.status === "legacy")
+      ) {
+        return body.status;
+      }
+      return "error";
+    });
+  }).catch(function () {
+    return "error";
+  });
+}
+
+function confirmAdmin(user) {
+  return fbDb.collection("users").doc(user.uid).get().then(function (doc) {
+    return !!(doc.exists && doc.data().role === "admin");
+  }).catch(function () {
+    return false;
+  });
+}
+
+/**
+ * requireDetailedAccess — signed-in admins and already-approved accounts continue.
+ * A new public account waits until The GOAT Initiative approves it.
+ * Returns the Firebase user, or null when the page should stop.
+ */
+function requireDetailedAccess() {
+  return requireAuth().then(function (user) {
+    if (!user) return null;
+    return confirmAdmin(user).then(function (admin) {
+      if (admin) return user;
+      return fetchAccessStatus(user).then(function (status) {
+        if (status === "approved" || status === "legacy") return user;
+        showAccessWall(status);
+        return null;
+      });
+    });
+  });
+}
+
 /**
  * showChangePasswordModal — Forces a new user to set their own password.
  */
@@ -144,6 +303,7 @@ var loginForm = document.getElementById("login-form");
 if (loginForm) {
   // If already authenticated, go to dashboard
   fbAuth.onAuthStateChanged(function (user) {
+    if (signupInProgress) return;
     if (user) {
       fbDb.collection("users").doc(user.uid).get().then(function (doc) {
         if (doc.exists && doc.data().mustChangePassword) {
@@ -192,6 +352,118 @@ if (loginForm) {
         submitBtn.disabled = false;
         submitBtn.textContent = "Authenticate";
       });
+  });
+}
+
+// ---- Public signup. A report account on thegoatinitiative.org does not open this site. ----
+var signupForm = document.getElementById("signup-form");
+if (signupForm) {
+  var showSignup = document.getElementById("show-signup");
+  var loginFormEl = document.getElementById("login-form");
+  if (showSignup && loginFormEl) {
+    showSignup.addEventListener("click", function () {
+      var showingSignup = signupForm.hidden;
+      signupForm.hidden = !showingSignup;
+      loginFormEl.hidden = showingSignup;
+      showSignup.textContent = showingSignup ? "Sign in" : "Create an account";
+    });
+  }
+
+  signupForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = document.getElementById("signup-name").value.replace(/\s+/g, " ").trim();
+    var contact = document.getElementById("signup-email").value.trim().toLowerCase();
+    var username = document.getElementById("signup-username").value.trim().toLowerCase();
+    var password = document.getElementById("signup-password").value;
+    var confirmPass = document.getElementById("signup-confirm").value;
+    var errorEl = document.getElementById("signup-error");
+    var submitBtn = signupForm.querySelector('button[type="submit"]');
+    var createdUid = null;
+
+    function fail(message) {
+      errorEl.textContent = message;
+      errorEl.hidden = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Request access";
+      signupInProgress = false;
+    }
+
+    errorEl.hidden = true;
+    if (name.length < 1 || name.length > 80) {
+      fail("Enter your name.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) || contact.length > 254) {
+      fail("Enter a valid contact email.");
+      return;
+    }
+    if (!/^[a-z0-9][a-z0-9._-]{1,31}$/.test(username)) {
+      fail("Use a username of 2 to 32 letters or numbers.");
+      return;
+    }
+    if (password.length < 10 || password.length > 200) {
+      fail("Use a password of at least 10 characters.");
+      return;
+    }
+    if (password !== confirmPass) {
+      fail("Those passwords do not match.");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Requesting...";
+    signupInProgress = true;
+
+    fbAuth.createUserWithEmailAndPassword(username + EMAIL_DOMAIN, password).then(function (cred) {
+      createdUid = cred.user.uid;
+      return cred.user.getIdToken(true).then(function (token) {
+        return fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken: token, name: name, email: contact }),
+        }).then(function (response) {
+          if (response.ok) return response.json();
+          return cred.user.delete().catch(function () {}).then(function () {
+            return fbAuth.signOut();
+          }).then(function () {
+            var err = new Error("request");
+            if (response.status === 429) err.code = "rate";
+            else if (response.status === 503) err.code = "mail";
+            else err.code = "request";
+            throw err;
+          });
+        });
+      }).then(function () {
+        setSession(username, "analyst");
+        return fbDb.collection("users").doc(cred.user.uid).set({
+          username: username,
+          displayName: name,
+          contactEmail: contact,
+          role: "analyst",
+          mustChangePassword: false,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true }).catch(function () {});
+      }).then(function () {
+        window.location.href = "dashboard.html";
+      });
+    }).catch(function (err) {
+      var message = "The account could not be created. Try again.";
+      if (err && err.code === "auth/email-already-in-use") message = "That username is already taken. Sign in instead.";
+      else if (err && err.code === "auth/operation-not-allowed") message = "New accounts are not open on this site yet.";
+      else if (err && err.code === "auth/weak-password") message = "Use a password of at least 10 characters.";
+      else if (err && err.code === "rate") message = "Too many attempts. Wait a few minutes and try again.";
+      else if (err && err.code === "mail") message = "The approval email did not send. Try again in a minute.";
+      else if (err && err.code === "request") message = "The approval request did not save. Try again.";
+      var cleanup = Promise.resolve();
+      if (createdUid && fbAuth.currentUser && fbAuth.currentUser.uid === createdUid) {
+        cleanup = fbAuth.currentUser.delete().catch(function () {}).then(function () {
+          return fbAuth.signOut();
+        });
+      }
+      cleanup.then(function () {
+        fail(message);
+      });
+    });
   });
 }
 
