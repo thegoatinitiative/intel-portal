@@ -7,3 +7,5 @@ clear.html
 export.html
 migrate.html
 test.html
+.vercel
+.env*
