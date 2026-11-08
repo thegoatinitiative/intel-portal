@@ -7,7 +7,8 @@
 (async function () {
   "use strict";
 
-  await requireAuth();
+  const allowed = await requireDetailedAccess();
+  if (!allowed) return;
   ActivityLog.log("page_view", { page: "dashboard" });
   ActivityLog.startPageTimer("dashboard");
 

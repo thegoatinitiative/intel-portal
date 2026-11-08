@@ -6,7 +6,8 @@
 (async function () {
   "use strict";
 
-  await requireAuth();
+  var allowed = await requireDetailedAccess();
+  if (!allowed) return;
   ActivityLog.log("page_view", { page: "admin" });
   ActivityLog.startPageTimer("admin");
 

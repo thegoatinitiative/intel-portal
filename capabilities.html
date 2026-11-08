@@ -2230,7 +2230,8 @@
 <script src="js/activity.js?v=3"></script>
 <script src="js/auth.js?v=4"></script>
 <script>
-  requireAuth().then(function () {
+  requireDetailedAccess().then(function (user) {
+    if (!user) return;
     var session = getSession();
     var userDisplay = document.getElementById("user-display");
     if (session && userDisplay) userDisplay.textContent = session.username.toUpperCase();
