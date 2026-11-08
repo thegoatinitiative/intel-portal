@@ -7,6 +7,24 @@ const AUTH_KEY = "intel_portal_session";
 const EMAIL_DOMAIN = "@intelportal.app";
 const TGI_ACCESS_ORIGIN = "https://www.thegoatinitiative.org";
 var signupInProgress = false;
+var setupToken = "";
+var SETUP_KEY = "intel_portal_setup";
+try {
+  var setupParam = new URLSearchParams(window.location.search).get("setup") || "";
+  if (/^[A-Za-z0-9_-]{20,200}$/.test(setupParam)) {
+    setupToken = setupParam;
+    sessionStorage.setItem(SETUP_KEY, setupToken);
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  } else {
+    var storedSetup = sessionStorage.getItem(SETUP_KEY) || "";
+    if (/^[A-Za-z0-9_-]{20,200}$/.test(storedSetup)) setupToken = storedSetup;
+  }
+  if (setupToken) signupInProgress = true;
+} catch (err) {
+  setupToken = "";
+}
 
 function getSession() {
   try {
@@ -355,48 +373,34 @@ if (loginForm) {
   });
 }
 
-// ---- Public signup. A report account on thegoatinitiative.org does not open this site. ----
-var signupForm = document.getElementById("signup-form");
-if (signupForm) {
-  var showSignup = document.getElementById("show-signup");
+// ---- One-time login setup after a request is approved. ----
+var setupForm = document.getElementById("setup-form");
+if (setupForm && setupToken) {
   var loginFormEl = document.getElementById("login-form");
-  if (showSignup && loginFormEl) {
-    showSignup.addEventListener("click", function () {
-      var showingSignup = signupForm.hidden;
-      signupForm.hidden = !showingSignup;
-      loginFormEl.hidden = showingSignup;
-      showSignup.textContent = showingSignup ? "Sign in" : "Create an account";
-    });
-  }
+  var requestAccess = document.getElementById("request-access");
+  setupForm.hidden = false;
+  if (loginFormEl) loginFormEl.hidden = true;
+  if (requestAccess) requestAccess.hidden = true;
 
-  signupForm.addEventListener("submit", function (e) {
+  setupForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    var name = document.getElementById("signup-name").value.replace(/\s+/g, " ").trim();
-    var contact = document.getElementById("signup-email").value.trim().toLowerCase();
-    var username = document.getElementById("signup-username").value.trim().toLowerCase();
-    var password = document.getElementById("signup-password").value;
-    var confirmPass = document.getElementById("signup-confirm").value;
-    var errorEl = document.getElementById("signup-error");
-    var submitBtn = signupForm.querySelector('button[type="submit"]');
+    var username = document.getElementById("setup-username").value.trim().toLowerCase();
+    var password = document.getElementById("setup-password").value;
+    var confirmPass = document.getElementById("setup-confirm").value;
+    var errorEl = document.getElementById("setup-error");
+    var submitBtn = setupForm.querySelector('button[type="submit"]');
     var createdUid = null;
+    var token = setupToken;
 
     function fail(message) {
       errorEl.textContent = message;
       errorEl.hidden = false;
       submitBtn.disabled = false;
-      submitBtn.textContent = "Request access";
-      signupInProgress = false;
+      submitBtn.textContent = "Create login";
+      signupInProgress = true;
     }
 
     errorEl.hidden = true;
-    if (name.length < 1 || name.length > 80) {
-      fail("Enter your name.");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) || contact.length > 254) {
-      fail("Enter a valid contact email.");
-      return;
-    }
     if (!/^[a-z0-9][a-z0-9._-]{1,31}$/.test(username)) {
       fail("Use a username of 2 to 32 letters or numbers.");
       return;
@@ -411,34 +415,36 @@ if (signupForm) {
     }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "Requesting...";
+    submitBtn.textContent = "Creating...";
     signupInProgress = true;
 
-    fbAuth.createUserWithEmailAndPassword(username + EMAIL_DOMAIN, password).then(function (cred) {
+    fbAuth.signOut().catch(function () {}).then(function () {
+      return fbAuth.createUserWithEmailAndPassword(username + EMAIL_DOMAIN, password);
+    }).then(function (cred) {
       createdUid = cred.user.uid;
-      return cred.user.getIdToken(true).then(function (token) {
-        return fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/request", {
+      return cred.user.getIdToken(true).then(function (idToken) {
+        return fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/finish", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ idToken: token, name: name, email: contact }),
+          body: JSON.stringify({ idToken: idToken, setupToken: token }),
         }).then(function (response) {
-          if (response.ok) return response.json();
-          return cred.user.delete().catch(function () {}).then(function () {
-            return fbAuth.signOut();
-          }).then(function () {
-            var err = new Error("request");
-            if (response.status === 429) err.code = "rate";
-            else if (response.status === 503) err.code = "mail";
-            else err.code = "request";
-            throw err;
+          return response.json().catch(function () { return {}; }).then(function (body) {
+            if (response.ok) return body;
+            return cred.user.delete().catch(function () {}).then(function () {
+              return fbAuth.signOut();
+            }).then(function () {
+              var err = new Error("finish");
+              err.code = body && body.error ? body.error : "request";
+              throw err;
+            });
           });
         });
       }).then(function () {
         setSession(username, "analyst");
+        setupToken = "";
+        try { sessionStorage.removeItem(SETUP_KEY); } catch (err) {}
         return fbDb.collection("users").doc(cred.user.uid).set({
           username: username,
-          displayName: name,
-          contactEmail: contact,
           role: "analyst",
           mustChangePassword: false,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -447,13 +453,21 @@ if (signupForm) {
         window.location.href = "dashboard.html";
       });
     }).catch(function (err) {
-      var message = "The account could not be created. Try again.";
-      if (err && err.code === "auth/email-already-in-use") message = "That username is already taken. Sign in instead.";
-      else if (err && err.code === "auth/operation-not-allowed") message = "New accounts are not open on this site yet.";
+      var message = "The login could not be created. Try again.";
+      if (err && err.code === "auth/email-already-in-use") message = "That username is already taken.";
+      else if (err && err.code === "auth/operation-not-allowed") message = "New logins are not open on this site yet.";
       else if (err && err.code === "auth/weak-password") message = "Use a password of at least 10 characters.";
       else if (err && err.code === "rate") message = "Too many attempts. Wait a few minutes and try again.";
-      else if (err && err.code === "mail") message = "The approval email did not send. Try again in a minute.";
-      else if (err && err.code === "request") message = "The approval request did not save. Try again.";
+      else if (err && err.code === "expired") message = "This link has expired. Submit the request again to get a new one.";
+      else if (err && err.code === "invalid") message = "This link is invalid or was already used.";
+      if (err && (err.code === "expired" || err.code === "invalid")) {
+        setupToken = "";
+        try { sessionStorage.removeItem(SETUP_KEY); } catch (ignore) {}
+      }
+      else if (err && err.code === "taken") message = "That login is already in use. Choose another username.";
+      else if (err && err.code === "request" || (err && err.code === "store") || (err && err.code === "unavailable")) {
+        message = "The login was not saved. Try again.";
+      }
       var cleanup = Promise.resolve();
       if (createdUid && fbAuth.currentUser && fbAuth.currentUser.uid === createdUid) {
         cleanup = fbAuth.currentUser.delete().catch(function () {}).then(function () {
