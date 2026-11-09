@@ -786,6 +786,13 @@ button, a, input, select, textarea, .report-item {
   display: block;
 }
 
+.document-embed-body canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #fff;
+}
+
 .document-embed-body img {
   max-width: 100%;
   display: block;

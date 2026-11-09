@@ -165,13 +165,17 @@
       throw new Error("no-file");
     }
     var token = await fbAuth.currentUser.getIdToken();
+    var payload = { path: path };
+    if (att.storageUrl && att.storageUrl.indexOf("https://firebasestorage.googleapis.com/") === 0) {
+      payload.url = att.storageUrl;
+    }
     var response = await fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/file", {
       method: "POST",
       headers: {
         Authorization: "Bearer " + token,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ path: path }),
+      body: JSON.stringify(payload),
     });
     if (!response.ok) throw new Error("file " + response.status);
     return new Uint8Array(await response.arrayBuffer());
@@ -187,6 +191,42 @@
     container.appendChild(frame);
   }
 
+  async function openPdfDocument(bytes) {
+    if (window.pdfjsReady) await window.pdfjsReady;
+    if (!window.pdfjsLib) throw new Error("pdfjs");
+    try {
+      return await window.pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
+    } catch (e) {
+      return await window.pdfjsLib.getDocument({ data: bytes.slice(0), disableWorker: true }).promise;
+    }
+  }
+
+  async function drawPdfPages(bytes, container) {
+    var pdf = await openPdfDocument(bytes);
+    var total = pdf.numPages;
+    var maxPages = Math.min(total, 20);
+    var width = container.clientWidth || 900;
+    for (var num = 1; num <= maxPages; num++) {
+      var page = await pdf.getPage(num);
+      var base = page.getViewport({ scale: 1 });
+      var scale = Math.min(2, Math.max(1, width / base.width));
+      var viewport = page.getViewport({ scale: scale });
+      var canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      canvas.style.cssText = "width:100%;height:auto;display:block;background:#fff;";
+      var ctx = canvas.getContext("2d");
+      await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+      container.appendChild(canvas);
+    }
+    if (total > maxPages) {
+      var note = document.createElement("div");
+      note.style.cssText = "padding:0.75rem;text-align:center;color:var(--text-muted);font-size:0.8rem;";
+      note.textContent = "Showing " + maxPages + " of " + total + " pages. Use Download for the full file.";
+      container.appendChild(note);
+    }
+  }
+
   async function renderPDFPages(att, container) {
     const loading = document.createElement("div");
     loading.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);font-size:0.9rem;";
@@ -196,7 +236,11 @@
     try {
       var pdfData = await loadAttachmentBytes(att);
       if (loading.parentNode) loading.parentNode.removeChild(loading);
-      showPdfBlob(pdfData, container);
+      try {
+        await drawPdfPages(pdfData, container);
+      } catch (err) {
+        showPdfBlob(pdfData, container);
+      }
     } catch (e) {
       if (loading.parentNode) loading.parentNode.removeChild(loading);
       var fallbackMsg = document.createElement("div");
