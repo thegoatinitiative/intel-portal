@@ -117,8 +117,45 @@
   }
 
   // ---- PDF Renderer ----
-  // Tries PDF.js canvas rendering first (requires CORS on Storage bucket).
-  // Falls back to native browser <object> embed which bypasses CORS.
+  // Storage blocks the browser from reading the file directly. A signed-in
+  // request pulls the bytes through the site, then draws the pages.
+
+  async function attachmentBytes(source) {
+    if (source.startsWith("data:")) {
+      var base64 = source.split(",")[1];
+      if (!base64) throw new Error("Invalid data URL");
+      var raw = atob(base64);
+      var data = new Uint8Array(raw.length);
+      for (var i = 0; i < raw.length; i++) data[i] = raw.charCodeAt(i);
+      return data;
+    }
+    var response;
+    if (source.indexOf("https://firebasestorage.googleapis.com/") === 0 && fbAuth.currentUser && typeof TGI_ACCESS_ORIGIN === "string") {
+      var token = await fbAuth.currentUser.getIdToken();
+      response = await fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/file", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: source }),
+      });
+    } else {
+      response = await fetch(source);
+    }
+    if (!response.ok) throw new Error("fetch " + response.status);
+    return new Uint8Array(await response.arrayBuffer());
+  }
+
+  function showPdfBlob(bytes, container) {
+    var blob = new Blob([bytes], { type: "application/pdf" });
+    var url = URL.createObjectURL(blob);
+    var frame = document.createElement("iframe");
+    frame.src = url;
+    frame.title = "Attached PDF";
+    frame.style.cssText = "width:100%;height:80vh;border:none;background:#fff;";
+    container.appendChild(frame);
+  }
 
   async function renderPDFPages(source, container) {
     const loading = document.createElement("div");
@@ -126,24 +163,11 @@
     loading.textContent = "Rendering PDF pages...";
     container.appendChild(loading);
 
+    var pdfData = null;
     try {
+      pdfData = await attachmentBytes(source);
       if (window.pdfjsReady) await window.pdfjsReady;
       if (!window.pdfjsLib) throw new Error("PDF.js not available");
-
-      var pdfData;
-      if (source.startsWith("data:")) {
-        var base64 = source.split(",")[1];
-        if (!base64) throw new Error("Invalid data URL");
-        var raw = atob(base64);
-        pdfData = new Uint8Array(raw.length);
-        for (var i = 0; i < raw.length; i++) pdfData[i] = raw.charCodeAt(i);
-      } else {
-        // Allow HTTP caching (no "no-store") so re-opening the same PDF in a
-        // session doesn't re-download the full file and burn Storage egress.
-        var resp = await fetch(source);
-        if (!resp.ok) throw new Error("fetch " + resp.status);
-        pdfData = new Uint8Array(await resp.arrayBuffer());
-      }
 
       const pdf = await window.pdfjsLib.getDocument({ data: pdfData }).promise;
       container.removeChild(loading);
@@ -178,12 +202,12 @@
         container.appendChild(note);
       }
     } catch (e) {
-      // Fetch failed (CORS / expired token) — fall back to native browser embed
-      container.removeChild(loading);
-      var obj = document.createElement("object");
-      obj.data = source;
-      obj.type = "application/pdf";
-      obj.style.cssText = "width:100%;height:80vh;border:none;border-radius:4px;background:var(--surface);";
+      if (loading.parentNode) loading.parentNode.removeChild(loading);
+      if (pdfData && !container.querySelector("canvas, iframe")) {
+        showPdfBlob(pdfData, container);
+        return;
+      }
+      if (container.querySelector("canvas, iframe")) return;
       var fallbackMsg = document.createElement("div");
       fallbackMsg.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);";
       fallbackMsg.textContent = "Unable to display PDF inline.";
@@ -194,8 +218,7 @@
       fallbackLink.style.cssText = "color:var(--accent);margin-left:0.5rem;";
       fallbackLink.textContent = "Open in new tab";
       fallbackMsg.appendChild(fallbackLink);
-      obj.appendChild(fallbackMsg);
-      container.appendChild(obj);
+      container.appendChild(fallbackMsg);
     }
   }
 
