@@ -891,7 +891,7 @@
     .map-hud { position: relative; top: auto; left: auto; right: auto; bottom: auto; margin: 8px; }
     .map-hud-info { min-width: auto; }
     .map-hud-legend { position: relative; bottom: auto; right: auto; margin-top: 8px; }
-    .map-hud-analysis { left: 8px; right: 8px; max-width: calc(100% - 16px); max-height: 50vh; }
+    .map-key-grid { grid-template-columns: 1fr; }
     .map-hud-coords { display: none; }
     .classified-banner { font-size: 9px; letter-spacing: 2px; padding: 6px; }
   }
@@ -1041,60 +1041,68 @@
 
   .map-hud-coords strong { color: var(--emerald-400); }
 
-  /* Analysis panel */
-  .map-hud-analysis {
-    top: 12px;
-    left: 12px;
-    padding: 18px;
-    padding-top: 50px;
-    max-width: 480px;
-    max-height: 65%;
-    overflow-y: auto;
-    border-color: var(--red-500);
-    box-shadow: 0 0 15px rgba(239,68,68,0.15), inset 0 0 10px rgba(239,68,68,0.05);
-    transition: transform 0.3s ease, opacity 0.3s ease;
+  .map-key {
+    background: rgba(10, 10, 15, 0.98);
+    border-bottom: 1px solid rgba(239, 68, 68, 0.35);
+    padding: 16px 20px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #e5e7eb;
   }
 
-  .map-hud-analysis.collapsed {
-    transform: translateX(-110%);
-    opacity: 0;
-    pointer-events: none;
+  .map-key-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(239, 68, 68, 0.3);
   }
 
-  .map-hud-analysis h6 {
+  .map-key-head h6 {
+    margin: 0;
     color: var(--red-500);
-    border-bottom-color: rgba(239,68,68,0.3);
-    text-shadow: 0 0 8px rgba(239,68,68,0.6);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
   }
 
-  .map-hud-analysis h6.sub-heading {
-    border-bottom: none;
-    padding-bottom: 0;
-    margin-bottom: 6px;
-    margin-top: 14px;
-    color: var(--amber-400);
-    font-size: 10px;
+  .map-key-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px 28px;
   }
 
-  .map-hud-analysis ul {
-    list-style: none;
-    padding: 0;
+  .map-key-grid h6 {
     margin: 0 0 8px;
-  }
-
-  .map-hud-analysis ul li {
-    padding-left: 14px;
-    position: relative;
-    margin-bottom: 4px;
+    color: var(--amber-400);
     font-size: 11px;
-    line-height: 1.6;
+    letter-spacing: 0.4px;
+    line-height: 1.4;
+    text-transform: uppercase;
   }
 
-  .map-hud-analysis ul li::before {
+  .map-key-grid ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .map-key-grid li {
+    position: relative;
+    padding-left: 14px;
+    margin: 0 0 6px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #e5e7eb;
+  }
+
+  .map-key-grid li::before {
     content: '>';
     position: absolute;
     left: 0;
-    color: var(--emerald-500);
+    color: var(--emerald-400);
     font-weight: 700;
   }
 
@@ -1106,58 +1114,15 @@
     font-weight: 600;
     letter-spacing: 2px;
     padding: 4px 10px;
-    border: 1px solid rgba(239,68,68,0.3);
+    border: 1px solid rgba(239, 68, 68, 0.3);
     border-radius: 2px;
-    margin-bottom: 12px;
-    animation: pulse 2s infinite;
+    margin: 0;
   }
 
-  .map-collapse-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: var(--red-muted);
-    color: var(--red-500);
-    border: 1px solid rgba(239,68,68,0.3);
-    padding: 6px 12px;
-    cursor: pointer;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    border-radius: 2px;
-    transition: all 0.2s;
-    z-index: 1;
+  @media (max-width: 900px) {
+    .map-key-grid { grid-template-columns: 1fr; }
+    .map-key { padding: 14px 14px 16px; }
   }
-
-  .map-collapse-btn:hover { background: rgba(239,68,68,0.25); }
-
-  .map-show-btn {
-    position: absolute;
-    top: 12px;
-    left: 60px;
-    background: rgba(239,68,68,0.12);
-    color: var(--red-500);
-    border: 1px solid rgba(239,68,68,0.3);
-    padding: 10px 18px;
-    cursor: pointer;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    border-radius: 2px;
-    z-index: 1000;
-    display: none;
-    transition: all 0.2s;
-    box-shadow: 0 0 12px rgba(239,68,68,0.2);
-  }
-
-  .map-show-btn.visible { display: block; }
-  .map-show-btn:hover { background: rgba(239,68,68,0.25); }
-
-  .map-hud-analysis::-webkit-scrollbar { width: 6px; }
-  .map-hud-analysis::-webkit-scrollbar-track { background: rgba(10,10,15,0.5); }
-  .map-hud-analysis::-webkit-scrollbar-thumb { background: var(--emerald-600); border-radius: 3px; }
 
   /* Leaflet overrides for TGI theme */
   .map-container .leaflet-popup-content-wrapper {
@@ -1453,59 +1418,65 @@
         </div>
       </div>
 
+      <div class="map-key" id="mapAnalysis">
+        <div class="map-key-head">
+          <h6>&#9698; Threat Analysis &#9699;</h6>
+          <div class="map-threat-badge">Source: CCP-affiliated Telegram chat</div>
+        </div>
+        <div class="map-key-grid">
+          <div>
+            <h6>1. Soft targets &mdash; high casualty potential</h6>
+            <ul>
+              <li>Sports venues: Citi Field, Lakers Arena, Tennis Center</li>
+              <li>Entertainment: 5 Las Vegas casinos, Sphere, Luxor</li>
+              <li>Racing venues: Aqueduct, Belmont Park</li>
+              <li>Public gathering spaces: Seaport districts, West Harbor</li>
+            </ul>
+          </div>
+          <div>
+            <h6>2. Strategic infrastructure</h6>
+            <ul>
+              <li>Power grid: Jacumba Valley Ranch Energy Park (solar/battery)</li>
+              <li>Transport chokepoints: Brooklyn Bridge, Golden Gate Bridge</li>
+              <li>Transit hub: Jamaica Station (LIRR/Subway interchange)</li>
+              <li>Military: 8 installations incl. active bases and Nike missile sites</li>
+              <li>Communications: JPL Deep Space Network</li>
+            </ul>
+          </div>
+          <div>
+            <h6>3. High-value / symbolic targets</h6>
+            <ul>
+              <li>US Military Academy (West Point)</li>
+              <li>Naval assets: USS Carl Vinson, Naval Base Coronado</li>
+              <li>Marine Corps: Camp Pendleton, MCAS Miramar</li>
+              <li>Historic defense sites: Nike missile installations</li>
+            </ul>
+          </div>
+          <div>
+            <h6>4. Geographic clustering</h6>
+            <ul>
+              <li>NYC/Queens: 6 high-value locations in a concentrated area</li>
+              <li>Southern California: 11+ sites (LA, San Diego, border region)</li>
+              <li>Las Vegas Strip: 5 entertainment venues</li>
+              <li>Border infrastructure: energy facility near the Mexican border</li>
+            </ul>
+          </div>
+          <div>
+            <h6>5. Pattern assessment</h6>
+            <ul>
+              <li>Soft targets plus critical infrastructure is a multi-vector threat</li>
+              <li>Waterfront and coastal positioning is common across many sites</li>
+              <li>Border-region energy infrastructure adds a strategic dimension</li>
+              <li>The combination indicates possible coordinated attack planning</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <div style="position:relative;">
         <div id="tgi-map" class="map-container"></div>
         <div class="map-scan-overlay"></div>
         <div class="map-grid-overlay"></div>
-
-        <button class="map-show-btn" id="mapShowBtn">&#9664; SHOW THREAT ANALYSIS</button>
-
-        <div class="map-hud map-hud-analysis" id="mapAnalysis">
-          <button class="map-collapse-btn" id="mapCollapseBtn">COLLAPSE &#9654;</button>
-          <h6>&#9698; THREAT ANALYSIS &#9699;</h6>
-          <div class="map-threat-badge">SOURCE: CCP-AFFILIATED TELEGRAM CHAT</div>
-
-          <h6 class="sub-heading">1. Soft Targets &mdash; High Casualty Potential</h6>
-          <ul>
-            <li>Sports venues: Citi Field, Lakers Arena, Tennis Center</li>
-            <li>Entertainment: 5 Las Vegas casinos, Sphere, Luxor</li>
-            <li>Racing venues: Aqueduct, Belmont Park</li>
-            <li>Public gathering spaces: Seaport districts, West Harbor</li>
-          </ul>
-
-          <h6 class="sub-heading">2. Strategic Infrastructure</h6>
-          <ul>
-            <li>Power Grid: Jacumba Valley Ranch Energy Park (solar/battery)</li>
-            <li>Transport chokepoints: Brooklyn Bridge, Golden Gate Bridge</li>
-            <li>Transit hub: Jamaica Station (LIRR/Subway interchange)</li>
-            <li>Military: 8 installations incl. active bases &amp; Nike missile sites</li>
-            <li>Communications: JPL Deep Space Network</li>
-          </ul>
-
-          <h6 class="sub-heading">3. High-Value / Symbolic Targets</h6>
-          <ul>
-            <li>US Military Academy (West Point)</li>
-            <li>Naval assets: USS Carl Vinson, Naval Base Coronado</li>
-            <li>Marine Corps: Camp Pendleton, MCAS Miramar</li>
-            <li>Historic defense sites: Nike missile installations</li>
-          </ul>
-
-          <h6 class="sub-heading">4. Geographic Clustering</h6>
-          <ul>
-            <li>NYC/Queens: 6 high-value locations in concentrated area</li>
-            <li>Southern California: 11+ sites (LA, San Diego, border region)</li>
-            <li>Las Vegas Strip: 5 entertainment venues</li>
-            <li>Border infrastructure: Energy facility near Mexican border</li>
-          </ul>
-
-          <h6 class="sub-heading">5. Pattern Assessment</h6>
-          <ul>
-            <li>Mix of soft targets + critical infrastructure = multi-vector threat</li>
-            <li>Waterfront/coastal positioning common across many sites</li>
-            <li>Border-region energy infrastructure adds strategic dimension</li>
-            <li>Combination indicates potential coordinated attack planning</li>
-          </ul>
-        </div>
 
         <div class="map-hud map-hud-info">
           <h6>&#9698; TACTICAL OVERVIEW &#9699;</h6>
@@ -2208,19 +2179,6 @@
     L.marker([city.lat,city.lon],{icon:icon,interactive:false}).addTo(map);
   });
 
-  // Panel toggle
-  var panel = document.getElementById('mapAnalysis');
-  var collapseBtn = document.getElementById('mapCollapseBtn');
-  var showBtn = document.getElementById('mapShowBtn');
-
-  collapseBtn.addEventListener('click', function(){
-    panel.classList.add('collapsed');
-    showBtn.classList.add('visible');
-  });
-  showBtn.addEventListener('click', function(){
-    panel.classList.remove('collapsed');
-    showBtn.classList.remove('visible');
-  });
 })();
 </script>
 
