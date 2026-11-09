@@ -8,22 +8,78 @@ const EMAIL_DOMAIN = "@intelportal.app";
 const TGI_ACCESS_ORIGIN = "https://www.thegoatinitiative.org";
 var signupInProgress = false;
 var setupToken = "";
+var recoverToken = "";
 var SETUP_KEY = "intel_portal_setup";
+var RECOVER_KEY = "intel_portal_recover";
+var TOKEN_SHAPE = /^[A-Za-z0-9_-]{20,200}$/;
+
+function keepToken(param, storageKey) {
+  if (TOKEN_SHAPE.test(param)) {
+    try { sessionStorage.setItem(storageKey, param); } catch (err) {}
+    return param;
+  }
+  try {
+    var stored = sessionStorage.getItem(storageKey) || "";
+    if (TOKEN_SHAPE.test(stored)) return stored;
+  } catch (err) {}
+  return "";
+}
+
 try {
-  var setupParam = new URLSearchParams(window.location.search).get("setup") || "";
-  if (/^[A-Za-z0-9_-]{20,200}$/.test(setupParam)) {
-    setupToken = setupParam;
-    sessionStorage.setItem(SETUP_KEY, setupToken);
+  var searchParams = new URLSearchParams(window.location.search);
+  setupToken = keepToken(searchParams.get("setup") || "", SETUP_KEY);
+  recoverToken = setupToken ? "" : keepToken(searchParams.get("recover") || "", RECOVER_KEY);
+  if ((setupToken && searchParams.get("setup")) || (recoverToken && searchParams.get("recover"))) {
     if (window.history && window.history.replaceState) {
       window.history.replaceState({}, "", window.location.pathname);
     }
-  } else {
-    var storedSetup = sessionStorage.getItem(SETUP_KEY) || "";
-    if (/^[A-Za-z0-9_-]{20,200}$/.test(storedSetup)) setupToken = storedSetup;
   }
-  if (setupToken) signupInProgress = true;
+  if (setupToken || recoverToken) signupInProgress = true;
 } catch (err) {
   setupToken = "";
+  recoverToken = "";
+}
+
+function accountName(data, email) {
+  var fromEmail = String(email || "").toLowerCase().replace(EMAIL_DOMAIN, "");
+  var fromDoc = data && typeof data.username === "string" ? data.username.trim().toLowerCase() : "";
+  if (!/^[a-z0-9][a-z0-9._-]{1,31}$/.test(fromDoc)) return fromEmail;
+  if ((fromDoc === "admin" || fromDoc === "cgautereaux") && fromDoc !== fromEmail) return fromEmail;
+  return fromDoc;
+}
+
+function lookupAuthEmail(username) {
+  var fallback = username + EMAIL_DOMAIN;
+  var controller = typeof AbortController === "function" ? new AbortController() : null;
+  var timer = controller ? setTimeout(function () { controller.abort(); }, 8000) : null;
+  return fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/auth-email", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: username }),
+    signal: controller ? controller.signal : undefined,
+  }).then(function (response) {
+    return response.json().catch(function () { return {}; }).then(function (body) {
+      var email = body && typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+      var local = email.endsWith(EMAIL_DOMAIN) ? email.slice(0, -EMAIL_DOMAIN.length) : "";
+      if (/^[a-z0-9][a-z0-9._-]{1,31}$/.test(local)) return email;
+      return fallback;
+    });
+  }).catch(function () {
+    return fallback;
+  }).then(function (email) {
+    if (timer) clearTimeout(timer);
+    return email;
+  });
+}
+
+function newAuthLocal() {
+  var chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  var bytes = new Uint8Array(12);
+  if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(bytes);
+  else for (var i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+  var local = "r";
+  for (var n = 0; n < bytes.length; n++) local += chars[bytes[n] % chars.length];
+  return local;
 }
 
 function getSession() {
@@ -60,14 +116,12 @@ function requireAuth() {
       if (user) {
         // User is signed in — ensure session is populated
         if (!existing) {
-          var username = user.email.replace(EMAIL_DOMAIN, "");
-          // Fetch role from Firestore
           fbDb.collection("users").doc(user.uid).get().then(function (doc) {
-            var role = doc.exists ? doc.data().role : "analyst";
-            setSession(username, role);
+            var data = doc.exists ? doc.data() : {};
+            setSession(accountName(data, user.email), data.role || "analyst");
             resolve(user);
           }).catch(function () {
-            setSession(username, "analyst");
+            setSession(accountName(null, user.email), "analyst");
             resolve(user);
           });
         } else {
@@ -344,9 +398,9 @@ if (loginForm) {
     submitBtn.textContent = "Authenticating...";
     errorMsg.hidden = true;
 
-    var email = username + EMAIL_DOMAIN;
-
-    fbAuth.signInWithEmailAndPassword(email, password)
+    lookupAuthEmail(username).then(function (email) {
+      return fbAuth.signInWithEmailAndPassword(email, password);
+    })
       .then(function (cred) {
         // Fetch user doc for role + mustChangePassword flag
         return fbDb.collection("users").doc(cred.user.uid).get().then(function (doc) {
@@ -367,7 +421,7 @@ if (loginForm) {
         document.getElementById("password").value = "";
         document.getElementById("password").focus();
         submitBtn.disabled = false;
-        submitBtn.textContent = "Authenticate";
+        submitBtn.textContent = "Sign in";
       });
   });
 }
@@ -380,6 +434,12 @@ if (setupForm && setupToken) {
   setupForm.hidden = false;
   if (loginFormEl) loginFormEl.hidden = true;
   if (requestAccess) requestAccess.hidden = true;
+  var forgotOpen = document.getElementById("forgot-open");
+  var forgotFormEl = document.getElementById("forgot-form");
+  var resetFormEl = document.getElementById("reset-form");
+  if (forgotOpen) forgotOpen.hidden = true;
+  if (forgotFormEl) forgotFormEl.hidden = true;
+  if (resetFormEl) resetFormEl.hidden = true;
 
   setupForm.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -476,6 +536,193 @@ if (setupForm && setupToken) {
       cleanup.then(function () {
         fail(message);
       });
+    });
+  });
+}
+
+// ---- Forgot username or password ----
+var forgotBtn = document.getElementById("forgot-btn");
+var forgotForm = document.getElementById("forgot-form");
+if (forgotBtn && forgotForm && !setupToken && !recoverToken) {
+  forgotBtn.addEventListener("click", function () {
+    forgotForm.hidden = false;
+    var field = document.getElementById("forgot-account");
+    if (field) field.focus();
+  });
+
+  forgotForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var account = document.getElementById("forgot-account").value.trim();
+    var errorEl = document.getElementById("forgot-error");
+    var okEl = document.getElementById("forgot-ok");
+    var submitBtn = forgotForm.querySelector('button[type="submit"]');
+    errorEl.hidden = true;
+    okEl.hidden = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
+
+    fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/recover", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ account: account }),
+    }).then(function (response) {
+      return response.json().catch(function () { return {}; }).then(function (body) {
+        if (response.ok) {
+          okEl.hidden = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Email me";
+          return;
+        }
+        var message = "We could not send the email. Try again in a minute.";
+        if (body && body.error === "rate") message = "Too many attempts. Wait a few minutes and try again.";
+        else if (body && body.error === "invalid") message = "Enter a username or the email on your access request.";
+        errorEl.textContent = message;
+        errorEl.hidden = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Email me";
+      });
+    }).catch(function () {
+      errorEl.textContent = "We could not send the email. Try again in a minute.";
+      errorEl.hidden = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Email me";
+    });
+  });
+}
+
+// ---- One-time password reset from the email link. ----
+var resetForm = document.getElementById("reset-form");
+if (resetForm && recoverToken) {
+  var resetLogin = document.getElementById("login-form");
+  var resetRequest = document.getElementById("request-access");
+  var resetForgotOpen = document.getElementById("forgot-open");
+  var resetForgotForm = document.getElementById("forgot-form");
+  var resetSetup = document.getElementById("setup-form");
+  resetForm.hidden = false;
+  if (resetLogin) resetLogin.hidden = true;
+  if (resetRequest) resetRequest.hidden = true;
+  if (resetForgotOpen) resetForgotOpen.hidden = true;
+  if (resetForgotForm) resetForgotForm.hidden = true;
+  if (resetSetup) resetSetup.hidden = true;
+
+  var resetError = document.getElementById("reset-error");
+  var resetBtn = resetForm.querySelector('button[type="submit"]');
+  fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/recover/inspect", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: recoverToken }),
+  }).then(function (response) {
+    return response.json().catch(function () { return {}; }).then(function (body) {
+      if (response.ok) return;
+      resetError.textContent = body && body.error === "expired"
+        ? "This link has expired. Request a new one from the sign-in page."
+        : "This link is invalid or was already used.";
+      resetError.hidden = false;
+      if (resetBtn) resetBtn.disabled = true;
+      recoverToken = "";
+      try { sessionStorage.removeItem(RECOVER_KEY); } catch (err) {}
+    });
+  }).catch(function () {});
+
+  resetForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var password = document.getElementById("reset-password").value;
+    var confirmPass = document.getElementById("reset-confirm").value;
+    var createdUid = null;
+    var finished = false;
+    var token = recoverToken;
+
+    function fail(message) {
+      resetError.textContent = message;
+      resetError.hidden = false;
+      resetBtn.disabled = false;
+      resetBtn.textContent = "Save password";
+      signupInProgress = true;
+    }
+
+    resetError.hidden = true;
+    if (!token) {
+      fail("This link is invalid or was already used.");
+      return;
+    }
+    if (password.length < 10 || password.length > 200) {
+      fail("Use a password of at least 10 characters.");
+      return;
+    }
+    if (password !== confirmPass) {
+      fail("Those passwords do not match.");
+      return;
+    }
+
+    resetBtn.disabled = true;
+    resetBtn.textContent = "Saving...";
+    signupInProgress = true;
+
+    function createLogin(attempt) {
+      return fbAuth.createUserWithEmailAndPassword(newAuthLocal() + EMAIL_DOMAIN, password).catch(function (err) {
+        if (err && err.code === "auth/email-already-in-use" && attempt < 1) return createLogin(attempt + 1);
+        throw err;
+      });
+    }
+
+    fbAuth.signOut().catch(function () {}).then(function () {
+      return createLogin(0);
+    }).then(function (cred) {
+      createdUid = cred.user.uid;
+      return cred.user.getIdToken(true).then(function (idToken) {
+        return fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/recover/finish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken: idToken, recoverToken: token }),
+        }).then(function (response) {
+          return response.json().catch(function () { return {}; }).then(function (body) {
+            if (!response.ok) {
+              var err = new Error("finish");
+              err.code = body && body.error ? body.error : "request";
+              throw err;
+            }
+            finished = true;
+            var username = body && typeof body.username === "string" ? body.username.trim().toLowerCase() : "";
+            if (!/^[a-z0-9][a-z0-9._-]{1,31}$/.test(username)) username = "member";
+            setSession(username, "analyst");
+            recoverToken = "";
+            try { sessionStorage.removeItem(RECOVER_KEY); } catch (ignore) {}
+            return fbDb.collection("users").doc(cred.user.uid).set({
+              username: username,
+              role: "analyst",
+              mustChangePassword: false,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            }, { merge: true }).catch(function () {});
+          });
+        });
+      });
+    }).then(function () {
+      window.location.href = "dashboard.html";
+    }).catch(function (err) {
+      if (finished) {
+        window.location.href = "dashboard.html";
+        return;
+      }
+      var message = "The password could not be saved. Try again.";
+      if (err && err.code === "auth/weak-password") message = "Use a password of at least 10 characters.";
+      else if (err && err.code === "rate") message = "Too many attempts. Wait a few minutes and try again.";
+      else if (err && err.code === "expired") message = "This link has expired. Request a new one from the sign-in page.";
+      else if (err && err.code === "invalid") message = "This link is invalid or was already used.";
+      else if (err && err.code === "taken") message = "That login is already in use. Request a new link.";
+      else if (err && (err.code === "store" || err.code === "unavailable" || err.code === "request")) {
+        message = "The password was not saved. Try again.";
+      }
+      if (err && (err.code === "expired" || err.code === "invalid")) {
+        recoverToken = "";
+        try { sessionStorage.removeItem(RECOVER_KEY); } catch (ignore) {}
+      }
+      var cleanup = Promise.resolve();
+      if (createdUid && fbAuth.currentUser && fbAuth.currentUser.uid === createdUid) {
+        cleanup = fbAuth.currentUser.delete().catch(function () {}).then(function () {
+          return fbAuth.signOut();
+        });
+      }
+      cleanup.then(function () { fail(message); });
     });
   });
 }

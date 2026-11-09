@@ -26,6 +26,32 @@
       <div id="error-msg" class="error-msg" hidden>Invalid credentials. Access denied.</div>
       <button type="submit" class="btn-login">Sign in</button>
     </form>
+    <p class="security-notice" id="forgot-open">
+      <button type="button" id="forgot-btn" class="link-button">Forgot username or password?</button>
+    </p>
+    <form id="forgot-form" class="login-secondary" autocomplete="off" hidden>
+      <p class="form-note">Enter your username or the email you used to request access. We send the username and a password link to the email on that request.</p>
+      <div class="form-group">
+        <label for="forgot-account">Username or email</label>
+        <input type="text" id="forgot-account" name="account" required maxlength="254" autocomplete="username">
+      </div>
+      <div id="forgot-error" class="error-msg" hidden></div>
+      <p id="forgot-ok" class="form-note" hidden>If that account is approved, we sent a message to the email on the request.</p>
+      <button type="submit" class="btn-login">Email me</button>
+    </form>
+    <form id="reset-form" autocomplete="off" hidden>
+      <p class="form-note">Choose a new password. Your username stays the same. This link works once.</p>
+      <div class="form-group">
+        <label for="reset-password">New password</label>
+        <input type="password" id="reset-password" required minlength="10" maxlength="200" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label for="reset-confirm">Confirm password</label>
+        <input type="password" id="reset-confirm" required minlength="10" maxlength="200" autocomplete="new-password">
+      </div>
+      <div id="reset-error" class="error-msg" hidden></div>
+      <button type="submit" class="btn-login">Save password</button>
+    </form>
     <form id="setup-form" autocomplete="off" hidden>
       <p class="form-note">This request was approved. Choose a username and password. This link works once.</p>
       <div class="form-group">
@@ -80,6 +106,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/activity.js?v=3"></script>
-  <script src="js/auth.js?v=6"></script>
+  <script src="js/auth.js?v=7"></script>
 </body>
 </html>

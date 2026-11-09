@@ -186,6 +186,10 @@ button, a, input, select, textarea, .report-item {
   padding: 0;
 }
 
+.login-secondary {
+  margin-top: 0.5rem;
+}
+
 /* ---- TOPBAR ---- */
 
 .topbar {
