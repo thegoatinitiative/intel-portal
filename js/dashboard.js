@@ -228,19 +228,38 @@
   async function openPdfDocument(source) {
     if (window.pdfjsReady) await window.pdfjsReady;
     if (!window.pdfjsLib) throw new Error("pdfjs");
-    var options = { maxImageSize: -1 };
+    var options = { maxImageSize: -1, disableStream: true, disableRange: true };
     if (source.url) {
       options.url = source.url;
       options.withCredentials = false;
     } else {
       options.data = source.data.slice(0);
     }
+    var pdf;
     try {
-      return await window.pdfjsLib.getDocument(options).promise;
+      pdf = await window.pdfjsLib.getDocument(options).promise;
     } catch (e) {
       if (source.url) throw e;
-      return await window.pdfjsLib.getDocument({ data: source.data.slice(0), disableWorker: true, maxImageSize: -1 }).promise;
+      pdf = await window.pdfjsLib.getDocument({ data: source.data.slice(0), disableWorker: true, maxImageSize: -1 }).promise;
     }
+    if (pdf.getData) await pdf.getData();
+    return pdf;
+  }
+
+  function pageLooksBlank(ctx, width, height) {
+    try {
+      var sample = ctx.getImageData(0, 0, width, height).data;
+    } catch (e) {
+      return false;
+    }
+    var seen = 0;
+    var blank = 0;
+    var step = Math.max(4, Math.floor(sample.length / 4000)) * 4;
+    for (var i = 0; i < sample.length; i += step) {
+      seen++;
+      if (sample[i] > 248 && sample[i + 1] > 248 && sample[i + 2] > 248) blank++;
+    }
+    return seen > 0 && blank / seen > 0.97;
   }
 
   async function drawPdfPages(pdf, container) {
@@ -260,7 +279,11 @@
         canvas.height = Math.max(1, Math.floor(viewport.height));
         canvas.style.cssText = "width:100%;height:auto;display:block;background:#fff;";
         var ctx = canvas.getContext("2d");
-        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+        var task = { canvasContext: ctx, viewport: viewport };
+        await page.render(task).promise;
+        if (pageLooksBlank(ctx, canvas.width, canvas.height)) {
+          await page.render(task).promise;
+        }
         container.appendChild(canvas);
       } catch (err) {
         var missed = document.createElement("div");
