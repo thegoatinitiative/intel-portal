@@ -146,23 +146,19 @@ function requireAuth() {
  * Returns a Promise<boolean>.
  */
 function isAdmin() {
-  // Check session cache first
-  var session = getSession();
-  if (session && session.role === "admin") return Promise.resolve(true);
-
+  // The stored browser role is not trusted. Firestore is the check.
   var user = fbAuth.currentUser;
   if (!user) return Promise.resolve(false);
 
   return fbDb.collection("users").doc(user.uid).get().then(function (doc) {
-    if (doc.exists && doc.data().role === "admin") {
-      // Update session cache
-      if (session) {
-        session.role = "admin";
-        sessionStorage.setItem(AUTH_KEY, JSON.stringify(session));
-      }
-      return true;
+    var role = doc.exists && doc.data().role ? doc.data().role : "analyst";
+    var admin = role === "admin";
+    var session = getSession();
+    if (session) {
+      session.role = role;
+      sessionStorage.setItem(AUTH_KEY, JSON.stringify(session));
     }
-    return false;
+    return admin;
   }).catch(function () {
     return false;
   });

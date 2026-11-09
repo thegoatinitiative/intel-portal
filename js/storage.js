@@ -99,17 +99,31 @@ const StorageDB = (function () {
     });
   }
 
+  function assertAdmin() {
+    var user = fbAuth.currentUser;
+    if (!user) return Promise.reject(new Error("Only an admin can change a report."));
+    return fbDb.collection("users").doc(user.uid).get().then(function (doc) {
+      if (!doc.exists || doc.data().role !== "admin") {
+        throw new Error("Only an admin can change a report.");
+      }
+    });
+  }
+
   function saveReport(report) {
-    return prepareForFirestore(report).then(function (cleaned) {
-      return fbDb.collection(COLLECTION).doc(report.id).set(cleaned).then(function () {
-        return cleaned;
+    return assertAdmin().then(function () {
+      return prepareForFirestore(report).then(function (cleaned) {
+        return fbDb.collection(COLLECTION).doc(report.id).set(cleaned).then(function () {
+          return cleaned;
+        });
       });
     });
   }
 
   function deleteReport(id) {
     // Delete all Storage files under attachments/{id}/ then the Firestore doc
-    return fbDb.collection(COLLECTION).doc(id).get().then(function (doc) {
+    return assertAdmin().then(function () {
+      return fbDb.collection(COLLECTION).doc(id).get();
+    }).then(function (doc) {
       var promises = [];
       if (doc.exists) {
         var data = doc.data();
@@ -158,6 +172,12 @@ const StorageDB = (function () {
   }
 
   function saveAllReports(reports) {
+    return assertAdmin().then(function () {
+      return saveAllReportsAsAdmin(reports);
+    });
+  }
+
+  function saveAllReportsAsAdmin(reports) {
     var batch = fbDb.batch();
     var prepPromises = [];
 

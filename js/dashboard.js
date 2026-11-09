@@ -12,16 +12,15 @@
   ActivityLog.log("page_view", { page: "dashboard" });
   ActivityLog.startPageTimer("dashboard");
 
-  // Show Admin tab and New Report button only for admins
+  // New Report stays hidden until Firestore says this account is an admin.
   let currentUserIsAdmin = false;
   const adminReady = isAdmin().then(function (admin) {
     currentUserIsAdmin = admin;
+    var uploadBtnEl = document.getElementById("upload-btn");
+    if (uploadBtnEl) uploadBtnEl.hidden = !admin;
     if (admin) {
       var adminTab = document.getElementById("admin-tab");
       if (adminTab) adminTab.hidden = false;
-    } else {
-      var uploadBtn = document.getElementById("upload-btn");
-      if (uploadBtn) uploadBtn.style.display = "none";
     }
   });
 
@@ -924,6 +923,7 @@
   // ---- Edit Report ----
 
   function editReport(report) {
+    if (!currentUserIsAdmin) return;
     editingReportId = report.id;
 
     // Pre-fill the form
@@ -995,10 +995,21 @@
     confirmBtn.className = "btn-confirm-delete";
     confirmBtn.textContent = "Delete";
     confirmBtn.addEventListener("click", async () => {
+      const allowed = await isAdmin();
+      if (!allowed) {
+        overlay.remove();
+        alert("Only an admin can delete a report.");
+        return;
+      }
+      try {
+        await StorageDB.deleteReport(report.id);
+      } catch (e) {
+        alert("The report was not deleted.\n\n" + (e && e.message ? e.message : "Save failed."));
+        return;
+      }
       ActivityLog.log("report_delete", { reportId: report.id, subject: report.subjectName });
       const idx = REPORTS.findIndex((r) => r.id === report.id);
       if (idx !== -1) REPORTS.splice(idx, 1);
-      try { await StorageDB.deleteReport(report.id); } catch (e) {}
       overlay.remove();
       activeReportId = null;
       reportContentEl.hidden = true;
@@ -1019,6 +1030,7 @@
   // ---- Upload Modal ----
 
   function openModal() {
+    if (!currentUserIsAdmin) return;
     editingReportId = null;
     uploadModal.hidden = false;
     pendingFiles = [];
@@ -1119,6 +1131,14 @@
 
   uploadForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const allowed = await isAdmin();
+    currentUserIsAdmin = allowed;
+    if (uploadBtn) uploadBtn.hidden = !allowed;
+    if (!allowed) {
+      closeModal();
+      alert("Only an admin can create or edit a report.");
+      return;
+    }
 
     const passport = document.getElementById("rpt-passport").value.trim();
     const name = document.getElementById("rpt-name").value.trim();
@@ -1185,17 +1205,17 @@
         attachments: newAttachments,
       };
 
-      REPORTS.unshift(report);
-      ActivityLog.log("report_create", { reportId: id, subject: name });
-
       try {
         await StorageDB.saveReport(report);
         console.log("Report " + id + " saved successfully.");
       } catch (err) {
         console.error("Failed to save report:", err);
-        alert("Warning: Report created but could not be saved to persistent storage.\n\nError: " + err.message);
+        alert("The report was not saved.\n\n" + (err && err.message ? err.message : "Save failed."));
+        return;
       }
 
+      REPORTS.unshift(report);
+      ActivityLog.log("report_create", { reportId: id, subject: name });
       closeModal();
       renderReportList(searchInput.value, countryFilter.value);
       openReport(id);
