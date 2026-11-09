@@ -120,30 +120,60 @@
   // Storage blocks the browser from reading the file directly. A signed-in
   // request pulls the bytes through the site, then draws the pages.
 
-  async function attachmentBytes(source) {
-    if (source.startsWith("data:")) {
-      var base64 = source.split(",")[1];
-      if (!base64) throw new Error("Invalid data URL");
-      var raw = atob(base64);
-      var data = new Uint8Array(raw.length);
-      for (var i = 0; i < raw.length; i++) data[i] = raw.charCodeAt(i);
-      return data;
+  var attachmentByteCache = new WeakMap();
+
+  function bytesFromDataUrl(source) {
+    var comma = source.indexOf(",");
+    if (comma < 0) throw new Error("bad data");
+    var b64 = source.slice(comma + 1).replace(/\s/g, "");
+    var raw = atob(b64);
+    var data = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) data[i] = raw.charCodeAt(i);
+    return data;
+  }
+
+  function pathFromStorageUrl(raw) {
+    if (!raw || raw.indexOf("https://firebasestorage.googleapis.com/") !== 0) return "";
+    try {
+      var url = new URL(raw);
+      var marker = "/o/";
+      var index = url.pathname.indexOf(marker);
+      if (index < 0) return "";
+      return decodeURIComponent(url.pathname.slice(index + marker.length));
+    } catch (e) {
+      return "";
     }
-    var response;
-    if (source.indexOf("https://firebasestorage.googleapis.com/") === 0 && fbAuth.currentUser && typeof TGI_ACCESS_ORIGIN === "string") {
-      var token = await fbAuth.currentUser.getIdToken();
-      response = await fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/file", {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url: source }),
-      });
-    } else {
-      response = await fetch(source);
+  }
+
+  function loadAttachmentBytes(att) {
+    var cached = attachmentByteCache.get(att);
+    if (cached) return cached;
+    var pending = fetchAttachmentBytes(att).catch(function (err) {
+      attachmentByteCache.delete(att);
+      throw err;
+    });
+    attachmentByteCache.set(att, pending);
+    return pending;
+  }
+
+  async function fetchAttachmentBytes(att) {
+    if (att.dataUrl && att.dataUrl.indexOf("data:") === 0) {
+      try { return bytesFromDataUrl(att.dataUrl); } catch (e) { /* try storage */ }
     }
-    if (!response.ok) throw new Error("fetch " + response.status);
+    var path = att.storagePath || pathFromStorageUrl(att.storageUrl || "");
+    if (!path || !fbAuth.currentUser || typeof TGI_ACCESS_ORIGIN !== "string") {
+      throw new Error("no-file");
+    }
+    var token = await fbAuth.currentUser.getIdToken();
+    var response = await fetch(TGI_ACCESS_ORIGIN + "/api/goatintel/file", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ path: path }),
+    });
+    if (!response.ok) throw new Error("file " + response.status);
     return new Uint8Array(await response.arrayBuffer());
   }
 
@@ -157,67 +187,21 @@
     container.appendChild(frame);
   }
 
-  async function renderPDFPages(source, container) {
+  async function renderPDFPages(att, container) {
     const loading = document.createElement("div");
     loading.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);font-size:0.9rem;";
-    loading.textContent = "Rendering PDF pages...";
+    loading.textContent = "Loading PDF...";
     container.appendChild(loading);
 
-    var pdfData = null;
     try {
-      pdfData = await attachmentBytes(source);
-      if (window.pdfjsReady) await window.pdfjsReady;
-      if (!window.pdfjsLib) throw new Error("PDF.js not available");
-
-      const pdf = await window.pdfjsLib.getDocument({ data: pdfData }).promise;
-      container.removeChild(loading);
-
-      const totalPages = pdf.numPages;
-      const maxPages = Math.min(totalPages, 20);
-      for (let num = 1; num <= maxPages; num++) {
-        const page = await pdf.getPage(num);
-        const scale = 1.2;
-        const viewport = page.getViewport({ scale });
-
-        const canvas = document.createElement("canvas");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        canvas.style.cssText = "width:100%;height:auto;display:block;";
-
-        const ctx = canvas.getContext("2d");
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        container.appendChild(canvas);
-
-        if (num < maxPages) {
-          const sep = document.createElement("div");
-          sep.style.cssText = "height:2px;background:var(--border);";
-          container.appendChild(sep);
-        }
-      }
-
-      if (totalPages > maxPages) {
-        const note = document.createElement("div");
-        note.style.cssText = "padding:1rem;text-align:center;color:var(--text-muted);font-size:0.8rem;";
-        note.textContent = "Showing " + maxPages + " of " + totalPages + " pages.";
-        container.appendChild(note);
-      }
+      var pdfData = await loadAttachmentBytes(att);
+      if (loading.parentNode) loading.parentNode.removeChild(loading);
+      showPdfBlob(pdfData, container);
     } catch (e) {
       if (loading.parentNode) loading.parentNode.removeChild(loading);
-      if (pdfData && !container.querySelector("canvas, iframe")) {
-        showPdfBlob(pdfData, container);
-        return;
-      }
-      if (container.querySelector("canvas, iframe")) return;
       var fallbackMsg = document.createElement("div");
       fallbackMsg.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);";
-      fallbackMsg.textContent = "Unable to display PDF inline.";
-      var fallbackLink = document.createElement("a");
-      fallbackLink.href = source;
-      fallbackLink.target = "_blank";
-      fallbackLink.rel = "noopener";
-      fallbackLink.style.cssText = "color:var(--accent);margin-left:0.5rem;";
-      fallbackLink.textContent = "Open in new tab";
-      fallbackMsg.appendChild(fallbackLink);
+      fallbackMsg.textContent = "This PDF could not be loaded.";
       container.appendChild(fallbackMsg);
     }
   }
@@ -492,23 +476,16 @@
         downloadBtn.textContent = "Download";
         downloadBtn.style.cssText = "margin-left:auto;padding:0.25rem 0.7rem;font-size:0.65rem;flex-shrink:0;";
         downloadBtn.addEventListener("click", function () {
-          // Get a fresh download URL from storagePath to avoid expired tokens
-          var downloadPromise;
-          if (att.storagePath) {
-            downloadPromise = fbStorage.ref(att.storagePath).getDownloadURL();
-          } else {
-            downloadPromise = Promise.resolve(att.storageUrl || att.dataUrl);
-          }
-          downloadPromise.then(function (dlSrc) {
-            if (!dlSrc) return;
+          loadAttachmentBytes(att).then(function (bytes) {
+            var blob = new Blob([bytes], { type: att.type || "application/pdf" });
+            var url = URL.createObjectURL(blob);
             var a = document.createElement("a");
-            a.href = dlSrc;
-            a.download = att.name;
+            a.href = url;
+            a.download = att.name || "document.pdf";
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-          }).catch(function (err) {
-            console.error("Download failed:", err);
+          }).catch(function () {
             alert("Unable to download file. The file may have been deleted.");
           });
         });
@@ -526,40 +503,18 @@
         const body = document.createElement("div");
         body.className = "document-embed-body";
 
-        // Resolve a fresh download URL from storagePath to avoid expired tokens (412 errors)
-        var srcPromise;
-        if (att.storagePath) {
-          srcPromise = fbStorage.ref(att.storagePath).getDownloadURL().catch(function () {
-            return att.storageUrl || att.dataUrl || null;
-          });
-        } else {
-          srcPromise = Promise.resolve(att.storageUrl || att.dataUrl || null);
-        }
-
-        (function (body, att, srcPromise) {
-          srcPromise.then(function (src) {
-            if (!src) {
-              const msg = document.createElement("div");
-              msg.style.cssText = "padding:1.5rem;text-align:center;color:var(--text-muted);font-size:0.85rem;";
-              msg.textContent = "Attachment data not available.";
-              body.appendChild(msg);
-            } else if (att.type === "application/pdf") {
-              // Lazy-load: don't fetch the PDF until the user asks for it.
-              // Auto-rendering every PDF on report open re-downloads the full
-              // file on each view and can exhaust the Storage egress quota.
-              var lazyWrap = document.createElement("div");
-              lazyWrap.style.cssText = "padding:1.5rem;text-align:center;";
-              var loadBtn = document.createElement("button");
-              loadBtn.className = "btn-action";
-              loadBtn.style.cssText = "padding:0.4rem 1rem;font-size:0.75rem;";
-              loadBtn.textContent = "Load preview (" + formatFileSize(att.size) + ")";
-              loadBtn.addEventListener("click", function () {
-                body.removeChild(lazyWrap);
-                renderPDFPages(src, body);
-              });
-              lazyWrap.appendChild(loadBtn);
-              body.appendChild(lazyWrap);
-            } else if (att.type && att.type.startsWith("image/")) {
+        (function (body, att) {
+          if (att.type === "application/pdf" || (att.name && att.name.toLowerCase().endsWith(".pdf"))) {
+            renderPDFPages(att, body);
+            return;
+          }
+          var src = att.storageUrl || att.dataUrl || null;
+          if (!src) {
+            const msg = document.createElement("div");
+            msg.style.cssText = "padding:1.5rem;text-align:center;color:var(--text-muted);font-size:0.85rem;";
+            msg.textContent = "Attachment data not available.";
+            body.appendChild(msg);
+          } else if (att.type && att.type.startsWith("image/")) {
               const img = document.createElement("img");
               img.src = src;
               img.alt = att.name;
@@ -594,9 +549,8 @@
               link.style.cssText = "color:var(--accent);font-weight:600;text-decoration:none;";
               dl.appendChild(link);
               body.appendChild(dl);
-            }
-          });
-        })(body, att, srcPromise);
+          }
+        })(body, att);
 
         embed.appendChild(body);
         docsSection.appendChild(embed);
