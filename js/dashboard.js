@@ -63,8 +63,13 @@
       REPORTS.push(...saved);
       console.log("Loaded " + saved.length + " report(s) from storage.");
     }
+    updateGlobeMarkers();
   } catch (e) {
     console.error("Failed to load from Firestore:", e);
+  }
+
+  function updateGlobeMarkers() {
+    if (window.GoatGlobe) GoatGlobe.setMarkers(REPORTS);
   }
 
   // ---- Check which reports have intel assessments ----
@@ -1010,6 +1015,7 @@
       ActivityLog.log("report_delete", { reportId: report.id, subject: report.subjectName });
       const idx = REPORTS.findIndex((r) => r.id === report.id);
       if (idx !== -1) REPORTS.splice(idx, 1);
+      updateGlobeMarkers();
       overlay.remove();
       activeReportId = null;
       reportContentEl.hidden = true;
@@ -1179,6 +1185,7 @@
         try {
           await StorageDB.saveReport(existing);
           console.log("Report " + existing.id + " updated successfully.");
+          updateGlobeMarkers();
         } catch (err) {
           console.error("Failed to update report:", err);
           alert("Warning: Changes could not be saved to storage.\n\nError: " + err.message);
@@ -1215,6 +1222,7 @@
       }
 
       REPORTS.unshift(report);
+      updateGlobeMarkers();
       ActivityLog.log("report_create", { reportId: id, subject: name });
       closeModal();
       renderReportList(searchInput.value, countryFilter.value);
