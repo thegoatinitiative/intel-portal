@@ -79,25 +79,6 @@
     z-index: 0;
   }
 
-  /* === CLASSIFIED BANNER === */
-  .classified-banner {
-    background: rgba(239,68,68,0.08);
-    border-bottom: 1px solid rgba(239,68,68,0.2);
-    color: var(--red-500);
-    text-align: center;
-    padding: 8px 20px;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    position: sticky;
-    top: 0;
-    z-index: 10000;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
   /* === HERO === */
   .hero {
     position: relative;
@@ -707,20 +688,6 @@
   .footer a { color: var(--emerald-400); text-decoration: none; border-bottom: 1px solid rgba(52,211,153,0.2); transition: border-color 0.3s; }
   .footer a:hover { border-color: var(--emerald-400); }
 
-  .footer-warning {
-    margin-top: 36px;
-    padding: 12px 20px;
-    border: 1px solid rgba(239,68,68,0.15);
-    background: rgba(239,68,68,0.04);
-    border-radius: 3px;
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--red-500);
-  }
-
   .footer-copy {
     margin-top: 24px;
     font-family: 'JetBrains Mono', monospace;
@@ -730,7 +697,6 @@
   }
 
   @media print {
-    .classified-banner { position: static; }
     .brief-tabs-wrap { display: none !important; }
     .brief-panel { display: block !important; }
     .hero.brief-panel { display: flex !important; }
@@ -908,7 +874,6 @@
     .map-hud-legend { position: relative; bottom: auto; right: auto; margin-top: 8px; }
     .map-key-grid { grid-template-columns: 1fr; }
     .map-hud-coords { display: none; }
-    .classified-banner { font-size: 9px; letter-spacing: 2px; padding: 6px; }
   }
 
   /* === TACTICAL MAP === */
@@ -1294,10 +1259,6 @@
     <button id="logout-btn" class="cap-nav-logout">Logout</button>
   </div>
 </nav>
-
-<div class="classified-banner">
-  // Proprietary &amp; Confidential &mdash; Not for Public Distribution //
-</div>
 
 <div class="brief-tabs-wrap">
   <div class="brief-tabs" role="tablist" aria-label="Partnership brief">
@@ -2154,10 +2115,6 @@
   <p style="margin-top:6px;">
     <a href="https://thegoatinitiative.org">thegoatinitiative.org</a>
   </p>
-
-  <div class="footer-warning">
-    // Proprietary &amp; Confidential // Not for Public Distribution //
-  </div>
 
   <div class="footer-copy">
     &copy; 2026 The GOAT Initiative // All Rights Reserved // Powered by TGI Systems
