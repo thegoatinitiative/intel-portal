@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
+<script>
+(function () {
+  var id = (location.hash || "").replace(/^#/, "");
+  var ok = { overview: 1, collection: 1, threats: 1, network: 1, proof: 1, partner: 1 };
+  document.documentElement.dataset.brief = ok[id] ? id : "overview";
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0a0a0f">
@@ -95,13 +102,13 @@
   .hero {
     position: relative;
     z-index: 1;
-    min-height: 85vh;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 60px 20px;
+    padding: 36px 20px 8px;
   }
 
   .hero-status {
@@ -724,6 +731,9 @@
 
   @media print {
     .classified-banner { position: static; }
+    .brief-tabs-wrap { display: none !important; }
+    .brief-panel { display: block !important; }
+    .hero.brief-panel { display: flex !important; }
     section { page-break-inside: avoid; }
     .hero { min-height: auto; padding: 40px 20px; }
     body { background: #fff; color: #000; }
@@ -876,7 +886,12 @@
     .cap-nav-user { display: none; }
     .cap-nav-logout { font-size: 0.65rem; padding: 0.35rem 0.75rem; }
 
-    .hero-badge { font-size: 50px; }
+    .hero { padding: 20px 16px 4px; }
+    .hero-badge { font-size: 42px; margin-bottom: 8px; }
+    .hero-status { margin-bottom: 14px; }
+    .hero h2 { margin-bottom: 12px; }
+    .hero-pitch { font-size: 15px; }
+    .hero-meta { margin-top: 16px; gap: 8px; }
     .content-wrapper { padding: 0 16px; }
     section { padding: 28px 0; }
     .equip-grid, .value-grid { grid-template-columns: 1fr; }
@@ -1168,6 +1183,98 @@
     pointer-events: none;
     z-index: 998;
   }
+
+  /* === BRIEF TABS === */
+  .brief-panel { display: none; }
+
+  html[data-brief="overview"] .brief-panel[data-tab="overview"],
+  html[data-brief="collection"] .brief-panel[data-tab="collection"],
+  html[data-brief="threats"] .brief-panel[data-tab="threats"],
+  html[data-brief="network"] .brief-panel[data-tab="network"],
+  html[data-brief="proof"] .brief-panel[data-tab="proof"],
+  html[data-brief="partner"] .brief-panel[data-tab="partner"] {
+    display: block;
+  }
+
+  html[data-brief="overview"] .hero.brief-panel { display: flex; }
+
+  html:not([data-brief="overview"]):not([data-brief="collection"]):not([data-brief="threats"]):not([data-brief="network"]):not([data-brief="proof"]):not([data-brief="partner"]) .brief-panel[data-tab="overview"] {
+    display: block;
+  }
+
+  html:not([data-brief="overview"]):not([data-brief="collection"]):not([data-brief="threats"]):not([data-brief="network"]):not([data-brief="proof"]):not([data-brief="partner"]) .hero.brief-panel {
+    display: flex;
+  }
+
+  .brief-tabs-wrap {
+    position: sticky;
+    top: var(--cap-nav-h, 56px);
+    z-index: 10000;
+    background: rgba(10, 10, 15, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brief-tabs-wrap::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 36px;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(10, 10, 15, 0), rgba(10, 10, 15, 0.96));
+  }
+
+  .brief-tabs-wrap.at-end::after { opacity: 0; }
+
+  .brief-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 8px 12px;
+  }
+
+  .brief-tabs::-webkit-scrollbar { display: none; }
+
+  .brief-tab {
+    flex: 0 0 auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid rgba(52, 211, 153, 0.18);
+    border-radius: 4px;
+    padding: 10px 14px;
+    min-height: 40px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .brief-tab[aria-selected="true"] {
+    color: #04140e;
+    background: var(--emerald-400);
+    border-color: var(--emerald-400);
+  }
+
+  .brief-tab:focus-visible {
+    outline: 2px solid var(--emerald-400);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .brief-tab {
+      padding: 10px 12px;
+      letter-spacing: 0.04em;
+    }
+    .map-container { height: 400px; }
+  }
 </style>
 </head>
 <body>
@@ -1192,8 +1299,19 @@
   // Proprietary &amp; Confidential &mdash; Not for Public Distribution //
 </div>
 
+<div class="brief-tabs-wrap">
+  <div class="brief-tabs" role="tablist" aria-label="Partnership brief">
+    <button type="button" class="brief-tab" role="tab" id="tab-overview" data-tab="overview" aria-controls="panel-overview" aria-selected="true">Overview</button>
+    <button type="button" class="brief-tab" role="tab" id="tab-collection" data-tab="collection" aria-controls="panel-record" aria-selected="false" tabindex="-1">Collection</button>
+    <button type="button" class="brief-tab" role="tab" id="tab-threats" data-tab="threats" aria-controls="panel-sia" aria-selected="false" tabindex="-1">Threats</button>
+    <button type="button" class="brief-tab" role="tab" id="tab-network" data-tab="network" aria-controls="panel-access" aria-selected="false" tabindex="-1">Network</button>
+    <button type="button" class="brief-tab" role="tab" id="tab-proof" data-tab="proof" aria-controls="panel-proof" aria-selected="false" tabindex="-1">Validation</button>
+    <button type="button" class="brief-tab" role="tab" id="tab-partner" data-tab="partner" aria-controls="panel-partner" aria-selected="false" tabindex="-1">Partner</button>
+  </div>
+</div>
+
 <!-- HERO -->
-<div class="hero">
+<div class="hero brief-panel" id="panel-overview" data-tab="overview" role="tabpanel" aria-labelledby="tab-overview">
   <div class="hero-status">
     <span class="pulse"></span>
     Clearance Level 5 &mdash; Active
@@ -1216,7 +1334,7 @@
 <main>
 
 <!-- 01 -->
-<section>
+<section class="brief-panel" data-tab="overview" role="tabpanel" aria-labelledby="tab-overview">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">01</div>
     <div class="section-label">The Intelligence Gap</div>
@@ -1244,7 +1362,7 @@
 </section>
 
 <!-- 02 -->
-<section class="alt-bg">
+<section class="alt-bg brief-panel" data-tab="overview" role="tabpanel" aria-labelledby="tab-overview">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">02</div>
     <div class="section-label">Integration Model</div>
@@ -1307,7 +1425,7 @@
 </section>
 
 <!-- 03 -->
-<section>
+<section class="brief-panel" id="panel-record" data-tab="collection" role="tabpanel" aria-labelledby="tab-collection">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">03</div>
     <div class="section-label">Proven Collection</div>
@@ -1358,7 +1476,7 @@
 </section>
 
 <!-- 04 -->
-<section class="alt-bg">
+<section class="alt-bg brief-panel" id="panel-sia" data-tab="threats" role="tabpanel" aria-labelledby="tab-threats">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">04</div>
     <div class="section-label">SIA Intelligence</div>
@@ -1396,7 +1514,7 @@
 </section>
 
 <!-- 05 — TACTICAL MAP -->
-<section>
+<section class="brief-panel" data-tab="threats" role="tabpanel" aria-labelledby="tab-threats">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">05</div>
     <div class="section-label">Threat Visualization</div>
@@ -1513,7 +1631,7 @@
 </section>
 
 <!-- 06 -->
-<section>
+<section class="brief-panel" data-tab="collection" role="tabpanel" aria-labelledby="tab-collection">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">06</div>
     <div class="section-label">Collection Infrastructure</div>
@@ -1576,7 +1694,7 @@
 </section>
 
 <!-- 07 -->
-<section class="alt-bg">
+<section class="alt-bg brief-panel" id="panel-access" data-tab="network" role="tabpanel" aria-labelledby="tab-network">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">07</div>
     <div class="section-label">Interagency Access</div>
@@ -1600,7 +1718,7 @@
 </section>
 
 <!-- 08 — AGENCY NETWORK -->
-<section>
+<section class="brief-panel" data-tab="network" role="tabpanel" aria-labelledby="tab-network">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">08</div>
     <div class="section-label">Agency Network</div>
@@ -1730,7 +1848,7 @@
 </section>
 
 <!-- 09 -->
-<section class="alt-bg">
+<section class="alt-bg brief-panel" id="panel-proof" data-tab="proof" role="tabpanel" aria-labelledby="tab-proof">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">09</div>
     <div class="section-label">Validated at Highest Levels</div>
@@ -1822,7 +1940,7 @@
 </section>
 
 <!-- 10 -->
-<section class="alt-bg">
+<section class="alt-bg brief-panel" id="panel-partner" data-tab="partner" role="tabpanel" aria-labelledby="tab-partner">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">10</div>
     <div class="section-label">Partnership Structure</div>
@@ -1854,7 +1972,7 @@
 </section>
 
 <!-- 11 -->
-<section>
+<section class="brief-panel" data-tab="partner" role="tabpanel" aria-labelledby="tab-partner">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">11</div>
     <div class="section-label">Your Counterparts</div>
@@ -1942,7 +2060,7 @@
 </section>
 
 <!-- 12 -->
-<section class="alt-bg">
+<section class="alt-bg brief-panel" data-tab="partner" role="tabpanel" aria-labelledby="tab-partner">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">12</div>
     <div class="section-label">Partnership Avenues</div>
@@ -1989,7 +2107,7 @@
 </section>
 
 <!-- 13 -->
-<section>
+<section class="brief-panel" data-tab="partner" role="tabpanel" aria-labelledby="tab-partner">
   <div class="content-wrapper" style="position:relative;">
     <div class="section-number">13</div>
     <div class="section-label">Next Steps</div>
@@ -2179,6 +2297,104 @@
     L.marker([city.lat,city.lon],{icon:icon,interactive:false}).addTo(map);
   });
 
+  window.tgiMap = map;
+  if (document.documentElement.dataset.brief === "threats") {
+    setTimeout(function () { map.invalidateSize(); }, 60);
+  }
+
+})();
+</script>
+
+<script>
+(function () {
+  var known = { overview: 1, collection: 1, threats: 1, network: 1, proof: 1, partner: 1 };
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".brief-tab"));
+  var scroller = document.querySelector(".brief-tabs");
+  var wrap = document.querySelector(".brief-tabs-wrap");
+
+  function pin() {
+    var nav = document.querySelector(".cap-nav");
+    if (nav) document.documentElement.style.setProperty("--cap-nav-h", nav.offsetHeight + "px");
+  }
+
+  function markFade() {
+    if (!scroller || !wrap) return;
+    var atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 8;
+    wrap.classList.toggle("at-end", atEnd);
+  }
+
+  function centerTab(tab) {
+    var left = tab.offsetLeft - (scroller.clientWidth - tab.offsetWidth) / 2;
+    scroller.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  }
+
+  function refreshMap() {
+    if (!window.tgiMap) return;
+    requestAnimationFrame(function () {
+      window.tgiMap.invalidateSize();
+    });
+  }
+
+  function show(id, opts) {
+    opts = opts || {};
+    if (!known[id]) id = "overview";
+    document.documentElement.dataset.brief = id;
+    tabs.forEach(function (tab) {
+      var on = tab.getAttribute("data-tab") === id;
+      tab.setAttribute("aria-selected", on ? "true" : "false");
+      tab.tabIndex = on ? 0 : -1;
+      if (on) centerTab(tab);
+    });
+    var next = "#" + id;
+    if (location.hash !== next) {
+      if (opts.push) history.pushState({ brief: id }, "", next);
+      else history.replaceState({ brief: id }, "", next);
+    }
+    if (opts.scroll && wrap) {
+      var nav = document.querySelector(".cap-nav");
+      var top = wrap.getBoundingClientRect().top + window.pageYOffset - (nav ? nav.offsetHeight : 0);
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }
+    if (id === "threats") refreshMap();
+    markFade();
+  }
+
+  if (wrap) {
+    wrap.addEventListener("click", function (e) {
+      var tab = e.target.closest(".brief-tab");
+      if (!tab) return;
+      show(tab.getAttribute("data-tab"), { push: true, scroll: true });
+    });
+  }
+
+  if (scroller) {
+    scroller.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      var current = -1;
+      tabs.forEach(function (tab, i) {
+        if (tab.getAttribute("aria-selected") === "true") current = i;
+      });
+      e.preventDefault();
+      var next = e.key === "ArrowRight" ? current + 1 : current - 1;
+      if (next < 0) next = tabs.length - 1;
+      if (next >= tabs.length) next = 0;
+      tabs[next].focus();
+      show(tabs[next].getAttribute("data-tab"), { push: true, scroll: true });
+    });
+    scroller.addEventListener("scroll", markFade, { passive: true });
+  }
+
+  window.addEventListener("popstate", function () {
+    show((location.hash || "#overview").replace(/^#/, ""), { scroll: true });
+  });
+  window.addEventListener("resize", function () {
+    pin();
+    markFade();
+    if (document.documentElement.dataset.brief === "threats") refreshMap();
+  });
+
+  pin();
+  show((location.hash || "#overview").replace(/^#/, ""), { scroll: false });
 })();
 </script>
 
