@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Intel Portal — Dashboard</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=34">
+  <link rel="stylesheet" href="css/style.css?v=35">
   <!-- All CDN resources loaded async after page renders -->
   <script>
     // Load external libs without blocking page paint
@@ -172,18 +172,6 @@
     <!-- Main content: report viewer -->
     <main class="report-viewer">
       <div id="report-placeholder" class="report-placeholder">
-        <div class="globe-wrapper">
-          <div class="globe-hud-top">
-            <span class="hud-item">SIGINT FEED <span class="hud-blink">ACTIVE</span></span>
-            <span class="hud-item">NODES: 2,847</span>
-            <span class="hud-item">THREAT LEVEL: <span id="hud-threat" class="hud-amber">ELEVATED</span></span>
-          </div>
-          <canvas id="globe-canvas"></canvas>
-          <div class="globe-hud-bottom">
-            <span class="hud-item">GLOBAL INTELLIGENCE NETWORK</span>
-            <span class="hud-item hud-mono" id="hud-clock"></span>
-          </div>
-        </div>
         <div class="source-note">
           <h2>What these reports are</h2>
           <p>Write-ups of information The GOAT Initiative collected.</p>
@@ -200,6 +188,19 @@
               <strong>Found in a chat</strong>
               <span>Conversations TGI is part of, and what people say there.</span>
             </div>
+          </div>
+        </div>
+        <div class="globe-wrapper">
+          <p class="globe-caption">Red points mark SIA locations.</p>
+          <div class="globe-hud-top">
+            <span class="hud-item">SIGINT FEED <span class="hud-blink">ACTIVE</span></span>
+            <span class="hud-item">NODES: 2,847</span>
+            <span class="hud-item">THREAT LEVEL: <span id="hud-threat" class="hud-amber">ELEVATED</span></span>
+          </div>
+          <canvas id="globe-canvas"></canvas>
+          <div class="globe-hud-bottom">
+            <span class="hud-item">GLOBAL INTELLIGENCE NETWORK</span>
+            <span class="hud-item hud-mono" id="hud-clock"></span>
           </div>
         </div>
       </div>
@@ -230,7 +231,7 @@
   <script src="js/auth.js?v=8"></script>
   <script src="js/storage.js?v=2"></script>
   <script src="js/reports.js"></script>
-  <script src="js/globe.js?v=1"></script>
+  <script src="js/globe.js?v=2"></script>
   <script>
     // HUD clock
     (function () {

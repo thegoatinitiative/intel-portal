@@ -127,36 +127,32 @@
   var tilt = 0.4; // radians
   var DPR = window.devicePixelRatio || 1;
 
-  // Hotspots — blinking threat indicators
+  // SIA locations. One point per country, drawn in red.
   var hotspots = [
-    { lat: 38.9, lng: -77, label: "DC" },
-    { lat: 51.5, lng: 0, label: "LON" },
-    { lat: 35.7, lng: 51.4, label: "THR" },
-    { lat: 10.5, lng: -66.9, label: "CCS" },
-    { lat: 33.3, lng: 44.4, label: "BGW" },
-    { lat: 25.3, lng: 55.3, label: "DXB" },
-    { lat: 39.9, lng: 116.4, label: "BJS" },
-    { lat: 55.8, lng: 37.6, label: "MOW" },
-    { lat: 33.9, lng: 35.5, label: "BEY" },
-    { lat: -34.6, lng: -58.4, label: "BUE" },
-  ];
-
-  // Connection arcs between hotspots
-  var arcs = [
-    [0, 2], [0, 1], [2, 4], [2, 3], [1, 7], [5, 6], [0, 6], [3, 9], [2, 8],
+    { lat: 35.7, lng: 51.4 },
+    { lat: 33.3, lng: 44.4 },
+    { lat: 33.5, lng: 36.3 },
+    { lat: 34.5, lng: 69.2 },
+    { lat: 33.7, lng: 73.1 },
+    { lat: 15.4, lng: 44.2 },
+    { lat: 2.0, lng: 45.3 },
+    { lat: 15.5, lng: 32.5 },
+    { lat: 32.9, lng: 13.2 },
+    { lat: 33.9, lng: 35.5 },
+    { lat: 41.3, lng: 69.3 },
   ];
 
   function resize() {
-    var rect = canvas.parentElement.getBoundingClientRect();
-    SIZE = Math.min(rect.width, rect.height, 620);
-    canvas.width = SIZE * DPR;
-    canvas.height = SIZE * DPR;
+    var parentWidth = canvas.parentElement.getBoundingClientRect().width || 380;
+    SIZE = Math.max(180, Math.min(380, parentWidth));
     canvas.style.width = SIZE + "px";
     canvas.style.height = SIZE + "px";
+    canvas.width = Math.round(SIZE * DPR);
+    canvas.height = Math.round(SIZE * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     CX = SIZE / 2;
     CY = SIZE / 2;
-    R = SIZE * 0.4;
+    R = SIZE * 0.38;
   }
 
   function project(lat, lng) {
@@ -246,73 +242,36 @@
       ctx.fill();
     }
 
-    // Connection arcs
-    var pulse = Math.sin(time * 0.002) * 0.5 + 0.5;
-    for (var ai = 0; ai < arcs.length; ai++) {
-      var h1 = hotspots[arcs[ai][0]];
-      var h2 = hotspots[arcs[ai][1]];
-      var p1 = project(h1.lat, h1.lng);
-      var p2 = project(h2.lat, h2.lng);
-      if (!p1.visible || !p2.visible) continue;
-
-      // Draw curved arc
-      var midX = (p1.x + p2.x) / 2;
-      var midY = (p1.y + p2.y) / 2;
-      var dx = p2.x - p1.x;
-      var dy = p2.y - p1.y;
-      var dist = Math.sqrt(dx * dx + dy * dy);
-      var cpX = midX - dy * 0.3;
-      var cpY = midY + dx * 0.3 - dist * 0.15;
-
-      ctx.beginPath();
-      ctx.moveTo(p1.x, p1.y);
-      ctx.quadraticCurveTo(cpX, cpY, p2.x, p2.y);
-      var arcAlpha = 0.08 + pulse * 0.12;
-      ctx.strokeStyle = "rgba(52, 211, 153, " + arcAlpha.toFixed(2) + ")";
-      ctx.lineWidth = 0.8;
-      ctx.stroke();
-
-      // Traveling dot along arc
-      var t = (time * 0.0005 + ai * 0.15) % 1;
-      var tx = (1 - t) * (1 - t) * p1.x + 2 * (1 - t) * t * cpX + t * t * p2.x;
-      var ty = (1 - t) * (1 - t) * p1.y + 2 * (1 - t) * t * cpY + t * t * p2.y;
-      ctx.beginPath();
-      ctx.arc(tx, ty, 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(52, 211, 153, 0.8)";
-      ctx.fill();
-    }
-
-    // Hotspot markers
+    // SIA hotspots. Each one blinks red while it is on the facing side.
     for (var hi = 0; hi < hotspots.length; hi++) {
       var hp = project(hotspots[hi].lat, hotspots[hi].lng);
       if (!hp.visible) continue;
 
-      var blink = Math.sin(time * 0.003 + hi * 1.5) * 0.5 + 0.5;
+      var blinkOn = Math.sin(time * 0.008 + hi * 1.2) > 0.2;
+      var pingPhase = (time * 0.0012 + hi * 0.55) % 1.6;
 
-      // Ping ring
-      var pingPhase = ((time * 0.001 + hi * 0.7) % 2);
       if (pingPhase < 1) {
         ctx.beginPath();
-        ctx.arc(hp.x, hp.y, 3 + pingPhase * 12, 0, Math.PI * 2);
-        ctx.strokeStyle = "rgba(52, 211, 153, " + (0.3 * (1 - pingPhase)).toFixed(2) + ")";
-        ctx.lineWidth = 0.5;
+        ctx.arc(hp.x, hp.y, 3 + pingPhase * 14, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(248, 113, 113, " + (0.55 * (1 - pingPhase)).toFixed(2) + ")";
+        ctx.lineWidth = 1;
         ctx.stroke();
       }
 
-      // Core dot
       ctx.beginPath();
-      ctx.arc(hp.x, hp.y, 2.5, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(52, 211, 153, " + (0.5 + blink * 0.5).toFixed(2) + ")";
+      ctx.arc(hp.x, hp.y, blinkOn ? 3.4 : 2.2, 0, Math.PI * 2);
+      ctx.fillStyle = blinkOn ? "rgba(239, 68, 68, 0.95)" : "rgba(239, 68, 68, 0.35)";
       ctx.fill();
 
-      // Glow
-      ctx.beginPath();
-      ctx.arc(hp.x, hp.y, 5, 0, Math.PI * 2);
-      var hg = ctx.createRadialGradient(hp.x, hp.y, 0, hp.x, hp.y, 5);
-      hg.addColorStop(0, "rgba(52, 211, 153, " + (0.2 + blink * 0.2).toFixed(2) + ")");
-      hg.addColorStop(1, "transparent");
-      ctx.fillStyle = hg;
-      ctx.fill();
+      if (blinkOn) {
+        ctx.beginPath();
+        ctx.arc(hp.x, hp.y, 8, 0, Math.PI * 2);
+        var hg = ctx.createRadialGradient(hp.x, hp.y, 0, hp.x, hp.y, 8);
+        hg.addColorStop(0, "rgba(239, 68, 68, 0.45)");
+        hg.addColorStop(1, "transparent");
+        ctx.fillStyle = hg;
+        ctx.fill();
+      }
     }
 
     // Rotating scan sweep
