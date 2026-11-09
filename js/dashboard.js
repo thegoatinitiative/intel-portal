@@ -22,6 +22,7 @@
       var adminTab = document.getElementById("admin-tab");
       if (adminTab) adminTab.hidden = false;
     }
+    updateGlobeMarkers();
   });
 
   const session = getSession();
@@ -125,19 +126,80 @@
     return key ? COUNTRY_POINTS[key] : null;
   }
 
+  var globePick = null;
+
+  function closeGlobeChoices() {
+    if (globePick && globePick.parentNode) globePick.parentNode.removeChild(globePick);
+    globePick = null;
+  }
+
+  function showGlobeChoices(ids, x, y) {
+    closeGlobeChoices();
+    var reports = [];
+    (ids || []).forEach(function (id) {
+      var report = REPORTS.find(function (r) { return r.id === id; });
+      if (!report) return;
+      if (!currentUserIsAdmin && report.classification === "top-secret") return;
+      reports.push(report);
+    });
+    if (!reports.length) return;
+    if (reports.length === 1) {
+      openReport(reports[0].id);
+      return;
+    }
+    var box = document.createElement("div");
+    box.className = "globe-pick";
+    var title = document.createElement("p");
+    var origin = countryPoint(reports[0].nationality);
+    var sameCountry = origin && reports.every(function (r) {
+      var pt = countryPoint(r.nationality);
+      return pt && pt[0] === origin[0] && pt[1] === origin[1];
+    });
+    title.textContent = sameCountry && reports[0].nationality ? reports[0].nationality : "Choose a report";
+    box.appendChild(title);
+    reports.forEach(function (report) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      var name = document.createElement("strong");
+      name.textContent = report.subjectName || report.id;
+      var sub = document.createElement("span");
+      sub.textContent = (report.date ? report.date + " \u2014 " : "") + (report.nationality || "");
+      btn.appendChild(name);
+      btn.appendChild(sub);
+      btn.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        closeGlobeChoices();
+        openReport(report.id);
+      });
+      box.appendChild(btn);
+    });
+    document.body.appendChild(box);
+    var left = Math.max(8, Math.min(x + 10, window.innerWidth - box.offsetWidth - 8));
+    var top = Math.max(8, Math.min(y + 10, window.innerHeight - box.offsetHeight - 8));
+    box.style.left = left + "px";
+    box.style.top = top + "px";
+    globePick = box;
+  }
+
   function updateGlobeMarkers() {
-    if (!window.GoatGlobe) return;
+    if (!window.GoatGlobe || typeof COUNTRY_POINTS === "undefined") return;
+    closeGlobeChoices();
     var list = [];
     REPORTS.forEach(function (r) {
+      if (!currentUserIsAdmin && r.classification === "top-secret") return;
       var pt = countryPoint(r.nationality);
       if (!pt || !r.id) return;
       list.push({ id: r.id, lat: pt[0], lng: pt[1] });
     });
     GoatGlobe.setMarkers(list);
-    GoatGlobe.onSelect(function (id) { openReport(id); });
+    GoatGlobe.onSelect(showGlobeChoices);
   }
 
   updateGlobeMarkers();
+  document.addEventListener("click", closeGlobeChoices);
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Escape") closeGlobeChoices();
+  });
 
   // ---- Check which reports have intel assessments ----
   var reportsWithAssessment = {};

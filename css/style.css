@@ -611,6 +611,56 @@ a.btn-logout:hover {
   aspect-ratio: 1 / 1;
 }
 
+.globe-pick {
+  position: fixed;
+  z-index: 80;
+  min-width: 220px;
+  max-width: 320px;
+  padding: 0.35rem;
+  background: var(--bg-card-elevated);
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 8px;
+  box-shadow: var(--shadow-elevated);
+}
+
+.globe-pick p {
+  margin: 0;
+  padding: 0.35rem 0.55rem 0.2rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f87171;
+}
+
+.globe-pick button {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.45rem 0.55rem;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.88rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.globe-pick button strong,
+.globe-pick button span {
+  display: block;
+}
+
+.globe-pick button span {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.globe-pick button:hover {
+  background: var(--bg-hover);
+}
+
 .globe-hud-top,
 .globe-hud-bottom {
   display: flex;

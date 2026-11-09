@@ -15,7 +15,7 @@
   var DPR = window.devicePixelRatio || 1;
   var markers = [];
   var onSelect = null;
-  var HIT_RADIUS = 14;
+  var HIT_RADIUS = 16;
 
   var earthImg = new Image();
   var earthPixels = null;
@@ -146,74 +146,82 @@
     ctx.drawImage(off, 0, 0);
   }
 
-  // Reports from the same country share one coordinate. Fan them a few
-  // pixels apart so each dot stays on that country and has its own click.
-  function placedMarkers() {
+  // One dot per country. Every report from that country stays on the dot.
+  function visualPoints() {
     var groups = {};
     var order = [];
     for (var i = 0; i < markers.length; i++) {
       var m = markers[i];
       var key = m.lat.toFixed(3) + "," + m.lng.toFixed(3);
       if (!groups[key]) {
-        groups[key] = [];
+        groups[key] = { lat: m.lat, lng: m.lng, ids: [] };
         order.push(key);
       }
-      groups[key].push(m);
+      if (groups[key].ids.indexOf(m.id) === -1) groups[key].ids.push(m.id);
     }
     var out = [];
     for (var g = 0; g < order.length; g++) {
-      var list = groups[order[g]].slice().sort(function (a, b) {
-        return String(a.id).localeCompare(String(b.id));
-      });
-      for (var j = 0; j < list.length; j++) {
-        var p = project(list[j].lat, list[j].lng);
-        var x = p.x;
-        var y = p.y;
-        if (p.visible && list.length > 1) {
-          var ang = (j / list.length) * Math.PI * 2 - Math.PI / 2;
-          x += Math.cos(ang) * 16;
-          y += Math.sin(ang) * 16;
-        }
-        out.push({ id: list[j].id, x: x, y: y, visible: p.visible });
-      }
+      var group = groups[order[g]];
+      group.ids.sort();
+      var p = project(group.lat, group.lng);
+      out.push({ x: p.x, y: p.y, visible: p.visible, ids: group.ids });
     }
     return out;
   }
 
-  function hitMarker(x, y) {
-    var pts = placedMarkers();
-    var best = null;
-    var bestD = HIT_RADIUS;
+  function hitMarkers(x, y) {
+    var pts = visualPoints();
+    var nearest = null;
+    var nearestD = HIT_RADIUS;
     for (var i = 0; i < pts.length; i++) {
-      if (!pts[i].visible || !pts[i].id) continue;
+      if (!pts[i].visible || !pts[i].ids.length) continue;
       var dx = pts[i].x - x;
       var dy = pts[i].y - y;
       var d = Math.sqrt(dx * dx + dy * dy);
-      if (d <= bestD) {
-        bestD = d;
-        best = pts[i];
+      if (d <= nearestD) {
+        nearestD = d;
+        nearest = pts[i];
       }
     }
-    return best;
+    if (!nearest) return [];
+    var ids = nearest.ids.slice();
+    for (var j = 0; j < pts.length; j++) {
+      if (pts[j] === nearest || !pts[j].visible) continue;
+      var ox = pts[j].x - nearest.x;
+      var oy = pts[j].y - nearest.y;
+      // Countries that draw on top of each other open together.
+      if (Math.sqrt(ox * ox + oy * oy) > 18) continue;
+      for (var k = 0; k < pts[j].ids.length; k++) {
+        if (ids.indexOf(pts[j].ids[k]) === -1) ids.push(pts[j].ids[k]);
+      }
+    }
+    return ids;
   }
 
   function drawMarkers(time) {
-    var pts = placedMarkers();
+    var pts = visualPoints();
     for (var hi = 0; hi < pts.length; hi++) {
       if (!pts[hi].visible) continue;
       var blinkOn = Math.sin(time * 0.008 + hi * 1.2) > 0.2;
       var pingPhase = (time * 0.0012 + hi * 0.55) % 1.6;
       if (pingPhase < 1) {
         ctx.beginPath();
-        ctx.arc(pts[hi].x, pts[hi].y, 3 + pingPhase * 14, 0, Math.PI * 2);
+        ctx.arc(pts[hi].x, pts[hi].y, 3 + pingPhase * 9, 0, Math.PI * 2);
         ctx.strokeStyle = "rgba(248, 113, 113, " + (0.7 * (1 - pingPhase)).toFixed(2) + ")";
         ctx.lineWidth = 1.25;
         ctx.stroke();
       }
       ctx.beginPath();
-      ctx.arc(pts[hi].x, pts[hi].y, blinkOn ? 3.6 : 2.4, 0, Math.PI * 2);
-      ctx.fillStyle = blinkOn ? "rgba(239, 68, 68, 1)" : "rgba(239, 68, 68, 0.4)";
+      ctx.arc(pts[hi].x, pts[hi].y, blinkOn ? 4.2 : 3.2, 0, Math.PI * 2);
+      ctx.fillStyle = blinkOn ? "rgba(239, 68, 68, 1)" : "rgba(239, 68, 68, 0.55)";
       ctx.fill();
+      if (pts[hi].ids.length > 1) {
+        ctx.font = "600 11px sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "rgba(254, 226, 226, 0.95)";
+        ctx.fillText(String(pts[hi].ids.length), pts[hi].x + 8, pts[hi].y);
+      }
     }
   }
 
@@ -244,13 +252,15 @@
 
   canvas.addEventListener("mousemove", function (ev) {
     var pt = eventPoint(ev);
-    canvas.style.cursor = hitMarker(pt.x, pt.y) ? "pointer" : "default";
+    canvas.style.cursor = hitMarkers(pt.x, pt.y).length ? "pointer" : "default";
   });
 
   canvas.addEventListener("click", function (ev) {
     var pt = eventPoint(ev);
-    var hit = hitMarker(pt.x, pt.y);
-    if (hit && onSelect) onSelect(hit.id);
+    var ids = hitMarkers(pt.x, pt.y);
+    if (!onSelect) return;
+    if (ids.length) ev.stopPropagation();
+    onSelect(ids, ev.clientX, ev.clientY);
   });
 
   window.GoatGlobe = {
