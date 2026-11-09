@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Intel Portal — Dashboard</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=32">
+  <link rel="stylesheet" href="css/style.css?v=33">
   <!-- All CDN resources loaded async after page renders -->
   <script>
     // Load external libs without blocking page paint
@@ -69,6 +69,16 @@
         <select id="country-filter" class="search-input" style="margin-top:0.5rem;">
           <option value="">All Countries</option>
         </select>
+      </div>
+      <div class="source-note source-note-side">
+        <h2>What these reports are</h2>
+        <p>These are write-ups of information The GOAT Initiative collected. Each report comes from one of three places.</p>
+        <ul>
+          <li><strong>Found in person.</strong> Papers, passports, and other items TGI recovered.</li>
+          <li><strong>Found on a phone.</strong> Photos, messages, and files from a phone TGI found.</li>
+          <li><strong>Found in a chat.</strong> TGI is part of those conversations and writes down what people say there.</li>
+        </ul>
+        <p>Choose a report from the list to read it.</p>
       </div>
       <ul id="report-list" class="report-list">
         <!-- Populated by JS -->
@@ -167,8 +177,16 @@
             <span class="hud-item hud-mono" id="hud-clock"></span>
           </div>
         </div>
-        <h2>Select a Report</h2>
-        <p>Choose an intelligence report from the sidebar to view its contents.</p>
+        <div class="source-note">
+          <h2>What these reports are</h2>
+          <p>These are write-ups of information The GOAT Initiative collected. Each report comes from one of three places.</p>
+          <ul>
+            <li><strong>Found in person.</strong> Papers, passports, and other items TGI recovered.</li>
+            <li><strong>Found on a phone.</strong> Photos, messages, and files from a phone TGI found.</li>
+            <li><strong>Found in a chat.</strong> TGI is part of those conversations and writes down what people say there.</li>
+          </ul>
+          <p>Choose a report from the list to read it.</p>
+        </div>
       </div>
       <div id="report-content" class="report-content" hidden>
         <div class="report-actions" id="report-actions"></div>
