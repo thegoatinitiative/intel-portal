@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Intel Portal — Dashboard</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=33">
+  <link rel="stylesheet" href="css/style.css?v=34">
   <!-- All CDN resources loaded async after page renders -->
   <script>
     // Load external libs without blocking page paint
@@ -72,13 +72,20 @@
       </div>
       <div class="source-note source-note-side">
         <h2>What these reports are</h2>
-        <p>These are write-ups of information The GOAT Initiative collected. Each report comes from one of three places.</p>
-        <ul>
-          <li><strong>Found in person.</strong> Papers, passports, and other items TGI recovered.</li>
-          <li><strong>Found on a phone.</strong> Photos, messages, and files from a phone TGI found.</li>
-          <li><strong>Found in a chat.</strong> TGI is part of those conversations and writes down what people say there.</li>
-        </ul>
-        <p>Choose a report from the list to read it.</p>
+        <div class="source-grid">
+          <div>
+            <strong>Found in person</strong>
+            <span>Papers, passports, and other items TGI recovered.</span>
+          </div>
+          <div>
+            <strong>Found on a phone</strong>
+            <span>Photos, messages, and files from a phone TGI found.</span>
+          </div>
+          <div>
+            <strong>Found in a chat</strong>
+            <span>Conversations TGI is part of, and what people say there.</span>
+          </div>
+        </div>
       </div>
       <ul id="report-list" class="report-list">
         <!-- Populated by JS -->
@@ -179,13 +186,21 @@
         </div>
         <div class="source-note">
           <h2>What these reports are</h2>
-          <p>These are write-ups of information The GOAT Initiative collected. Each report comes from one of three places.</p>
-          <ul>
-            <li><strong>Found in person.</strong> Papers, passports, and other items TGI recovered.</li>
-            <li><strong>Found on a phone.</strong> Photos, messages, and files from a phone TGI found.</li>
-            <li><strong>Found in a chat.</strong> TGI is part of those conversations and writes down what people say there.</li>
-          </ul>
-          <p>Choose a report from the list to read it.</p>
+          <p>Write-ups of information The GOAT Initiative collected.</p>
+          <div class="source-grid">
+            <div>
+              <strong>Found in person</strong>
+              <span>Papers, passports, and other items TGI recovered.</span>
+            </div>
+            <div>
+              <strong>Found on a phone</strong>
+              <span>Photos, messages, and files from a phone TGI found.</span>
+            </div>
+            <div>
+              <strong>Found in a chat</strong>
+              <span>Conversations TGI is part of, and what people say there.</span>
+            </div>
+          </div>
         </div>
       </div>
       <div id="report-content" class="report-content" hidden>

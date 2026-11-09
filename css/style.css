@@ -472,65 +472,75 @@ a.btn-logout:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   height: auto;
   min-height: 100%;
-  padding: 1.25rem 1.5rem 2.5rem;
+  padding: 1.5rem 2.5rem;
   box-sizing: border-box;
   color: var(--text-muted);
   text-align: center;
 }
 
 .report-placeholder #globe-canvas {
-  max-width: 260px;
+  max-width: 300px;
 }
 
 .report-placeholder .globe-wrapper {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.25rem;
 }
 
 .source-note {
   width: 100%;
-  max-width: 38rem;
-  margin: 0.25rem auto 0;
-  padding: 1rem 1.2rem 0.85rem;
-  text-align: left;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  max-width: 52rem;
+  margin: 0.35rem auto 0;
+  padding: 0;
+  text-align: center;
+  background: none;
+  border: none;
   color: var(--text-secondary);
 }
 
 .source-note h2 {
-  margin: 0 0 0.4rem;
-  font-size: 1.05rem;
-  font-weight: 650;
-  text-align: left;
+  margin: 0 0 0.3rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-align: center;
   color: var(--text-primary);
 }
 
 .source-note p {
-  margin: 0 0 0.65rem;
-  font-size: 0.92rem;
-  line-height: 1.45;
-  color: var(--text-secondary);
-}
-
-.source-note ul {
-  margin: 0 0 0.7rem;
-  padding-left: 1.15rem;
-}
-
-.source-note li {
-  margin: 0.4rem 0;
-  font-size: 0.9rem;
+  margin: 0 0 1.15rem;
+  font-size: 0.95rem;
   line-height: 1.4;
   color: var(--text-secondary);
 }
 
-.source-note strong {
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem 2.25rem;
+}
+
+.source-grid div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.source-grid strong {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--text-primary);
-  font-weight: 650;
+}
+
+.source-grid span {
+  max-width: 16rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
 }
 
 .source-note-side {
@@ -538,9 +548,37 @@ a.btn-logout:hover {
   flex-shrink: 0;
   max-width: none;
   margin: 0;
-  border-radius: 0;
-  border-left: none;
-  border-right: none;
+  padding: 0.75rem 1.1rem 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.source-note-side h2 {
+  margin-bottom: 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.source-note-side .source-grid {
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+
+.source-note-side .source-grid div {
+  align-items: flex-start;
+  gap: 0.12rem;
+}
+
+.source-note-side .source-grid strong {
+  letter-spacing: 0.06em;
+}
+
+.source-note-side .source-grid span {
+  max-width: none;
+  font-size: 0.78rem;
 }
 
 .placeholder-icon {
@@ -621,17 +659,17 @@ a.btn-logout:hover {
 }
 
 .report-placeholder .source-note h2 {
-  margin: 0 0 0.4rem;
-  font-size: 1.05rem;
-  font-weight: 650;
-  text-align: left;
+  margin: 0 0 0.3rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-align: center;
   color: var(--text-primary);
 }
 
-.report-placeholder .source-note p,
-.report-placeholder .source-note li {
-  font-size: 0.92rem;
-  line-height: 1.45;
+.report-placeholder .source-note p {
+  margin: 0 0 1.15rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
   color: var(--text-secondary);
 }
 
@@ -1974,18 +2012,8 @@ a.btn-logout:hover {
     font-size: 0.4rem;
   }
 
-  .source-note-side {
-    display: block;
-    padding: 0.75rem 1rem 0.65rem;
-  }
-
-  .source-note-side h2 {
-    font-size: 0.9rem;
-  }
-
-  .source-note-side p,
-  .source-note-side li {
-    font-size: 0.78rem;
+  .source-note-side .source-grid span {
+    font-size: 0.74rem;
   }
 
   .report-placeholder h2 {
