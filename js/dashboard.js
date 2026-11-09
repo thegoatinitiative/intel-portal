@@ -409,17 +409,6 @@
       actionsDiv.appendChild(editBtn);
     }
 
-    const isMobile = window.innerWidth <= 768;
-
-    if (!isMobile) {
-      const printBtn = document.createElement("button");
-      printBtn.type = "button";
-      printBtn.className = "btn-action";
-      printBtn.textContent = "Print";
-      printBtn.addEventListener("click", () => { ActivityLog.log("report_export", { reportId: report.id, method: "print" }); window.print(); });
-      actionsDiv.appendChild(printBtn);
-    }
-
     if (isUserAdmin) {
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
