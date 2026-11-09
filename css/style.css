@@ -473,16 +473,17 @@ a.btn-logout:hover {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  height: auto;
-  min-height: 100%;
-  padding: 1.75rem 2rem 2.5rem;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 1rem 2rem 0.4rem;
   box-sizing: border-box;
   color: var(--text-muted);
   text-align: center;
 }
 
 .report-placeholder .globe-wrapper {
-  margin-top: 1.25rem;
+  margin-top: 0.55rem;
   margin-bottom: 0;
 }
 
@@ -604,8 +605,8 @@ a.btn-logout:hover {
 
 #globe-canvas {
   display: block;
-  width: 380px;
-  height: 380px;
+  width: 460px;
+  height: 460px;
   max-width: 100%;
   aspect-ratio: 1 / 1;
 }
@@ -616,7 +617,7 @@ a.btn-logout:hover {
   justify-content: center;
   gap: 2rem;
   width: 100%;
-  padding: 0.5rem 0;
+  padding: 0.15rem 0;
 }
 
 .hud-item {
@@ -681,7 +682,7 @@ a.btn-logout:hover {
 }
 
 .report-placeholder .source-note p {
-  margin: 0 0 1.15rem;
+  margin: 0 0 0.7rem;
   font-size: 0.95rem;
   line-height: 1.4;
   color: var(--text-secondary);

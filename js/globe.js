@@ -143,8 +143,28 @@
   ];
 
   function resize() {
-    var parentWidth = canvas.parentElement.getBoundingClientRect().width || 380;
-    SIZE = Math.max(180, Math.min(380, parentWidth));
+    var wrapper = canvas.parentElement;
+    var viewer = canvas.closest(".report-viewer");
+    var available = viewer ? viewer.clientHeight : window.innerHeight - 70;
+    var note = document.querySelector(".report-placeholder .source-note");
+    var placeholder = document.querySelector(".report-placeholder");
+    var used = 0;
+    if (note) used += note.offsetHeight;
+    var caption = wrapper.querySelector(".globe-caption");
+    var hudTop = wrapper.querySelector(".globe-hud-top");
+    var hudBottom = wrapper.querySelector(".globe-hud-bottom");
+    if (caption) used += caption.offsetHeight;
+    if (hudTop) used += hudTop.offsetHeight;
+    if (hudBottom) used += hudBottom.offsetHeight;
+    if (placeholder) {
+      var pad = getComputedStyle(placeholder);
+      used += (parseFloat(pad.paddingTop) || 0) + (parseFloat(pad.paddingBottom) || 0);
+    }
+    var wrap = getComputedStyle(wrapper);
+    used += (parseFloat(wrap.marginTop) || 0) + (parseFloat(wrap.marginBottom) || 0);
+    var parentWidth = wrapper.getBoundingClientRect().width || 500;
+    var byHeight = available - used - 6;
+    SIZE = Math.floor(Math.max(200, Math.min(500, parentWidth - 8, byHeight)));
     canvas.style.width = SIZE + "px";
     canvas.style.height = SIZE + "px";
     canvas.width = Math.round(SIZE * DPR);
@@ -152,7 +172,7 @@
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     CX = SIZE / 2;
     CY = SIZE / 2;
-    R = SIZE * 0.38;
+    R = SIZE * 0.42;
   }
 
   function project(lat, lng) {
@@ -296,5 +316,8 @@
 
   resize();
   window.addEventListener("resize", resize);
-  requestAnimationFrame(animate);
+  requestAnimationFrame(function () {
+    resize();
+    animate(performance.now());
+  });
 })();
