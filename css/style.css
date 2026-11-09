@@ -280,6 +280,16 @@ button, a, input, select, textarea, .report-item {
   border-color: var(--danger);
 }
 
+a.btn-logout {
+  text-decoration: none;
+  display: inline-block;
+}
+
+a.btn-logout:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 /* ---- DASHBOARD LAYOUT ---- */
 
 .dashboard-body {

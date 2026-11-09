@@ -854,6 +854,8 @@
     border: 1px solid rgba(52,211,153,0.12); border-radius: 6px;
     font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer;
   }
+  a.cap-nav-logout { text-decoration: none; display: inline-block; }
+  a.cap-nav-logout:hover { color: #34d399; border-color: #34d399; }
 
   @media (max-width: 768px) {
     .cap-nav {
@@ -1217,6 +1219,7 @@
   </div>
   <div class="cap-nav-right">
     <span id="user-display" class="cap-nav-user"></span>
+    <a href="index.html" class="cap-nav-logout">Sign in</a>
     <button id="logout-btn" class="cap-nav-logout">Logout</button>
   </div>
 </nav>
