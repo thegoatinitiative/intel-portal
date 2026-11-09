@@ -117,10 +117,43 @@
   }
 
   // ---- PDF Renderer ----
-  // Storage blocks the browser from reading the file directly. A signed-in
-  // request pulls the bytes through the site, then draws the pages.
+  // Files up to 4 MB are drawn through the site. Larger files use the stored
+  // Firebase link, which the report already loaded for this signed-in member.
 
   var attachmentByteCache = new WeakMap();
+  var MAX_PREVIEW_BYTES = 4 * 1024 * 1024;
+
+  function fileTooLarge(att) {
+    return typeof att.size === "number" && att.size > MAX_PREVIEW_BYTES;
+  }
+
+  function portalFileUrl(raw) {
+    try {
+      var url = new URL(raw);
+      if (url.protocol !== "https:" || url.username || url.password) return "";
+      if (url.hostname !== "firebasestorage.googleapis.com") return "";
+      var path = url.pathname;
+      if (path.indexOf("/v0/b/intel-portal-9578e.firebasestorage.app/o/") !== 0 &&
+          path.indexOf("/v0/b/intel-portal-9578e.appspot.com/o/") !== 0) return "";
+      if (url.searchParams.get("alt") !== "media") return "";
+      return url.toString();
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function openStoredFile(att) {
+    var link = portalFileUrl(att.storageUrl || "");
+    if (!link) return false;
+    var a = document.createElement("a");
+    a.href = link;
+    a.target = "_blank";
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    return true;
+  }
 
   function bytesFromDataUrl(source) {
     var comma = source.indexOf(",");
@@ -177,6 +210,7 @@
       },
       body: JSON.stringify(payload),
     });
+    if (response.status === 413) throw new Error("large");
     if (!response.ok) throw new Error("file " + response.status);
     return new Uint8Array(await response.arrayBuffer());
   }
@@ -228,6 +262,13 @@
   }
 
   async function renderPDFPages(att, container) {
+    if (fileTooLarge(att)) {
+      var largeNote = document.createElement("div");
+      largeNote.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);";
+      largeNote.textContent = "This file is too large to show on the page. Use Download.";
+      container.appendChild(largeNote);
+      return;
+    }
     const loading = document.createElement("div");
     loading.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);font-size:0.9rem;";
     loading.textContent = "Loading PDF...";
@@ -245,7 +286,9 @@
       if (loading.parentNode) loading.parentNode.removeChild(loading);
       var fallbackMsg = document.createElement("div");
       fallbackMsg.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);";
-      fallbackMsg.textContent = "This PDF could not be loaded.";
+      fallbackMsg.textContent = e && e.message === "large"
+        ? "This file is too large to show on the page. Use Download."
+        : "This PDF could not be loaded.";
       container.appendChild(fallbackMsg);
     }
   }
@@ -509,6 +552,10 @@
         downloadBtn.textContent = "Download";
         downloadBtn.style.cssText = "margin-left:auto;padding:0.25rem 0.7rem;font-size:0.65rem;flex-shrink:0;";
         downloadBtn.addEventListener("click", function () {
+          if (fileTooLarge(att)) {
+            if (!openStoredFile(att)) alert("Unable to download file. The file may have been deleted.");
+            return;
+          }
           loadAttachmentBytes(att).then(function (bytes) {
             var blob = new Blob([bytes], { type: att.type || "application/pdf" });
             var url = URL.createObjectURL(blob);
@@ -519,7 +566,7 @@
             a.click();
             document.body.removeChild(a);
           }).catch(function () {
-            alert("Unable to download file. The file may have been deleted.");
+            if (!openStoredFile(att)) alert("Unable to download file. The file may have been deleted.");
           });
         });
 
