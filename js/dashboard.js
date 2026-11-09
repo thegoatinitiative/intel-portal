@@ -225,62 +225,81 @@
     container.appendChild(frame);
   }
 
-  async function openPdfDocument(bytes) {
+  async function openPdfDocument(source) {
     if (window.pdfjsReady) await window.pdfjsReady;
     if (!window.pdfjsLib) throw new Error("pdfjs");
+    var options = { maxImageSize: -1 };
+    if (source.url) {
+      options.url = source.url;
+      options.withCredentials = false;
+    } else {
+      options.data = source.data.slice(0);
+    }
     try {
-      return await window.pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
+      return await window.pdfjsLib.getDocument(options).promise;
     } catch (e) {
-      return await window.pdfjsLib.getDocument({ data: bytes.slice(0), disableWorker: true }).promise;
+      if (source.url) throw e;
+      return await window.pdfjsLib.getDocument({ data: source.data.slice(0), disableWorker: true, maxImageSize: -1 }).promise;
     }
   }
 
-  async function drawPdfPages(bytes, container) {
-    var pdf = await openPdfDocument(bytes);
+  async function drawPdfPages(pdf, container) {
     var total = pdf.numPages;
-    var maxPages = Math.min(total, 20);
     var width = container.clientWidth || 900;
-    for (var num = 1; num <= maxPages; num++) {
-      var page = await pdf.getPage(num);
-      var base = page.getViewport({ scale: 1 });
-      var scale = Math.min(2, Math.max(1, width / base.width));
-      var viewport = page.getViewport({ scale: scale });
-      var canvas = document.createElement("canvas");
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      canvas.style.cssText = "width:100%;height:auto;display:block;background:#fff;";
-      var ctx = canvas.getContext("2d");
-      await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-      container.appendChild(canvas);
-    }
-    if (total > maxPages) {
-      var note = document.createElement("div");
-      note.style.cssText = "padding:0.75rem;text-align:center;color:var(--text-muted);font-size:0.8rem;";
-      note.textContent = "Showing " + maxPages + " of " + total + " pages. Use Download for the full file.";
-      container.appendChild(note);
+    for (var num = 1; num <= total; num++) {
+      try {
+        var page = await pdf.getPage(num);
+        var base = page.getViewport({ scale: 1 });
+        var scale = Math.min(2, width / base.width);
+        if (base.width * scale > 2000) scale = 2000 / base.width;
+        if (base.height * scale > 2400) scale = 2400 / base.height;
+        if (!(scale > 0)) scale = 1;
+        var viewport = page.getViewport({ scale: scale });
+        var canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.floor(viewport.width));
+        canvas.height = Math.max(1, Math.floor(viewport.height));
+        canvas.style.cssText = "width:100%;height:auto;display:block;background:#fff;";
+        var ctx = canvas.getContext("2d");
+        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+        container.appendChild(canvas);
+      } catch (err) {
+        var missed = document.createElement("div");
+        missed.style.cssText = "padding:0.75rem;text-align:center;color:var(--text-muted);font-size:0.8rem;";
+        missed.textContent = "Page " + num + " could not be drawn.";
+        container.appendChild(missed);
+      }
     }
   }
 
   async function renderPDFPages(att, container) {
-    if (fileTooLarge(att)) {
-      var largeNote = document.createElement("div");
-      largeNote.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);";
-      largeNote.textContent = "This file is too large to show on the page. Use Download.";
-      container.appendChild(largeNote);
-      return;
-    }
     const loading = document.createElement("div");
     loading.style.cssText = "padding:2rem;text-align:center;color:var(--text-muted);font-size:0.9rem;";
     loading.textContent = "Loading PDF...";
     container.appendChild(loading);
 
     try {
-      var pdfData = await loadAttachmentBytes(att);
+      var pdf = null;
+      var pdfData = null;
+      var link = portalFileUrl(att.storageUrl || "");
+      if (fileTooLarge(att)) {
+        if (!link) throw new Error("large");
+        pdf = await openPdfDocument({ url: link });
+      } else {
+        try {
+          pdfData = await loadAttachmentBytes(att);
+          pdf = await openPdfDocument({ data: pdfData });
+        } catch (err) {
+          if (!link) throw err;
+          pdf = await openPdfDocument({ url: link });
+          pdfData = null;
+        }
+      }
       if (loading.parentNode) loading.parentNode.removeChild(loading);
       try {
-        await drawPdfPages(pdfData, container);
+        await drawPdfPages(pdf, container);
       } catch (err) {
-        showPdfBlob(pdfData, container);
+        if (pdfData) showPdfBlob(pdfData, container);
+        else throw err;
       }
     } catch (e) {
       if (loading.parentNode) loading.parentNode.removeChild(loading);
