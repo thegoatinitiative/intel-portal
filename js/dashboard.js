@@ -63,14 +63,81 @@
       REPORTS.push(...saved);
       console.log("Loaded " + saved.length + " report(s) from storage.");
     }
-    updateGlobeMarkers();
   } catch (e) {
     console.error("Failed to load from Firestore:", e);
   }
 
-  function updateGlobeMarkers() {
-    if (window.GoatGlobe) GoatGlobe.setMarkers(REPORTS);
+  // Country centers. Dots use the report nationality, not the place it was found.
+  var COUNTRY_POINTS = {
+    afghanistan: [33.9, 66.0],
+    chad: [15.4, 18.7],
+    china: [35.9, 104.2],
+    cuba: [21.5, -79.5],
+    ethiopia: [9.1, 40.5],
+    georgia: [42.3, 43.4],
+    iran: [32.4, 53.7],
+    jordan: [31.2, 36.5],
+    mauritania: [20.3, -10.9],
+    somalia: [6.0, 46.2],
+    togo: [8.6, 1.0],
+    turkey: [39.0, 35.2],
+    uzbekistan: [41.4, 64.6],
+    venezuela: [7.1, -66.2],
+    "western sahara": [24.2, -13.0]
+  };
+  var COUNTRY_ALIASES = {
+    afghanistan: "afghanistan", afganistan: "afghanistan", afghan: "afghanistan", afg: "afghanistan",
+    chad: "chad", chadian: "chad", tchad: "chad", tchadienne: "chad", tchadien: "chad", tcd: "chad",
+    china: "china", chinese: "china", prc: "china", chn: "china",
+    cuba: "cuba", cuban: "cuba", cub: "cuba",
+    ethiopia: "ethiopia", ethiopian: "ethiopia", eth: "ethiopia",
+    georgia: "georgia", georgian: "georgia", geo: "georgia",
+    iran: "iran", iranian: "iran", irn: "iran",
+    jordan: "jordan", jordanian: "jordan", jor: "jordan",
+    mauritania: "mauritania", mauritanian: "mauritania", mauritanienne: "mauritania", mrt: "mauritania",
+    somalia: "somalia", somali: "somalia", som: "somalia",
+    togo: "togo", togolaise: "togo", togolese: "togo", tgo: "togo",
+    turkey: "turkey", turkish: "turkey", turkiye: "turkey", tur: "turkey",
+    uzbekistan: "uzbekistan", uzbek: "uzbekistan", uzbeka: "uzbekistan", uzb: "uzbekistan",
+    venezuela: "venezuela", venezuelan: "venezuela", venezolano: "venezuela", venezolana: "venezuela", ven: "venezuela",
+    sahrawi: "western sahara", sadr: "western sahara", "sahrawi arab democratic republic": "western sahara",
+    "western sahara": "western sahara"
+  };
+
+  function countryPoint(nationality) {
+    if (nationality == null) return null;
+    var s = String(nationality).trim().toLowerCase();
+    if (!s) return null;
+    try { s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) { /* keep raw */ }
+    s = s.split("(")[0].split("\u2014")[0].split("\u2013")[0].split(",")[0];
+    s = s.replace(/[^a-z\s]/g, " ").replace(/\s+/g, " ").trim();
+    if (!s || s === "unknown" || s === "pending" || s === "undetermined" || s === "n a" || s === "none") return null;
+    var key = COUNTRY_ALIASES[s];
+    if (!key) {
+      var words = s.split(" ");
+      for (var i = 0; i < words.length; i++) {
+        if (COUNTRY_ALIASES[words[i]]) {
+          key = COUNTRY_ALIASES[words[i]];
+          break;
+        }
+      }
+    }
+    return key ? COUNTRY_POINTS[key] : null;
   }
+
+  function updateGlobeMarkers() {
+    if (!window.GoatGlobe) return;
+    var list = [];
+    REPORTS.forEach(function (r) {
+      var pt = countryPoint(r.nationality);
+      if (!pt || !r.id) return;
+      list.push({ id: r.id, lat: pt[0], lng: pt[1] });
+    });
+    GoatGlobe.setMarkers(list);
+    GoatGlobe.onSelect(function (id) { openReport(id); });
+  }
+
+  updateGlobeMarkers();
 
   // ---- Check which reports have intel assessments ----
   var reportsWithAssessment = {};

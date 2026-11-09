@@ -1,6 +1,6 @@
 /**
  * globe.js — Satellite globe for the Intel Portal landing view.
- * The sphere is a Blue Marble image. Red points come from report locations.
+ * The sphere is a Blue Marble image. Red points are supplied by the dashboard.
  */
 (function () {
   "use strict";
@@ -14,6 +14,8 @@
   var tilt = 0.35;
   var DPR = window.devicePixelRatio || 1;
   var markers = [];
+  var onSelect = null;
+  var HIT_RADIUS = 14;
 
   var earthImg = new Image();
   var earthPixels = null;
@@ -144,21 +146,72 @@
     ctx.drawImage(off, 0, 0);
   }
 
+  // Reports from the same country share one coordinate. Fan them a few
+  // pixels apart so each dot stays on that country and has its own click.
+  function placedMarkers() {
+    var groups = {};
+    var order = [];
+    for (var i = 0; i < markers.length; i++) {
+      var m = markers[i];
+      var key = m.lat.toFixed(3) + "," + m.lng.toFixed(3);
+      if (!groups[key]) {
+        groups[key] = [];
+        order.push(key);
+      }
+      groups[key].push(m);
+    }
+    var out = [];
+    for (var g = 0; g < order.length; g++) {
+      var list = groups[order[g]].slice().sort(function (a, b) {
+        return String(a.id).localeCompare(String(b.id));
+      });
+      for (var j = 0; j < list.length; j++) {
+        var p = project(list[j].lat, list[j].lng);
+        var x = p.x;
+        var y = p.y;
+        if (p.visible && list.length > 1) {
+          var ang = (j / list.length) * Math.PI * 2 - Math.PI / 2;
+          x += Math.cos(ang) * 16;
+          y += Math.sin(ang) * 16;
+        }
+        out.push({ id: list[j].id, x: x, y: y, visible: p.visible });
+      }
+    }
+    return out;
+  }
+
+  function hitMarker(x, y) {
+    var pts = placedMarkers();
+    var best = null;
+    var bestD = HIT_RADIUS;
+    for (var i = 0; i < pts.length; i++) {
+      if (!pts[i].visible || !pts[i].id) continue;
+      var dx = pts[i].x - x;
+      var dy = pts[i].y - y;
+      var d = Math.sqrt(dx * dx + dy * dy);
+      if (d <= bestD) {
+        bestD = d;
+        best = pts[i];
+      }
+    }
+    return best;
+  }
+
   function drawMarkers(time) {
-    for (var hi = 0; hi < markers.length; hi++) {
-      var hp = project(markers[hi].lat, markers[hi].lng);
-      if (!hp.visible) continue;
+    var pts = placedMarkers();
+    for (var hi = 0; hi < pts.length; hi++) {
+      if (!pts[hi].visible) continue;
       var blinkOn = Math.sin(time * 0.008 + hi * 1.2) > 0.2;
       var pingPhase = (time * 0.0012 + hi * 0.55) % 1.6;
       if (pingPhase < 1) {
         ctx.beginPath();
-        ctx.arc(hp.x, hp.y, 3 + pingPhase * 14, 0, Math.PI * 2);
+        ctx.arc(pts[hi].x, pts[hi].y, 3 + pingPhase * 14, 0, Math.PI * 2);
         ctx.strokeStyle = "rgba(248, 113, 113, " + (0.7 * (1 - pingPhase)).toFixed(2) + ")";
         ctx.lineWidth = 1.25;
         ctx.stroke();
       }
       ctx.beginPath();
-      ctx.arc(hp.x, hp.y, blinkOn ? 3.6 : 2.4, 0, Math.PI * 2);
+      ctx.arc(pts[hi].x, pts[hi].y, blinkOn ? 3.6 : 2.4, 0, Math.PI * 2);
       ctx.fillStyle = blinkOn ? "rgba(239, 68, 68, 1)" : "rgba(239, 68, 68, 0.4)";
       ctx.fill();
     }
@@ -181,20 +234,43 @@
     requestAnimationFrame(animate);
   }
 
+  function eventPoint(ev) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: (ev.clientX - rect.left) * (SIZE / rect.width),
+      y: (ev.clientY - rect.top) * (SIZE / rect.height)
+    };
+  }
+
+  canvas.addEventListener("mousemove", function (ev) {
+    var pt = eventPoint(ev);
+    canvas.style.cursor = hitMarker(pt.x, pt.y) ? "pointer" : "default";
+  });
+
+  canvas.addEventListener("click", function (ev) {
+    var pt = eventPoint(ev);
+    var hit = hitMarker(pt.x, pt.y);
+    if (hit && onSelect) onSelect(hit.id);
+  });
+
   window.GoatGlobe = {
     setMarkers: function (list) {
       var next = [];
       if (list) {
         for (var i = 0; i < list.length; i++) {
+          if (!list[i] || list[i].id == null || list[i].id === "") continue;
           if (list[i].lat == null || list[i].lng == null || list[i].lat === "" || list[i].lng === "") continue;
           var lat = Number(list[i].lat);
           var lng = Number(list[i].lng);
           if (!isFinite(lat) || !isFinite(lng)) continue;
           if (Math.abs(lat) > 90 || Math.abs(lng) > 180) continue;
-          next.push({ lat: lat, lng: lng });
+          next.push({ id: String(list[i].id), lat: lat, lng: lng });
         }
       }
       markers = next;
+    },
+    onSelect: function (fn) {
+      onSelect = typeof fn === "function" ? fn : null;
     }
   };
 
