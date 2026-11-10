@@ -4,7 +4,7 @@
 <script>
 (function () {
   var id = (location.hash || "").replace(/^#/, "");
-  var ok = { overview: 1, collection: 1, threats: 1, network: 1, proof: 1, partner: 1 };
+  var ok = { overview: 1, collection: 1, threats: 1, network: 1, partner: 1 };
   document.documentElement.dataset.brief = ok[id] ? id : "overview";
 })();
 </script>
@@ -1156,18 +1156,17 @@
   html[data-brief="collection"] .brief-panel[data-tab="collection"],
   html[data-brief="threats"] .brief-panel[data-tab="threats"],
   html[data-brief="network"] .brief-panel[data-tab="network"],
-  html[data-brief="proof"] .brief-panel[data-tab="proof"],
   html[data-brief="partner"] .brief-panel[data-tab="partner"] {
     display: block;
   }
 
   html[data-brief="overview"] .hero.brief-panel { display: flex; }
 
-  html:not([data-brief="overview"]):not([data-brief="collection"]):not([data-brief="threats"]):not([data-brief="network"]):not([data-brief="proof"]):not([data-brief="partner"]) .brief-panel[data-tab="overview"] {
+  html:not([data-brief="overview"]):not([data-brief="collection"]):not([data-brief="threats"]):not([data-brief="network"]):not([data-brief="partner"]) .brief-panel[data-tab="overview"] {
     display: block;
   }
 
-  html:not([data-brief="overview"]):not([data-brief="collection"]):not([data-brief="threats"]):not([data-brief="network"]):not([data-brief="proof"]):not([data-brief="partner"]) .hero.brief-panel {
+  html:not([data-brief="overview"]):not([data-brief="collection"]):not([data-brief="threats"]):not([data-brief="network"]):not([data-brief="partner"]) .hero.brief-panel {
     display: flex;
   }
 
@@ -1266,7 +1265,6 @@
     <button type="button" class="brief-tab" role="tab" id="tab-collection" data-tab="collection" aria-controls="panel-record" aria-selected="false" tabindex="-1">Collection</button>
     <button type="button" class="brief-tab" role="tab" id="tab-threats" data-tab="threats" aria-controls="panel-sia" aria-selected="false" tabindex="-1">Threats</button>
     <button type="button" class="brief-tab" role="tab" id="tab-network" data-tab="network" aria-controls="panel-access" aria-selected="false" tabindex="-1">Network</button>
-    <button type="button" class="brief-tab" role="tab" id="tab-proof" data-tab="proof" aria-controls="panel-proof" aria-selected="false" tabindex="-1">Visits</button>
     <button type="button" class="brief-tab" role="tab" id="tab-partner" data-tab="partner" aria-controls="panel-partner" aria-selected="false" tabindex="-1">Partner</button>
   </div>
 </div>
@@ -1808,55 +1806,6 @@
   </div>
 </section>
 
-<!-- 09 -->
-<section class="alt-bg brief-panel" id="panel-proof" data-tab="proof" role="tabpanel" aria-labelledby="tab-proof">
-  <div class="content-wrapper" style="position:relative;">
-    <div class="section-number">09</div>
-    <div class="section-label">Site visits</div>
-    <h3>Who has been <span class="accent">on the ground</span></h3>
-
-    <p class="section-intro">
-      These people have walked TGI sites or been briefed on material recovered there. A visit is not an endorsement.
-    </p>
-
-    <div class="vip-grid">
-      <div class="vip-card">
-        <div class="vip-name">Tulsi Gabbard</div>
-        <div class="vip-title">Director of National Intelligence</div>
-        <div class="vip-desc">Walked the sites and was briefed on material recovered there.</div>
-      </div>
-      <div class="vip-card">
-        <div class="vip-name">Joe Kent</div>
-        <div class="vip-title">Director, National Counterterrorism Center</div>
-        <div class="vip-desc">Toured remote collection areas and reviewed indicators from the field.</div>
-      </div>
-      <div class="vip-card">
-        <div class="vip-name">Matt Gaetz</div>
-        <div class="vip-title">Former U.S. Representative, Florida</div>
-        <div class="vip-desc">Walked smuggling routes and looked at the infrastructure.</div>
-      </div>
-      <div class="vip-card">
-        <div class="vip-name">Sheriff Mark Lamb</div>
-        <div class="vip-title">Pinal County Sheriff, Arizona</div>
-        <div class="vip-desc">Visited during operations and compared what he saw with his own sector.</div>
-      </div>
-      <div class="vip-card">
-        <div class="vip-name">Larry Turner</div>
-        <div class="vip-title">2024 candidate for Mayor of San Diego</div>
-        <div class="vip-desc">San Diego police officer. Led a tour of active smuggling corridors.</div>
-      </div>
-      <div class="vip-card">
-        <div class="vip-name">Mayor Bill Wells</div>
-        <div class="vip-title">Mayor of El Cajon, California</div>
-        <div class="vip-desc">Toured the area and discussed the effects on El Cajon.</div>
-      </div>
-    </div>
-
-    <h4>On the record</h4>
-    <p class="section-intro">In September 2024, TGI testified before the U.S. House Judiciary Committee.</p>
-  </div>
-</section>
-
 <!-- 10 -->
 <section class="alt-bg brief-panel" id="panel-partner" data-tab="partner" role="tabpanel" aria-labelledby="tab-partner">
   <div class="content-wrapper" style="position:relative;">
@@ -2221,7 +2170,7 @@
 
 <script>
 (function () {
-  var known = { overview: 1, collection: 1, threats: 1, network: 1, proof: 1, partner: 1 };
+  var known = { overview: 1, collection: 1, threats: 1, network: 1, partner: 1 };
   var tabs = Array.prototype.slice.call(document.querySelectorAll(".brief-tab"));
   var scroller = document.querySelector(".brief-tabs");
   var wrap = document.querySelector(".brief-tabs-wrap");
