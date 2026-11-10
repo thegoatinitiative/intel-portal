@@ -66,7 +66,7 @@
     used += (parseFloat(wrap.marginTop) || 0) + (parseFloat(wrap.marginBottom) || 0);
     var parentWidth = wrapper.getBoundingClientRect().width || 500;
     var byHeight = available - used - 6;
-    SIZE = Math.floor(Math.max(200, Math.min(500, parentWidth - 8, byHeight)));
+    SIZE = Math.floor(Math.max(220, Math.min(560, parentWidth - 8, byHeight)));
     canvas.style.width = SIZE + "px";
     canvas.style.height = SIZE + "px";
     canvas.width = Math.round(SIZE * DPR);
@@ -74,7 +74,7 @@
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     CX = SIZE / 2;
     CY = SIZE / 2;
-    R = SIZE * 0.42;
+    R = Math.min(SIZE * 0.46, SIZE / 2 - 16);
     frame = null;
     frameSize = 0;
   }
