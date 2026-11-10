@@ -9,23 +9,24 @@
 }
 
 :root {
+  /* Match thegoatinitiative.org: cyan on near-black, pink as the second brand color. */
   --bg-dark: #0a0a0f;
-  --bg-panel: #0f1117;
-  --bg-card: #111318;
-  --bg-card-elevated: #161922;
-  --bg-hover: #1c1f28;
-  --border: rgba(52, 211, 153, 0.12);
-  --border-light: rgba(52, 211, 153, 0.2);
-  --accent: #34d399;
-  --accent-glow: rgba(52, 211, 153, 0.15);
-  --accent-hover: #10b981;
-  --gold: #d4a853;
-  --gold-glow: rgba(212, 168, 83, 0.1);
-  --text-primary: #e5e7eb;
+  --bg-panel: #111111;
+  --bg-card: #151519;
+  --bg-card-elevated: #1a1a24;
+  --bg-hover: #22222e;
+  --border: rgba(0, 212, 255, 0.12);
+  --border-light: rgba(0, 212, 255, 0.22);
+  --accent: #00d4ff;
+  --accent-glow: rgba(0, 212, 255, 0.15);
+  --accent-hover: #22d3ee;
+  --gold: #ff2a6d;
+  --gold-glow: rgba(255, 42, 109, 0.12);
+  --text-primary: #f3f4f6;
   --text-secondary: #9ca3af;
   --text-muted: #6b7280;
   --danger: #ef4444;
-  --success: #34d399;
+  --success: #00ff9f;
   --warning: #fbbf24;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
@@ -35,7 +36,7 @@
 
 body {
   font-family: var(--font-sans);
-  background: var(--bg-dark);
+  background: linear-gradient(135deg, #0a0a0f 0%, #111111 100%);
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
@@ -55,9 +56,9 @@ button, a, input, select, textarea, .report-item {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(52, 211, 153, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(212, 168, 83, 0.03) 0%, transparent 50%),
-    linear-gradient(180deg, #060a12 0%, #0c1220 100%);
+    radial-gradient(ellipse at 20% 50%, rgba(0, 212, 255, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(255, 42, 109, 0.04) 0%, transparent 50%),
+    linear-gradient(135deg, #0a0a0f 0%, #111111 100%);
 }
 
 .login-container {
@@ -78,7 +79,7 @@ button, a, input, select, textarea, .report-item {
 .shield-icon {
   font-size: 3.5rem;
   margin-bottom: 0.75rem;
-  filter: drop-shadow(0 0 12px rgba(52, 211, 153, 0.3));
+  filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.3));
 }
 
 .login-header h1 {
@@ -143,7 +144,7 @@ button, a, input, select, textarea, .report-item {
   width: 100%;
   padding: 0.85rem;
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-  color: #fff;
+  color: #0a0a0f;
   border: none;
   border-radius: 8px;
   font-size: 0.95rem;
@@ -152,11 +153,11 @@ button, a, input, select, textarea, .report-item {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transition: all 0.2s;
-  box-shadow: 0 4px 16px rgba(52, 211, 153, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.25);
 }
 
 .btn-login:hover {
-  box-shadow: 0 6px 24px rgba(52, 211, 153, 0.35);
+  box-shadow: 0 6px 24px rgba(0, 212, 255, 0.35);
   transform: translateY(-1px);
 }
 
@@ -214,7 +215,7 @@ button, a, input, select, textarea, .report-item {
 
 .nav-shield {
   font-size: 1.3rem;
-  filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.3));
+  filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.3));
 }
 
 .nav-title {
@@ -245,13 +246,13 @@ button, a, input, select, textarea, .report-item {
 }
 .topbar-tab:hover {
   color: var(--text-primary);
-  background: rgba(52, 211, 153, 0.08);
+  background: rgba(0, 212, 255, 0.08);
   border-color: var(--border);
 }
 .topbar-tab.active {
   color: var(--accent);
-  background: rgba(52, 211, 153, 0.12);
-  border-color: rgba(52, 211, 153, 0.25);
+  background: rgba(0, 212, 255, 0.12);
+  border-color: rgba(0, 212, 255, 0.25);
 }
 
 .topbar-right {
@@ -371,7 +372,7 @@ a.btn-logout:hover {
 .report-item.active {
   background: var(--bg-card);
   border-left-color: var(--accent);
-  box-shadow: inset 0 0 20px rgba(52, 211, 153, 0.03);
+  box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.03);
 }
 
 .report-item-passport {
@@ -419,9 +420,9 @@ a.btn-logout:hover {
 }
 
 .classification-confidential {
-  background: rgba(52, 211, 153, 0.12);
+  background: rgba(0, 212, 255, 0.12);
   color: var(--accent);
-  border: 1px solid rgba(52, 211, 153, 0.25);
+  border: 1px solid rgba(0, 212, 255, 0.25);
 }
 
 .classification-select {
@@ -448,7 +449,7 @@ a.btn-logout:hover {
 }
 
 .classification-select:focus {
-  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.3);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.3);
 }
 
 .classification-select option {
@@ -463,7 +464,7 @@ a.btn-logout:hover {
   overflow-y: auto;
   padding: 0;
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(52, 211, 153, 0.02) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 0%, rgba(0, 212, 255, 0.02) 0%, transparent 60%),
     var(--bg-dark);
   scroll-behavior: smooth;
 }
@@ -1019,7 +1020,7 @@ a.btn-logout:hover {
   width: 100%;
   padding: 0.7rem;
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-  color: #fff;
+  color: #0a0a0f;
   border: none;
   border-radius: 8px;
   font-size: 0.8rem;
@@ -1028,11 +1029,11 @@ a.btn-logout:hover {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   transition: all 0.2s;
-  box-shadow: 0 2px 12px rgba(52, 211, 153, 0.2);
+  box-shadow: 0 2px 12px rgba(0, 212, 255, 0.2);
 }
 
 .btn-upload:hover {
-  box-shadow: 0 4px 20px rgba(52, 211, 153, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
   transform: translateY(-1px);
 }
 
@@ -1536,7 +1537,7 @@ a.btn-logout:hover {
     margin: 0.5rem 0.75rem;
     background: var(--bg-card-elevated);
     color: var(--accent);
-    border: 1px solid rgba(52, 211, 153, 0.25);
+    border: 1px solid rgba(0, 212, 255, 0.25);
     border-radius: 8px;
     font-size: 0.8rem;
     font-weight: 600;
@@ -2149,9 +2150,9 @@ a.btn-logout:hover {
 }
 
 .admin-msg-success {
-  background: rgba(52, 211, 153, 0.08);
+  background: rgba(0, 212, 255, 0.08);
   color: var(--accent);
-  border: 1px solid rgba(52, 211, 153, 0.25);
+  border: 1px solid rgba(0, 212, 255, 0.25);
 }
 
 .admin-table {
@@ -2220,9 +2221,9 @@ a.btn-logout:hover {
 }
 
 .admin-role-analyst {
-  background: rgba(52, 211, 153, 0.12);
+  background: rgba(0, 212, 255, 0.12);
   color: var(--accent);
-  border: 1px solid rgba(52, 211, 153, 0.25);
+  border: 1px solid rgba(0, 212, 255, 0.25);
 }
 
 /* ---- Activity Feed ---- */
@@ -2293,7 +2294,7 @@ a.btn-logout:hover {
 }
 
 .admin-action-login {
-  background: rgba(52, 211, 153, 0.12);
+  background: rgba(0, 212, 255, 0.12);
   color: var(--accent);
 }
 
@@ -2308,7 +2309,7 @@ a.btn-logout:hover {
 }
 
 .admin-action-create {
-  background: rgba(52, 211, 153, 0.12);
+  background: rgba(0, 212, 255, 0.12);
   color: var(--accent);
 }
 
@@ -2328,7 +2329,7 @@ a.btn-logout:hover {
 }
 
 .admin-action-search {
-  background: rgba(212, 168, 83, 0.10);
+  background: rgba(255, 42, 109, 0.10);
   color: var(--gold);
 }
 
