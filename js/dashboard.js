@@ -105,7 +105,7 @@
     "western sahara": "western sahara"
   };
 
-  function countryPoint(nationality) {
+  function countryKey(nationality) {
     if (nationality == null) return null;
     var s = String(nationality).trim().toLowerCase();
     if (!s) return null;
@@ -123,6 +123,11 @@
         }
       }
     }
+    return key || null;
+  }
+
+  function countryPoint(nationality) {
+    var key = countryKey(nationality);
     return key ? COUNTRY_POINTS[key] : null;
   }
 
@@ -211,17 +216,34 @@
 
   // ---- Populate country filter dropdown ----
   (function populateCountryFilter() {
-    var nationalities = [];
+    var groups = {};
+    var order = [];
     REPORTS.forEach(function (r) {
-      if (r.nationality && nationalities.indexOf(r.nationality) === -1) {
-        nationalities.push(r.nationality);
+      if (!r.nationality) return;
+      var key = countryKey(r.nationality);
+      var id = key || r.nationality.toLowerCase();
+      if (!groups[id]) {
+        groups[id] = { key: key, labels: [] };
+        order.push(id);
       }
+      if (groups[id].labels.indexOf(r.nationality) === -1) groups[id].labels.push(r.nationality);
     });
-    nationalities.sort();
-    nationalities.forEach(function (n) {
+    var options = order.map(function (id) {
+      var group = groups[id];
+      if (group.labels.length === 1) {
+        return { value: group.labels[0], label: group.labels[0] };
+      }
+      var preferred = group.labels.filter(function (label) {
+        return label.toLowerCase() === group.key;
+      })[0];
+      var label = preferred || group.key.charAt(0).toUpperCase() + group.key.slice(1);
+      return { value: group.key, label: label };
+    });
+    options.sort(function (a, b) { return a.label.localeCompare(b.label); });
+    options.forEach(function (item) {
       var opt = document.createElement("option");
-      opt.value = n;
-      opt.textContent = n;
+      opt.value = item.value;
+      opt.textContent = item.label;
       countryFilter.appendChild(opt);
     });
   })();
@@ -508,7 +530,7 @@
 
     const filtered = REPORTS.filter((r) => {
       if (!currentUserIsAdmin && r.classification === "top-secret") return false;
-      if (countryVal && r.nationality.toLowerCase() !== countryVal) return false;
+      if (countryVal && (r.nationality || "").toLowerCase() !== countryVal && countryKey(r.nationality) !== countryVal) return false;
       if (!query) return true;
       return (
         r.passportNumber.toLowerCase().includes(query) ||
