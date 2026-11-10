@@ -16,6 +16,12 @@
   var markers = [];
   var onSelect = null;
   var HIT_RADIUS = 16;
+  var dragging = false;
+  var dragMoved = false;
+  var dragX = 0;
+  var dragY = 0;
+  var activePointer = null;
+  var TILT_LIMIT = 1.15;
 
   var earthImg = new Image();
   var earthPixels = null;
@@ -237,9 +243,24 @@
   }
 
   function animate(time) {
-    rotation += 0.0015;
+    if (!dragging) rotation += 0.0015;
     drawGlobe(time);
     requestAnimationFrame(animate);
+  }
+
+  function onDisc(pt) {
+    var x = (pt.x - CX) / R;
+    var y = (CY - pt.y) / R;
+    return x * x + y * y <= 1;
+  }
+
+  function endDrag(ev) {
+    if (!dragging || ev.pointerId !== activePointer) return;
+    dragging = false;
+    activePointer = null;
+    if (canvas.releasePointerCapture) {
+      try { canvas.releasePointerCapture(ev.pointerId); } catch (e) { /* already released */ }
+    }
   }
 
   function eventPoint(ev) {
@@ -250,12 +271,58 @@
     };
   }
 
-  canvas.addEventListener("mousemove", function (ev) {
+  canvas.style.touchAction = "none";
+
+  canvas.addEventListener("pointerdown", function (ev) {
+    if (ev.button != null && ev.button !== 0) return;
     var pt = eventPoint(ev);
-    canvas.style.cursor = hitMarkers(pt.x, pt.y).length ? "pointer" : "default";
+    if (!onDisc(pt)) return;
+    dragging = true;
+    dragMoved = false;
+    dragX = ev.clientX;
+    dragY = ev.clientY;
+    activePointer = ev.pointerId;
+    if (canvas.setPointerCapture) canvas.setPointerCapture(ev.pointerId);
+    canvas.style.cursor = "grabbing";
+  });
+
+  canvas.addEventListener("pointermove", function (ev) {
+    if (dragging && ev.pointerId === activePointer) {
+      var dx = ev.clientX - dragX;
+      var dy = ev.clientY - dragY;
+      if (!dragMoved && dx * dx + dy * dy < 25) return;
+      dragMoved = true;
+      var rect = canvas.getBoundingClientRect();
+      var scaleX = SIZE / (rect.width || SIZE);
+      var scaleY = SIZE / (rect.height || SIZE);
+      rotation += dx * scaleX / R;
+      tilt += dy * scaleY / R;
+      if (tilt > TILT_LIMIT) tilt = TILT_LIMIT;
+      if (tilt < -TILT_LIMIT) tilt = -TILT_LIMIT;
+      dragX = ev.clientX;
+      dragY = ev.clientY;
+      canvas.style.cursor = "grabbing";
+      return;
+    }
+    var pt = eventPoint(ev);
+    if (hitMarkers(pt.x, pt.y).length) canvas.style.cursor = "pointer";
+    else if (onDisc(pt)) canvas.style.cursor = "grab";
+    else canvas.style.cursor = "default";
+  });
+
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", function (ev) {
+    endDrag(ev);
+    dragMoved = false;
   });
 
   canvas.addEventListener("click", function (ev) {
+    if (dragMoved) {
+      dragMoved = false;
+      ev.stopPropagation();
+      ev.preventDefault();
+      return;
+    }
     var pt = eventPoint(ev);
     var ids = hitMarkers(pt.x, pt.y);
     if (!onSelect) return;
