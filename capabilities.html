@@ -338,6 +338,11 @@
     text-shadow: 0 0 20px var(--emerald-glow);
   }
 
+  .stat-number-word {
+    font-size: 26px;
+    letter-spacing: 0;
+  }
+
   .stat-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
@@ -832,6 +837,7 @@
   }
   a.cap-nav-logout { text-decoration: none; display: inline-block; }
   a.cap-nav-logout:hover { color: #34d399; border-color: #34d399; }
+  .cap-nav [hidden] { display: none !important; }
 
   @media (max-width: 768px) {
     .cap-nav {
@@ -1202,6 +1208,19 @@
     padding: 8px 12px;
   }
 
+  .brief-jump {
+    flex: 0 0 auto;
+    align-self: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--emerald-400);
+    padding: 10px 4px;
+    white-space: nowrap;
+  }
+
   .brief-tabs::-webkit-scrollbar { display: none; }
 
   .brief-tab {
@@ -1237,6 +1256,7 @@
       padding: 10px 12px;
       letter-spacing: 0.04em;
     }
+    .stat-number-word { font-size: 20px; }
     .map-container { height: 400px; }
   }
 </style>
@@ -1249,18 +1269,19 @@
     <span style="font-weight:700;font-size:1rem;letter-spacing:0.08em;color:#eaf0f9;">INTEL PORTAL</span>
   </div>
   <div class="cap-nav-tabs">
-    <a href="dashboard.html" class="cap-tab">Intel Reports</a>
+    <a href="dashboard.html" class="cap-tab">Reports</a>
     <a href="capabilities.html" class="cap-tab cap-tab-active">TGI Capabilities</a>
   </div>
   <div class="cap-nav-right">
     <span id="user-display" class="cap-nav-user"></span>
-    <a href="index.html" class="cap-nav-logout">Sign in</a>
-    <button id="logout-btn" class="cap-nav-logout">Logout</button>
+    <a href="index.html" class="cap-nav-logout" id="signin-link">Sign in</a>
+    <button id="logout-btn" class="cap-nav-logout" hidden>Logout</button>
   </div>
 </nav>
 
 <div class="brief-tabs-wrap">
-  <div class="brief-tabs" role="tablist" aria-label="Partnership brief">
+  <div class="brief-tabs" role="tablist" aria-label="Jump to a section">
+    <span class="brief-jump" aria-hidden="true">Jump to</span>
     <button type="button" class="brief-tab" role="tab" id="tab-overview" data-tab="overview" aria-controls="panel-overview" aria-selected="true">Overview</button>
     <button type="button" class="brief-tab" role="tab" id="tab-collection" data-tab="collection" aria-controls="panel-record" aria-selected="false" tabindex="-1">Collection</button>
     <button type="button" class="brief-tab" role="tab" id="tab-threats" data-tab="threats" aria-controls="panel-sia" aria-selected="false" tabindex="-1">Threats</button>
@@ -1412,7 +1433,7 @@
         <div class="stat-label">Telegram Channels Monitored</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">1000s</div>
+        <div class="stat-number stat-number-word">Millions</div>
         <div class="stat-label">BT/WiFi Networks Mapped</div>
       </div>
       <div class="stat-card">
@@ -2267,7 +2288,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/activity.js?v=3"></script>
-<script src="js/auth.js?v=8"></script>
+<script src="js/auth.js?v=9"></script>
 <script>
   requireDetailedAccess().then(function (user) {
     if (!user) return;

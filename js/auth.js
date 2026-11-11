@@ -119,17 +119,21 @@ function requireAuth() {
           fbDb.collection("users").doc(user.uid).get().then(function (doc) {
             var data = doc.exists ? doc.data() : {};
             setSession(accountName(data, user.email), data.role || "analyst");
+            syncAuthChrome();
             resolve(user);
           }).catch(function () {
             setSession(accountName(null, user.email), "analyst");
+            syncAuthChrome();
             resolve(user);
           });
         } else {
+          syncAuthChrome();
           resolve(user);
         }
       } else {
         // Not signed in — redirect to login (unless already on login page)
         clearSession();
+        syncAuthChrome();
         var path = window.location.pathname;
         var isLoginPage = path.endsWith("index.html") || path.endsWith("/") || path === "/";
         if (!isLoginPage) {
@@ -734,3 +738,13 @@ if (logoutBtn) {
     });
   });
 }
+
+function syncAuthChrome() {
+  var signIn = document.getElementById("signin-link");
+  var logout = document.getElementById("logout-btn");
+  var signedIn = !!getSession();
+  if (signIn) signIn.hidden = signedIn;
+  if (logout) logout.hidden = !signedIn;
+}
+
+syncAuthChrome();
