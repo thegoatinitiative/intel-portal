@@ -316,23 +316,12 @@ function confirmMember(user) {
 }
 
 /**
- * requireDetailedAccess — staff accounts and already-approved accounts continue.
- * An admin-panel user with role admin or analyst is already staff.
- * A new public account with no role waits until The GOAT Initiative approves it.
+ * requireDetailedAccess — any account that has created a login continues.
+ * Admin tools stay behind the Firestore admin role. That role is separate.
  * Returns the Firebase user, or null when the page should stop.
  */
 function requireDetailedAccess() {
-  return requireAuth().then(function (user) {
-    if (!user) return null;
-    return confirmMember(user).then(function (member) {
-      if (member) return user;
-      return fetchAccessStatus(user).then(function (status) {
-        if (status === "approved") return user;
-        showAccessWall(status === "pending" ? "pending" : status === "error" ? "error" : "denied");
-        return null;
-      });
-    });
-  });
+  return requireAuth();
 }
 
 /**

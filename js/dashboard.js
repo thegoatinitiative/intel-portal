@@ -144,7 +144,6 @@
     (ids || []).forEach(function (id) {
       var report = REPORTS.find(function (r) { return r.id === id; });
       if (!report) return;
-      if (!currentUserIsAdmin && report.classification === "top-secret") return;
       reports.push(report);
     });
     if (!reports.length) return;
@@ -191,7 +190,6 @@
     closeGlobeChoices();
     var list = [];
     REPORTS.forEach(function (r) {
-      if (!currentUserIsAdmin && r.classification === "top-secret") return;
       var pt = countryPoint(r.nationality);
       if (!pt || !r.id) return;
       list.push({ id: r.id, lat: pt[0], lng: pt[1] });
@@ -529,7 +527,6 @@
     reportListEl.replaceChildren();
 
     const filtered = REPORTS.filter((r) => {
-      if (!currentUserIsAdmin && r.classification === "top-secret") return false;
       if (countryVal && (r.nationality || "").toLowerCase() !== countryVal && countryKey(r.nationality) !== countryVal) return false;
       if (!query) return true;
       return (
@@ -565,7 +562,6 @@
   async function openReport(id) {
     const reportMeta = REPORTS.find((r) => r.id === id);
     if (!reportMeta) return;
-    if (!currentUserIsAdmin && reportMeta.classification === "top-secret") return;
 
     activeReportId = id;
     ActivityLog.log("report_view", { reportId: id, subject: reportMeta.subjectName });
@@ -1601,7 +1597,7 @@
   }
 
   // ---- Init ----
-  // Wait for admin check so top-secret filtering is applied on first render
+  // Wait for the admin check so New Report is hidden until the role is known
   await adminReady;
   renderReportList("", "");
   updateThreatLevel();
