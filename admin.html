@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Intel Portal — Admin</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=40">
 </head>
 <body class="dashboard-body">
   <nav class="topbar">
@@ -65,10 +65,15 @@
         </form>
       </div>
 
+      <div class="admin-user-search">
+        <label for="user-search">Find a user</label>
+        <input type="search" id="user-search" placeholder="Name or username" autocomplete="off">
+      </div>
+
       <table class="admin-table" id="users-table">
         <thead>
           <tr>
-            <th>Username</th>
+            <th>User</th>
             <th>Name</th>
             <th>Role</th>
             <th>Created</th>
@@ -137,7 +142,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/activity.js?v=3"></script>
-  <script src="js/auth.js?v=9"></script>
-  <script src="js/admin.js?v=5"></script>
+  <script src="js/auth.js?v=10"></script>
+  <script src="js/admin.js?v=6"></script>
 </body>
 </html>

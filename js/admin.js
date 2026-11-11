@@ -33,6 +33,7 @@
   var createUserMsg = document.getElementById("create-user-msg");
   var usersTbody = document.getElementById("users-tbody");
   var filterUserSelect = document.getElementById("filter-user");
+  var userSearch = document.getElementById("user-search");
 
   addUserBtn.addEventListener("click", function () {
     addUserForm.hidden = false;
@@ -66,9 +67,37 @@
     tbody.appendChild(tr);
   }
 
-  // Load users from Firestore
-  function loadUsers() {
-    fbDb.collection("users").orderBy("createdAt", "desc").get().then(function (snap) {
+  function applyUserSearch() {
+    var query = userSearch ? userSearch.value.trim().toLowerCase() : "";
+    var rows = usersTbody.querySelectorAll("tr[data-user]");
+    var shown = 0;
+    rows.forEach(function (tr) {
+      var hay = tr.getAttribute("data-user") || "";
+      var match = !query || hay.indexOf(query) !== -1;
+      tr.hidden = !match;
+      if (match) shown += 1;
+    });
+    var empty = document.getElementById("user-search-empty");
+    if (!query || shown > 0) {
+      if (empty) empty.remove();
+      return;
+    }
+    if (!empty) {
+      empty = document.createElement("tr");
+      empty.id = "user-search-empty";
+      var td = document.createElement("td");
+      td.colSpan = 5;
+      td.style.textAlign = "center";
+      td.style.color = "var(--text-muted)";
+      td.textContent = "No users match that search.";
+      empty.appendChild(td);
+      usersTbody.appendChild(empty);
+    }
+  }
+
+  if (userSearch) userSearch.addEventListener("input", applyUserSearch);
+
+  function renderUsers(snap) {
       clearTable(usersTbody);
 
       // Reset filter dropdown
@@ -82,10 +111,19 @@
       snap.forEach(function (doc) {
         var d = doc.data();
         var tr = document.createElement("tr");
+        var username = d.username || "";
+        var displayName = d.displayName || "";
+        tr.setAttribute("data-user", (displayName + " " + username).toLowerCase());
 
         var tdUser = document.createElement("td");
-        tdUser.textContent = d.username || "\u2014";
-        tdUser.style.fontFamily = "var(--font-mono)";
+        var nameLine = document.createElement("div");
+        nameLine.className = "admin-user-name";
+        nameLine.textContent = displayName || username || "\u2014";
+        var loginLine = document.createElement("div");
+        loginLine.className = "admin-user-login";
+        loginLine.textContent = username || "\u2014";
+        tdUser.appendChild(nameLine);
+        if (displayName) tdUser.appendChild(loginLine);
 
         // Editable display name cell
         var tdName = document.createElement("td");
@@ -114,6 +152,10 @@
             var newName = input.value.trim();
             fbDb.collection("users").doc(doc.id).update({ displayName: newName }).then(function () {
               nameSpan.textContent = newName || "\u2014";
+              nameLine.textContent = newName || username || "\u2014";
+              if (newName && !loginLine.parentNode) tdUser.appendChild(loginLine);
+              if (!newName && loginLine.parentNode) loginLine.remove();
+              tr.setAttribute("data-user", ((newName || "") + " " + username).toLowerCase());
               d.displayName = newName;
               tdName.replaceChild(nameWrap, input);
             }).catch(function (err) {
@@ -165,9 +207,18 @@
 
         // Add to filter dropdown
         var opt = document.createElement("option");
-        opt.value = d.username;
-        opt.textContent = d.username;
+        opt.value = username;
+        opt.textContent = displayName ? displayName + " (" + username + ")" : username || "\u2014";
         filterUserSelect.appendChild(opt);
+      });
+      applyUserSearch();
+  }
+
+  // Load users from Firestore. A failed date sort still shows the full list.
+  function loadUsers() {
+    fbDb.collection("users").orderBy("createdAt", "desc").get().then(renderUsers).catch(function () {
+      fbDb.collection("users").get().then(renderUsers).catch(function () {
+        setEmptyRow(usersTbody, "Users could not be loaded.");
       });
     });
   }

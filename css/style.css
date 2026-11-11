@@ -2128,6 +2128,43 @@ a.btn-logout:hover {
   background: var(--bg-card);
 }
 
+.admin-user-search {
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-user-search label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.admin-user-search input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  background: var(--surface-2, var(--bg-card));
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.admin-user-name {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.admin-user-login {
+  margin-top: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
 .admin-form-row {
   display: grid;
   grid-template-columns: 1fr 1fr 0.7fr auto;

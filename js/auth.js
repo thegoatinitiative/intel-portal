@@ -305,16 +305,27 @@ function confirmAdmin(user) {
   });
 }
 
+function confirmMember(user) {
+  return fbDb.collection("users").doc(user.uid).get().then(function (doc) {
+    if (!doc.exists) return false;
+    var role = doc.data().role;
+    return role === "admin" || role === "analyst";
+  }).catch(function () {
+    return false;
+  });
+}
+
 /**
- * requireDetailedAccess — signed-in admins and already-approved accounts continue.
- * A new public account waits until The GOAT Initiative approves it.
+ * requireDetailedAccess — staff accounts and already-approved accounts continue.
+ * An admin-panel user with role admin or analyst is already staff.
+ * A new public account with no role waits until The GOAT Initiative approves it.
  * Returns the Firebase user, or null when the page should stop.
  */
 function requireDetailedAccess() {
   return requireAuth().then(function (user) {
     if (!user) return null;
-    return confirmAdmin(user).then(function (admin) {
-      if (admin) return user;
+    return confirmMember(user).then(function (member) {
+      if (member) return user;
       return fetchAccessStatus(user).then(function (status) {
         if (status === "approved") return user;
         showAccessWall(status === "pending" ? "pending" : status === "error" ? "error" : "denied");
