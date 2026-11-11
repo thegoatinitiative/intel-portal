@@ -248,6 +248,14 @@
 
   // ---- Helpers ----
 
+  function escapeHtml(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   function setSafeHTML(el, html) {
     if (typeof DOMPurify !== "undefined") {
       el.innerHTML = DOMPurify.sanitize(html);
@@ -867,9 +875,9 @@
         L.marker([report.lat, report.lng])
           .addTo(map)
           .bindPopup(
-            "<strong>" + (report.locationName || "Recovery Site") + "</strong><br>" +
+            "<strong>" + escapeHtml(report.locationName || "Recovery Site") + "</strong><br>" +
             report.lat.toFixed(6) + ", " + report.lng.toFixed(6) +
-            (report.subjectName ? "<br>Subject: " + report.subjectName : "")
+            (report.subjectName ? "<br>Subject: " + escapeHtml(report.subjectName) : "")
           )
           .openPopup();
         } catch (e) { console.error("Map init error:", e); }
