@@ -56,8 +56,9 @@
   let editingReportId = null; // null = creating new, string = editing existing
 
   // ---- Load reports from Firestore (with timeout to prevent hang) ----
+  let reportLoadError = "";
   try {
-    const dbTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("DB timeout")), 3000));
+    const dbTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("DB timeout")), 8000));
     const saved = await Promise.race([StorageDB.getAllReports(), dbTimeout]);
     if (saved && saved.length > 0) {
       REPORTS.length = 0;
@@ -65,6 +66,7 @@
       console.log("Loaded " + saved.length + " report(s) from storage.");
     }
   } catch (e) {
+    reportLoadError = e && e.code === "permission-denied" ? "closed" : "failed";
     console.error("Failed to load from Firestore:", e);
   }
 
@@ -549,7 +551,11 @@
     if (filtered.length === 0) {
       const empty = document.createElement("li");
       empty.style.cssText = "padding:2rem;color:var(--text-muted);text-align:center;font-size:0.85rem;";
-      empty.textContent = "No reports match your search.";
+      empty.textContent = reportLoadError === "closed"
+        ? "This account cannot open the reports yet."
+        : reportLoadError === "failed"
+          ? "The report list did not load. Refresh the page."
+          : "No reports match your search.";
       reportListEl.appendChild(empty);
       return;
     }
