@@ -48,6 +48,30 @@ function accountName(data, email) {
   return fromDoc;
 }
 
+// New logins are analysts. An existing admin or analyst role is left alone.
+function ensureAnalyst(user, username) {
+  if (!user) return Promise.resolve(false);
+  var sessionName = "";
+  var session = getSession();
+  if (session && typeof session.username === "string") sessionName = session.username.trim().toLowerCase();
+  var name = String(username || sessionName || accountName(null, user.email) || "").trim().toLowerCase();
+  if (!/^[a-z0-9][a-z0-9._-]{1,31}$/.test(name)) return Promise.resolve(false);
+  var ref = fbDb.collection("users").doc(user.uid);
+  return ref.get().then(function (doc) {
+    if (doc.exists) {
+      var role = doc.data() && doc.data().role;
+      if (role === "admin" || role === "analyst") return true;
+      return false;
+    }
+    return ref.set({
+      username: name,
+      role: "analyst",
+      mustChangePassword: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    }).then(function () { return true; });
+  }).catch(function () { return false; });
+}
+
 function lookupAuthEmail(username) {
   var fallback = username + EMAIL_DOMAIN;
   var controller = typeof AbortController === "function" ? new AbortController() : null;
@@ -118,17 +142,21 @@ function requireAuth() {
         if (!existing) {
           fbDb.collection("users").doc(user.uid).get().then(function (doc) {
             var data = doc.exists ? doc.data() : {};
-            setSession(accountName(data, user.email), data.role || "analyst");
-            syncAuthChrome();
-            resolve(user);
+            var name = accountName(data, user.email);
+            setSession(name, data.role || "analyst");
+            return ensureAnalyst(user, name);
           }).catch(function () {
             setSession(accountName(null, user.email), "analyst");
+            return ensureAnalyst(user);
+          }).then(function () {
             syncAuthChrome();
             resolve(user);
           });
         } else {
-          syncAuthChrome();
-          resolve(user);
+          ensureAnalyst(user).then(function () {
+            syncAuthChrome();
+            resolve(user);
+          });
         }
       } else {
         // Not signed in — redirect to login (unless already on login page)
@@ -502,12 +530,7 @@ if (setupForm && setupToken) {
         setSession(username, "analyst");
         setupToken = "";
         try { sessionStorage.removeItem(SETUP_KEY); } catch (err) {}
-        return fbDb.collection("users").doc(cred.user.uid).set({
-          username: username,
-          role: "analyst",
-          mustChangePassword: false,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        }, { merge: true }).catch(function () {});
+        return ensureAnalyst(cred.user, username);
       }).then(function () {
         window.location.href = "dashboard.html";
       });
@@ -687,12 +710,7 @@ if (resetForm && recoverToken) {
             setSession(username, "analyst");
             recoverToken = "";
             try { sessionStorage.removeItem(RECOVER_KEY); } catch (ignore) {}
-            return fbDb.collection("users").doc(cred.user.uid).set({
-              username: username,
-              role: "analyst",
-              mustChangePassword: false,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            }, { merge: true }).catch(function () {});
+            return ensureAnalyst(cred.user, username);
           });
         });
       });
